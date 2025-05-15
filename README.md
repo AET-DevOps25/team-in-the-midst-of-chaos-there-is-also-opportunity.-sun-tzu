@@ -25,4 +25,18 @@ off")
 1. Press play and listen, e.g. while cleaning the house
 2. get together with friends to listen to your favorite selection of songs
 
+# UML diagrams
+
+## Analysis object model
+
+![object model](./documentation/UML%20diagrams/analysis_object.svg)
+
+## Use case diagram
+
+![use cases](./documentation/UML%20diagrams/use_case.svg)
+
+## Component diagram of architecture
+
+![component architecture](./documentation/UML%20diagrams/components.svg)
+
 # Weekly Syncs
