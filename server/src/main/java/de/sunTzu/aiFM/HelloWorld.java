@@ -1,0 +1,12 @@
+package de.sunTzu.aiFM;
+
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+public class HelloWorld {
+    @GetMapping(value = "/greet", produces = "text/plain")
+    public String sayHello() {
+        return "Hello World!";
+    }
+}
