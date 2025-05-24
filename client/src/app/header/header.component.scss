@@ -1,4 +1,21 @@
-.example-spacer {
-    flex: 1 1 auto;
-  }
-  
+@use '@angular/material' as mat;
+
+
+:host {
+  @include mat.toolbar-overrides((
+    container-background-color: orange,
+    container-text-color: red,
+  ));
+}
+
+mat-toolbar {
+  box-shadow: var(--mat-sys-level2);
+}
+
+.title {
+  padding-left: 20px;
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
