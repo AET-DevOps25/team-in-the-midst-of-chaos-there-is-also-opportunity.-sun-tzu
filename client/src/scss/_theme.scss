@@ -1,0 +1,23 @@
+/* See https://material.angular.dev/guide/theming */
+
+@use '@angular/material' as mat;
+
+
+html {
+  color-scheme: light;
+  @include mat.theme((
+    // color: mat.$orange-palette,
+    color: (
+        theme-type: color-scheme,
+        primary: mat.$cyan-palette,
+        tertiary: mat.$orange-palette
+    ),
+    typography: Roboto,
+    density: 0
+  ));
+}
+
+body {
+  background: var(--mat-sys-surface);
+  color: var(--mat-sys-on-surface);
+}
