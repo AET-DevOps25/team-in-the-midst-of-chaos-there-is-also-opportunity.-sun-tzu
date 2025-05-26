@@ -1,0 +1,13 @@
+# genai_service/requirements.txt
+
+# Für LangChain und OpenAI-Modelle
+langchain
+langchain-openai
+openai # Für direkten Zugriff auf TTS
+
+# Für das Laden von Umgebungsvariablen aus .env-Dateien (lokale Entwicklung)
+python-dotenv
+
+# Für das Erstellen der REST-API
+fastapi
+uvicorn[standard] # ASGI-Server für FastAPI, [standard] enthält empfohlene Extras
