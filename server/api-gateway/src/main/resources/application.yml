@@ -1,0 +1,45 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+
+  cloud:
+    gateway:
+      routes:
+        - id: streamservice
+          uri: http://stream:8080
+          predicates:
+            - Path=/api/stream/**
+          filters:
+            - RewritePath=/api/stream/(?<segment>.*), /${segment}
+        - id: stream-docs
+          uri: http://stream:8080
+          predicates:
+            - Path=/api/stream/v3/api-docs
+          filters:
+            - RewritePath=/api/stream/v3/api-docs, /v3/api-docs
+
+        - id: playlistservice
+          uri: http://playlist:8080
+          predicates:
+            - Path=/api/playlist/**
+          filters:
+            - RewritePath=/api/playlist/(?<segment>.*), /${segment}
+        - id: playlist-docs
+          uri: http://playlist:8080
+          predicates:
+            - Path=/api/playlist/v3/api-docs
+          filters:
+            - RewritePath=/api/playlist/v3/api-docs, /v3/api-docs
+
+springdoc:
+  swagger-ui:
+    urls:
+      - name: stream
+        url: /api/stream/v3/api-docs
+      - name: playlist
+        url: /api/playlist/v3/api-docs
+  api-docs:
+    enabled: true
