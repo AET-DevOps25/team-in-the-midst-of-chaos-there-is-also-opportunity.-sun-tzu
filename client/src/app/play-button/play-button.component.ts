@@ -3,6 +3,7 @@ import { MatIconModule } from '@angular/material/icon';
 import {MatButtonModule} from '@angular/material/button';
 import { PlayService } from '../play.service';
 import { inject } from '@angular/core';
+import { ApiService } from '../api.service';
 
 @Component({
   selector: 'app-play-button',
@@ -12,6 +13,8 @@ import { inject } from '@angular/core';
 })
 export class PlayButtonComponent {
   playService = inject(PlayService)
+  apiService = inject(ApiService)
+  currentMessage: string = ""
 
   icon: Signal<string> = computed(() => {
     if (this.playService.isPlaying())
@@ -21,6 +24,9 @@ export class PlayButtonComponent {
 
   togglePlay() {
     this.playService.isPlaying.update(value => !value)
+    this.apiService.dummyRoute().subscribe(
+      data => this.currentMessage = data
+    )
   }
 
 }
