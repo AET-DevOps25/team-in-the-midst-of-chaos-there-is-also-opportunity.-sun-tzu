@@ -1,0 +1,39 @@
+@use '@angular/material' as mat;
+
+:host {
+  display: block;
+  width: 100px;
+  height: 100px;
+  @include mat.fab-overrides((
+      container-shape: 100px,
+  ));
+}
+
+button {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+mat-icon {
+  $size: 70px;
+
+  font-size: $size;
+  line-height: 1;
+  width: $size;
+  height: $size;
+}
+
+
+// animation
+mat-icon {
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  display: inline-block;
+
+  // animate on change
+  &.playing {
+    transform: rotate(180deg) scale(1);
+  }
+}
