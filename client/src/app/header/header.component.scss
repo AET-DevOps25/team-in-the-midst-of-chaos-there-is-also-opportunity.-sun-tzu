@@ -1,0 +1,21 @@
+@use '@angular/material' as mat;
+
+
+:host {
+  @include mat.toolbar-overrides((
+    container-background-color: var(--mat-sys-surface-container-high),
+    container-text-color: var(--mat-sys-on-surface-container-high),
+  ));
+}
+
+mat-toolbar {
+  box-shadow: var(--mat-sys-level2);
+}
+
+.title {
+  padding-left: 20px;
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
