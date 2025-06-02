@@ -1,0 +1,31 @@
+services:
+  client:
+    image: client:local
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - 8080:80
+
+  # server:
+  #   image: server:local
+  #   build:
+  #     context: .
+  #     dockerfile: ./server/Dockerfile
+  #   restart: unless-stopped
+  #   ports:
+  #     - 3000:3000
+    # depends_on:
+    #   - db
+    # environment:
+    #   - MONGODB_URI=mongodb://mongodb:27017/webmanager # MongoDB connection string
+
+  # db:
+  #   image: mongo:latest
+  #   restart: unless-stopped
+  #   volumes:
+  #     - data:/data/db
+
+# volumes:
+#   data:

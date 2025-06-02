@@ -3,8 +3,8 @@
 
 :host {
   @include mat.toolbar-overrides((
-    container-background-color: orange,
-    container-text-color: red,
+    container-background-color: var(--mat-sys-surface-container-high),
+    container-text-color: var(--mat-sys-on-surface-container-high),
   ));
 }
 
