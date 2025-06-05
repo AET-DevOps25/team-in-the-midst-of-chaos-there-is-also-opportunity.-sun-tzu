@@ -16,19 +16,24 @@ Er ist als modularer Microservice konzipiert, der über eine REST-API mit dem Ha
 Hier ist eine Erläuterung der wichtigsten Dateien und Verzeichnisse innerhalb dieses `genai_service`:
 Use code with caution.
 Markdown
-genai_service/
-├── .env.example # Beispiel für Umgebungsvariablen (NICHT für Secrets im Repo!)
-├── Dockerfile # Anweisungen zum Bauen des Docker-Images für diesen Service
-├── main.py # Haupteinstiegspunkt des Services (API-Definition mit FastAPI/Flask)
-├── requirements.txt # Liste der Python-Abhängigkeiten
-├── chains/ # Modul für LangChain "Chains"
-│ └── transition_chain.py # Beispiel: Kette zur Generierung von Übergängen
-├── prompts/ # Modul für LangChain PromptTemplates
-│ └── transition_prompt.py# Beispiel: Prompt-Vorlage für Radio-Übergänge
-├── rag_utils/ # Modul für RAG-Funktionalitäten (Vektordatenbank, Retrieval)
-│ └── retriever.py # Beispiel: Logik zum Abrufen von Fun Facts
-└── core/ # (Optional) Kernlogik, TTS-Integration, etc.
-└── tts_handler.py # Beispiel: Wrapper für TTS-Modell-Aufrufe
+
+genai_service \
+├── .env.example          # Beispiel für Umgebungsvariablen (NICHT für Secrets im Repo!) \
+├── Dockerfile            # Anweisungen zum Bauen des Docker-Images für diesen Service \
+├── main.py               # Haupteinstiegspunkt des Services (API-Definition mit FastAPI)  \
+├── requirements.txt      # Liste der Python-Abhängigkeiten \
+├── chains/               # Modul für LangChain "Chains" \
+│   └── transition_chain.py # Beispiel: Kette zur Generierung von Übergängen \
+├── core/                 # (Optional) Kernlogik, TTS-Integration, etc. \
+│   └── tts_handler.py    # Beispiel: Wrapper für TTS-Modell-Aufrufe \
+├── prompts/              # Modul für LangChain PromptTemplates \
+│   └── transition_prompts.py # Beispiel: Prompt-Vorlage für Radio-Übergänge \
+├── rag_utils/            # Modul für RAG-Funktionalitäten (Vektordatenbank, Retrieval) \
+│   └── retriever.py      # Beispiel: Logik zum Abrufen von Fun Facts \
+└── tests/                # Verzeichnis für Unit-Tests \
+    ├── __init__.py       # Macht 'tests' zu einem Python-Paket \
+    ├── test_main.py      # Tests für die API-Endpunkte in main.py \
+    └── test_prompts.py   # Tests für die Prompt-Generierungslogik \
 
 ### `main.py` (oder `app.py`)
 
@@ -120,3 +125,58 @@ Siehe `requirements.txt` für eine vollständige Liste der Python-Abhängigkeite
 *   (Spezifische Bibliotheken für das TTS-Modell, z.B. `openai` für deren TTS)
 *   (Spezifische Bibliotheken für die Vektordatenbank, z.B. `weaviate-client`)
 
+## Testing the GenAI Service
+
+Unit tests for this service are written using `pytest`. The tests are located in the `genai/tests/` directory.
+
+To run the tests:
+
+1.  Ensure you have a Python virtual environment activated with all dependencies from `genai/requirements.txt` installed. This includes `pytest`.
+2.  Navigate to the `genai` directory in your console:
+    ```bash
+    cd path/to/your/project/genai
+    ```
+3.  Run `pytest` from within the `genai` directory:
+    ```bash
+    pytest
+    ```
+
+This setup (running `pytest` from the `genai/` directory) ensures that imports within the tests correctly resolve modules like `main.py` and sub-packages like `prompts/` by treating the `genai/` directory as the root for the test execution context.
+
+## Main Todos / Next Steps
+
+Based on the integration plan, the following are the main next steps for completing the GenAI service:
+
+1.  **Implement LangChain Script Generation Chain (`chains/transition_chain.py`):**
+    * Develop the core logic that takes song information.
+    * Use the dynamic prompt templates from `prompts/transition_prompts.py`.
+    * Invoke the LLM (e.g., GPT-4o-mini via `langchain-openai`) to generate the actual transition/introduction script text.
+    * Integrate this chain into the `main.py` API endpoint (`/generate_audio_transition`) to produce the script.
+
+2.  **Integrate Text-to-Speech (TTS) Conversion (`core/tts_handler.py`):**
+    * Develop the `tts_handler.py` module.
+    * This module will contain functions to take the generated text script as input.
+    * Interface with the OpenAI TTS API (using the `openai` Python library) to convert the text to an audio stream/file (e.g., MP3).
+    * Update the `main.py` endpoint to call this TTS handler after script generation.
+    * The API should then return the audio data directly (e.g., as `audio/mpeg`) or a JSON response with a link to it.
+
+3.  **Refine Configuration and Environment Variables:**
+    * Ensure all necessary API keys (OpenAI LLM, OpenAI TTS) and configurations are managed securely and correctly using environment variables (e.g., loaded from an `.env` file for local development, as per `.env.example`).
+
+4.  **Complete and Test Dockerization (`Dockerfile`):**
+    * Finalize and test the `Dockerfile` to ensure the GenAI service can be reliably built into a runnable Docker image, including all dependencies and the correct startup command for the FastAPI/Uvicorn server.
+
+5.  **(Optional) Implement RAG for "Fun Facts" (`rag_utils/retriever.py`):**
+    * If the "fun facts" integration is pursued:
+        * Prepare the knowledge base for RAG.
+        * Set up a vector database (e.g., FAISS, Weaviate).
+        * Implement the retrieval logic in `rag_utils/retriever.py`.
+        * Integrate this RAG step into the LangChain script generation chain in `chains/transition_chain.py`.
+
+6.  **Comprehensive Testing:**
+    * Expand unit tests for new modules (`chains`, `core`, `rag_utils`).
+    * Implement integration tests for the API endpoint, verifying the end-to-end flow from request to audio response.
+
+7.  **API Documentation:**
+    * Leverage FastAPI's automatic OpenAPI/Swagger UI generation.
+    * Ensure the documentation for the `/generate_audio_transition` endpoint is clear, detailing the request body structure, expected song information (and which fields are optional), and the format of the audio response.
