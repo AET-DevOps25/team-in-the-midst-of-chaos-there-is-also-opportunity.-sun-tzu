@@ -2,29 +2,30 @@
 
 from typing import Dict, Any, Optional
 import logging
-
 from langchain_openai import ChatOpenAI
 from pydantic import BaseModel
+from langchain_core.prompts import ChatPromptTemplate
 
-# Import your prompt functions
 from prompts.transition_prompts import get_introduction_prompt, get_quick_transition_prompt
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 
-# Pydantic model for type hinting within this module
+# --- Pydantic Models ---
+class Song(BaseModel):
+    title: str
+    artist: Optional[str] = None
+
+
 class SongTransitionInfo(BaseModel):
     message_type: int
-    previous_song_title: Optional[str] = None
-    previous_artist_name: Optional[str] = None
-    next_song_title: Optional[str] = None
-    next_artist_name: Optional[str] = None
-    after_next_song_title: Optional[str] = None
-    after_next_artist_name: Optional[str] = None
+    previous_song: Optional[Song] = None
+    next_song: Optional[Song] = None
+    after_next_song: Optional[Song] = None
 
 
+# --- Main Function ---
 def generate_script(
         song_info: SongTransitionInfo,
         app_config: Dict[str, Any],
@@ -32,73 +33,52 @@ def generate_script(
 ) -> Optional[str]:
     """
     Generates a transition script based on the message type and song info.
-
-    Args:
-        song_info: Pydantic model with song and message type details.
-        app_config: Dictionary with application configuration (LLM model, DJ name).
-        openai_api_key: The OpenAI API key.
-
-    Returns:
-        The generated script as a string, or None on failure.
     """
     try:
         llm = ChatOpenAI(
             model_name=app_config.get("llm_model_name", "gpt-4o-mini"),
             openai_api_key=openai_api_key,
-            temperature=0.7
+            temperature=0.7,
+            request_timeout=30
         )
 
-        prompt_template = None
+        prompt_template: Optional[ChatPromptTemplate] = None
 
-        # 1: Introduction
-        if song_info.message_type == 1:
+        # Logic to select the correct prompt template
+        if song_info.message_type == 1 and song_info.next_song:
             logger.info("Generating script for type 1: Introduction")
-            next_song_data = {
-                "title": song_info.next_song_title,
-                "artist": song_info.next_artist_name
-            }
             prompt_template = get_introduction_prompt(
-                next_song_data=next_song_data,
+                next_song_data=song_info.next_song.model_dump(),
                 dj_name=app_config.get("dj_name", "DJ")
             )
-
-        # 2: Quick Transition
-        elif song_info.message_type == 2:
+        elif song_info.message_type == 2 and song_info.previous_song and song_info.next_song:
             logger.info("Generating script for type 2: Quick Transition")
-            previous_song_data = {
-                "title": song_info.previous_song_title,
-                "artist": song_info.previous_artist_name
-            }
-            next_song_data = {
-                "title": song_info.next_song_title,
-                "artist": song_info.next_artist_name
-            }
-            after_next_song_data = {
-                "title": song_info.after_next_song_title,
-                "artist": song_info.after_next_artist_name
-            } if song_info.after_next_song_title else None
-
             prompt_template = get_quick_transition_prompt(
-                previous_song_data=previous_song_data,
-                next_song_data=next_song_data,
-                after_next_song_data=after_next_song_data
+                previous_song_data=song_info.previous_song.model_dump(),
+                next_song_data=song_info.next_song.model_dump(),
+                after_next_song_data=song_info.after_next_song.model_dump() if song_info.after_next_song else None
             )
-
-        # 3: Fun Fact (Placeholder)
         elif song_info.message_type == 3:
             logger.info("Type 3 (Fun Fact) is not yet implemented. Returning placeholder.")
-            # This is where the RAG chain would be called in the future
             return "And now for something completely different, a true classic!"
-
         else:
-            logger.error(f"Invalid message_type: {song_info.message_type}")
+            logger.error(f"Invalid message_type or missing song data for type: {song_info.message_type}")
             return None
 
         if not prompt_template:
             logger.error("Could not determine a prompt template for the given request.")
             return None
 
-        response = llm.invoke(prompt_template)
+        logger.info("About to call the Language Model (LLM)...")
+
+        # ***** THE CORRECTED FIX IS HERE *****
+        # Chain the prompt template directly to the LLM.
+        # LangChain's pipe operator `|` handles the conversion automatically.
+        chain = prompt_template | llm
+        response = chain.invoke({})  # Invoke the chain with an empty dict as variables are already in the prompt
+
+        logger.info("LLM call completed successfully.")
+
         return response.content
 
     except Exception as e:
