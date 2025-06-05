@@ -5,8 +5,8 @@ from typing import Dict, Any
 
 # Build paths relative to this file's location inside src/core/
 _CURRENT_DIR = os.path.dirname(__file__)
-# Go up two levels (from core to src, from src to genai) and then into assets
-ASSETS_DIR = os.path.abspath(os.path.join(_CURRENT_DIR, '..', '..', 'assets'))
+# Go up one level (from core to src) and then into assets
+ASSETS_DIR = os.path.abspath(os.path.join(_CURRENT_DIR, '..', 'assets'))
 
 CONFIG_FILE_PATH = os.path.join(ASSETS_DIR, 'config.json')
 FALLBACK_AUDIO_PATH = os.path.join(ASSETS_DIR, 'fallback_audio.mp3')

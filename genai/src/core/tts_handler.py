@@ -1,13 +1,13 @@
-# genai/core/tts_handler.py
+# genai/src/core/tts_handler.py
 
 import os
 from typing import Optional
 from openai import OpenAI, APIError
 import logging
 
-# Updated imports
-from genai.src.core.config import get_fallback_audio_path
-from genai.src.prompts.tts_prompts import STATESMAN_TTS_INSTRUCTIONS
+# --- Corrected Local Imports ---
+from core.config import get_fallback_audio_path
+from prompts.tts_prompts import STATESMAN_TTS_INSTRUCTIONS
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -15,10 +15,10 @@ logger = logging.getLogger(__name__)
 
 
 def text_to_audio(
-        script_text: str,
-        openai_api_key: str,
-        voice: str = "echo",  # Changed default voice to a common male voice
-        instructions: str = STATESMAN_TTS_INSTRUCTIONS  # Use the new imported instructions
+    script_text: str,
+    openai_api_key: str,
+    voice: str = "echo",
+    instructions: str = STATESMAN_TTS_INSTRUCTIONS
 ) -> Optional[bytes]:
     """
     Converts a text script into audio using OpenAI's TTS API.
@@ -52,7 +52,6 @@ def text_to_audio(
     except Exception as e:
         logger.error(f"An unexpected error occurred in text_to_audio: {e}")
         return None
-
 
 def load_fallback_audio() -> Optional[bytes]:
     """
