@@ -1,60 +1,74 @@
-# test_main.py
+# tests/test_main.py
+import pytest
 from fastapi.testclient import TestClient
-from genai.main import app
+import os
+from unittest.mock import patch, MagicMock
 
-# Initialize the TestClient with your FastAPI app
-client = TestClient(app)
+# Set a dummy API key before any app code is imported
+os.environ['OPENAI_API_KEY'] = 'test-key'
 
-def test_generate_audio_transition_success():
-    """
-    Tests the /generate_audio_transition endpoint with valid input.
-    It checks for a 200 OK status and the expected placeholder response structure.
-    """
-    payload = {
-        "previous_song_title": "Bohemian Rhapsody",
-        "previous_artist_name": "Queen",
-        "next_song_title": "Stairway to Heaven",
-        "next_artist_name": "Led Zeppelin"
-    }
+# Since src is on the pythonpath (from pytest.ini), we can import main directly.
+from main import app
+
+
+@pytest.fixture
+def client():
+    """Create a new TestClient for each test."""
+    return TestClient(app)
+
+
+# The patch targets must now match the new import paths *within main.py*
+@patch('main.load_fallback_audio')
+@patch('main.text_to_audio')
+@patch('main.generate_script')
+@patch('main.load_app_config')
+def test_generate_audio_transition_success(mock_load_config, mock_generate_script, mock_text_to_audio,
+                                           mock_load_fallback, client):
+    # Arrange Mocks
+    mock_load_config.return_value = {"llm_model_name": "mock-model", "dj_name": "Mock DJ"}
+    mock_generate_script.return_value = "This is a test script."
+    mock_text_to_audio.return_value = b"mock_audio_data"
+
+    # Act
+    payload = {"message_type": 1, "next_song_title": "Stairway to Heaven"}
     response = client.post("/generate_audio_transition", json=payload)
 
-    # Assert HTTP status code is 200 (OK)
+    # Assert
     assert response.status_code == 200
+    assert response.content == b"mock_audio_data"
+    mock_generate_script.assert_called_once()
+    mock_text_to_audio.assert_called_once()
+    mock_load_fallback.assert_not_called()
 
-    # Assert the response content
-    response_json = response.json()
-    assert response_json["message"] == "API endpoint is working! Script generation and TTS will be implemented here."
-    assert response_json["received_info"]["previous_song_title"] == "Bohemian Rhapsody"
-    assert response_json["received_info"]["next_artist_name"] == "Led Zeppelin"
 
-def test_generate_audio_transition_invalid_input_missing_field():
-    """
-    Tests the endpoint with a missing field in the payload.
-    FastAPI should return a 422 Unprocessable Entity status.
-    """
-    payload = {
-        "previous_song_title": "Bohemian Rhapsody",
-        # "previous_artist_name": "Queen", # Missing this field
-        "next_song_title": "Stairway to Heaven",
-        "next_artist_name": "Led Zeppelin"
-    }
+@patch('main.load_fallback_audio')
+@patch('main.text_to_audio')
+@patch('main.generate_script')
+@patch('main.load_app_config')
+def test_generate_uses_fallback_if_script_fails(mock_load_config, mock_generate_script, mock_text_to_audio,
+                                                mock_load_fallback, client):
+    # Arrange Mocks
+    mock_load_config.return_value = {}
+    mock_generate_script.return_value = None  # Simulate script generation failure
+    mock_load_fallback.return_value = b"fallback_audio"
+
+    # Act
+    payload = {"message_type": 1, "next_song_title": "A Song"}
     response = client.post("/generate_audio_transition", json=payload)
 
-    # Assert HTTP status code is 422 (Unprocessable Entity)
-    assert response.status_code == 422
+    # Assert
+    assert response.status_code == 200
+    assert response.content == b"fallback_audio"
+    mock_generate_script.assert_called_once()
+    mock_text_to_audio.assert_not_called()
+    mock_load_fallback.assert_called_once()
 
-def test_generate_audio_transition_invalid_input_wrong_type():
-    """
-    Tests the endpoint with a field of the wrong data type.
-    FastAPI should return a 422 Unprocessable Entity status.
-    """
-    payload = {
-        "previous_song_title": "Bohemian Rhapsody",
-        "previous_artist_name": "Queen",
-        "next_song_title": 12345, # Wrong type, should be string
-        "next_artist_name": "Led Zeppelin"
-    }
+
+# ... you can add more tests for other failure cases here ...
+
+def test_invalid_input_missing_field(client):
+    """Tests that FastAPI's validation catches missing required fields."""
+    # message_type is required
+    payload = {"next_song_title": "A Song"}
     response = client.post("/generate_audio_transition", json=payload)
-
-    # Assert HTTP status code is 422 (Unprocessable Entity)
     assert response.status_code == 422

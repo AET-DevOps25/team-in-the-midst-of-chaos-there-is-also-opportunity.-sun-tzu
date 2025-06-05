@@ -1,7 +1,6 @@
 # genai/tests/test_prompts.py
 
-import pytest
-from genai.prompts.transition_prompts import (
+from genai.src.prompts.transition_prompts import (
     build_song_details_string,
     get_introduction_prompt,
     get_quick_transition_prompt,
