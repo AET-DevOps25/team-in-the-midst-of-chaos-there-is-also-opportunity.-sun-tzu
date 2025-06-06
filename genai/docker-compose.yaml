@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  genai:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: genai-service-local
+    container_name: genai_service
+    ports:
+      - "8000:8000"
+    environment:
+      # It's better to pass the API key as an environment variable
+      # In a real CI/CD pipeline, this should be loaded from a secret store.
+      - OPENAI_API_KEY=${OPENAI_API_KEY}d
