@@ -9,6 +9,7 @@ COPY settings.gradle build.gradle gradlew gradle/ ./
 
 # Copy source code
 COPY StreamService ./StreamService
+COPY common ./common
 
 # Build the application
 RUN gradle :StreamService:bootJar --no-daemon
@@ -20,9 +21,10 @@ WORKDIR /app
 
 # Copy the built JAR file from the build stage
 COPY --from=build /app/StreamService/build/libs/*.jar streamService.jar
+COPY --from=build /app/common/build/libs/*.jar common.jar
 
 # Expose the port the app runs on
-EXPOSE 8080
+# EXPOSE 8080
 
 # Command to run the application
 ENTRYPOINT ["java", "-jar", "streamService.jar"]
