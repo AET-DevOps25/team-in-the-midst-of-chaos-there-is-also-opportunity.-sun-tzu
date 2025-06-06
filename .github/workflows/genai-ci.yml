@@ -40,17 +40,25 @@ jobs:
             OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: docker-compose up -d --build
 
+      - name: Show container logs
+        if: always()
+        working-directory: ./genai
+        run: docker-compose logs
+
       - name: Wait for GenAI service to be healthy
         run: |
-          for i in {1..30}; do
+          # Increased timeout to 90 seconds (45 attempts * 2 seconds)
+          for i in {1..45}; do
             if curl -s http://localhost:8000/health | grep -q '"status":"ok"'; then
               echo "GenAI service is up!"
               exit 0
             fi
-            echo "Waiting for GenAI service... ($i/30)"
+            echo "Waiting for GenAI service... ($i/45)"
             sleep 2
           done
           echo "GenAI service did not start in time."
+          # Get logs again on failure
+          docker-compose -f genai/docker-compose.yaml logs
           exit 1
 
       - name: Run Component Test (API test)
