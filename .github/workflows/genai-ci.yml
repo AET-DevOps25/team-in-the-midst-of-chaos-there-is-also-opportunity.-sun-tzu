@@ -24,6 +24,9 @@ jobs:
         with:
           python-version: '3.11'
 
+      - name: Install Docker Compose
+        run: sudo apt-get update && sudo apt-get install -y docker-compose
+
       - name: Install Python dependencies
         run: pip install -r genai/requirements.txt
 
@@ -37,8 +40,18 @@ jobs:
             OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: docker-compose up -d --build
 
-      - name: Wait for services to be healthy
-        run: sleep 10 # Simple wait for the service to start
+      - name: Wait for GenAI service to be healthy
+        run: |
+          for i in {1..30}; do
+            if curl -s http://localhost:8000/health | grep -q '"status":"ok"'; then
+              echo "GenAI service is up!"
+              exit 0
+            fi
+            echo "Waiting for GenAI service... ($i/30)"
+            sleep 2
+          done
+          echo "GenAI service did not start in time."
+          exit 1
 
       - name: Run Component Test (API test)
         working-directory: ./genai
