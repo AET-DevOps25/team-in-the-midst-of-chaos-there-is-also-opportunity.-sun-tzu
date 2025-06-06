@@ -12,4 +12,4 @@ services:
     environment:
       # It's better to pass the API key as an environment variable
       # In a real CI/CD pipeline, this should be loaded from a secret store.
-      - OPENAI_API_KEY=${OPENAI_API_KEY}d
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
