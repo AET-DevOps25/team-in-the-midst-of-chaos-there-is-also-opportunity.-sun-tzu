@@ -1,4 +1,5 @@
 services:
+
   client:
     image: client:local
     build:
@@ -6,26 +7,88 @@ services:
       dockerfile: Dockerfile
     restart: unless-stopped
     ports:
-      - 8080:80
+      - 8081:80
 
-  # server:
-  #   image: server:local
-  #   build:
-  #     context: .
-  #     dockerfile: ./server/Dockerfile
-  #   restart: unless-stopped
-  #   ports:
-  #     - 3000:3000
-    # depends_on:
-    #   - db
-    # environment:
-    #   - MONGODB_URI=mongodb://mongodb:27017/webmanager # MongoDB connection string
+  db:
+    build: ./server/database
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: audioDB
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - audio-files:/shared
+    networks:
+      - app-network
 
-  # db:
-  #   image: mongo:latest
-  #   restart: unless-stopped
-  #   volumes:
-  #     - data:/data/db
+  api-gateway:
+    build:
+      context: ./server
+      dockerfile: api-gateway/Dockerfile
+    ports:
+      - "8080:8080"
+    depends_on:
+      - streamservice
+      - playlistservice
+    networks:
+      - app-network
 
-# volumes:
-#   data:
+  streamservice:
+    build:
+      context: ./server
+      dockerfile: StreamService/Dockerfile
+    image: server-streamservice:latest
+    container_name: stream
+    expose:
+      - "8080"
+#    ports:
+#      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      SPRING_DATABASE_URL: jdbc:mysql://db:3306/audioDB
+      SPRING_DATABASE_USERNAME: root
+      SPRING_DATABASE_PASSWORD: root
+      AUDIO_FILE_PATH: /audio
+      #SERVER_PORT: 8081
+    volumes:
+      - audio-files:/audio
+    networks:
+      - app-network
+
+  playlistservice:
+    build:
+      context: ./server
+      dockerfile: PlaylistService/Dockerfile
+    image: server-playlistservice
+    container_name: playlist
+    expose:
+      - "8080"
+    networks:
+      - app-network
+#    environment:
+#      SERVER_PORT: 8082
+#    ports:
+#      - "8081:8080"
+
+#  announcementservice:
+#    build:
+#      context: ./server
+#      dockerfile: AnnouncementService/Dockerfile
+#    image: server-announcementservice
+#    ports:
+#      - "8082:8080"
+
+volumes:
+  mysql_data:
+  audio-files:
+
+networks:
+  app-network:
