@@ -1,23 +1,18 @@
-# genai_service/Dockerfile
-FROM python:3.12-slim
+# Use an official Python runtime as a parent image
+FROM python:3.11-slim
 
+# Set the working directory in the container
 WORKDIR /app
 
-#laden der Requirements
-COPY requirements.txt ./
-
-# 4. Installiere die Python-Abhängigkeiten.
-RUN pip install --no-cache-dir --upgrade pip
+# Copy the requirements file and install dependencies
+COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# 5. Kopiere den gesamten restlichen Quellcode deiner Anwendung in das Arbeitsverzeichnis.
-COPY . .
+# Copy the *contents* of the local src directory directly into /app
+COPY src/ .
 
-# 6. Definiere Umgebungsvariablen
-ENV PORT=8000
+# Expose the port the app runs on
+EXPOSE 8000
 
-# 7. Exponiere den Port, auf dem deine Anwendung im Container lauschen wird.
-EXPOSE ${PORT}
-
-# 8. Der Befehl, der ausgeführt wird, wenn ein Container aus diesem Image gestartet wird. (Die RestAPI über FastAPI)
+# Command to run the application using uvicorn
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]

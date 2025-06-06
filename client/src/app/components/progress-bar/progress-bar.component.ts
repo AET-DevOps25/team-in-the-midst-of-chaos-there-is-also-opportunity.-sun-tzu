@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import {MatProgressBarModule, ProgressBarMode} from '@angular/material/progress-bar';
-import { PlayService } from '../play.service';
 import { Signal, signal, computed } from '@angular/core';
+import { PlayService } from '../../services';
 
 @Component({
   selector: 'app-progress-bar',

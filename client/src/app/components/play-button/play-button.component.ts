@@ -1,9 +1,9 @@
 import { Component, computed, Signal } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import {MatButtonModule} from '@angular/material/button';
-import { PlayService } from '../play.service';
+import { PlayService } from '../../services/play.service';
 import { inject } from '@angular/core';
-import { ApiService } from '../api.service';
+import { ApiService } from '../../services/api.service';
 
 @Component({
   selector: 'app-play-button',
@@ -24,9 +24,13 @@ export class PlayButtonComponent {
 
   togglePlay() {
     this.playService.isPlaying.update(value => !value)
-    this.apiService.dummyRoute().subscribe(
-      data => this.currentMessage = data
-    )
+    this.playService.greet().subscribe(r => {
+      console.log(r)
+      if (r.success) {
+        this.currentMessage = r.data
+      } else {
+        r.error
+      }
+    })
   }
-
 }
