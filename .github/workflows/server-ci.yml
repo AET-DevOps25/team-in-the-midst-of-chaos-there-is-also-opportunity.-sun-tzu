@@ -9,6 +9,7 @@ on:
   pull_request:
     paths:
       - 'server/**'
+  workflow-dispatch:
 
 jobs:
   test_and_build:
