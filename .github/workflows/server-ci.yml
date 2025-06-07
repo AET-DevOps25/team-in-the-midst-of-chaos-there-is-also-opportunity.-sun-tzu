@@ -1,0 +1,46 @@
+name: Spring Boot Server CI
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'server/**'
+  pull_request:
+    paths:
+      - 'server/**'
+
+jobs:
+  test_and_build:
+    name: Build and Test Server
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Grant execute permission to Gradle wrapper
+        run: chmod +x gradlew
+        working-directory: server
+
+      - name: Build all microservices
+        run: ./gradlew build --no-daemon
+        working-directory: server
+
+      - name: Run unit tests for StreamService
+        run: ./gradlew :StreamService:test --no-daemon
+        working-directory: server
+
+      - name: Run unit tests for PlaylistService
+        run: ./gradlew :PlaylistService:test --no-daemon
+        working-directory: server
+
+      - name: Run unit tests for AnnouncementService
+        run: ./gradlew :AnnouncementService:test --no-daemon
+        working-directory: server

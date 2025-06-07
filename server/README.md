@@ -10,11 +10,11 @@ The server consists of three microservices:
 An additional API gateway (http://localhost:8080) serves as a single endpoint over which to address the separate microservices from outside.
 It reroutes the requests accordingly.
 
-**Swagger UI** for all microservices is available at: http://localhost:8080/swagger-ui/index.html
+**Swagger UI** for all microservices is available at: http://localhost:8080/swagger-ui.html
 
 ## Database
 
-The database holds all information regarding both metadata of songs and file names of the respective audio files for songs and annoucnements.
+The database holds all information regarding both metadata of songs and file names of the respective audio files for songs and announcements.
 
 ### Schema
 

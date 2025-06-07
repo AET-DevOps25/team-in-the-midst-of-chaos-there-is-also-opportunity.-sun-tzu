@@ -1,6 +1,8 @@
 package de.sunTzu.streamApp;
 
 import de.sunTzu.db.model.AudioFile;
+import de.sunTzu.streamApp.model.RangeResponse;
+import de.sunTzu.streamApp.service.AudioStreamRangeService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -18,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.RandomAccessFile;
+import java.util.Optional;
 
 import de.sunTzu.db.service.AudioFileService;
 
@@ -77,47 +80,31 @@ public class streamController {
         }
 
         // get audio file
-        String fileName = file.getFilename();
-        File audioFile = new File(AUDIO_PATH, fileName);
-
-        // setup
+        File audioFile = new File(AUDIO_PATH, file.getFilename());
         long length = audioFile.length();
-        long start = 0;
-        long end = length - 1;
 
-        // for partial requests
-        // String range = request.getHeader("Range");
-        if (range != null && range.startsWith("bytes=")) {
-            String[] parts = range.substring("bytes=".length()).split("-");
-            try {
-                start = Long.parseLong(parts[0]);
-                if (parts.length > 1) {
-                    end = Long.parseLong(parts[1]);
-                }
-            } catch (NumberFormatException e) {
-                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                return;
-            }
+        // parse and get Range header
+        Optional<RangeResponse> rangeOpt = AudioStreamRangeService.parseRangeHeader(range, length);
+        if (rangeOpt.isEmpty()) {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            return;
         }
-
-        // set range to be streamed
-        long contentLength = end - start + 1;
-            String contentRange = String.format("bytes %d-%d/%d", start, end, length);
+        RangeResponse rangeResp = rangeOpt.get();
 
         // set response headers
         response.setStatus(range == null ? HttpServletResponse.SC_OK : HttpServletResponse.SC_PARTIAL_CONTENT);
         response.setContentType("audio/mpeg");
         response.setHeader("Accept-Ranges", "bytes");
-        response.setHeader("Content-Range", contentRange);
-        response.setHeader("Content-Length", String.valueOf(contentLength));
+        response.setHeader("Content-Range", rangeResp.getContentRangeHeader(length));
+        response.setHeader("Content-Length", String.valueOf(rangeResp.getContentLength()));
 
         // read and stream parts of file
         try (RandomAccessFile raf = new RandomAccessFile(audioFile, "r");
              OutputStream os = response.getOutputStream()) {
 
-            raf.seek(start);
+            raf.seek(rangeResp.getStart());
             byte[] buffer = new byte[4096];
-            long remaining = contentLength;
+            long remaining = length;
             int bytesRead;
 
             while (remaining > 0 && (bytesRead = raf.read(buffer, 0, (int) Math.min(buffer.length, remaining))) != -1) {
