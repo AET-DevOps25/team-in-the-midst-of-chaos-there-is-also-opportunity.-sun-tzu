@@ -15,8 +15,13 @@ export class PlayService {
   duration = signal(0)
   canPlay = signal(false)
   
-  private _audioId = signal<number | null>(1);
+  private _audioId = signal<number | null>(null);
   readonly audioId = this._audioId.asReadonly();
+
+  readonly x = setTimeout(() => {
+    this.setAudioId(1)
+  }, 3000)
+
 
   setAudioId(id: number|null) {
     this._audioId.set(id);
@@ -36,6 +41,10 @@ export class PlayService {
 
   trackFinished() {
     console.log("The track has finished")
+    this.setAudioId(null)
+    setTimeout(() => {
+      this.setAudioId(1)
+    }, 3000)
   }
 
   readonly streamUrl = computed(() => {

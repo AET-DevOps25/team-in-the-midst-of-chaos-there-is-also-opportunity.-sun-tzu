@@ -19,10 +19,25 @@ export class AudioPlayerComponent {
   private readonly audioRef!: ElementRef<HTMLAudioElement>;
 
   // service → DOM
-  streamUrl: Signal<string> = computed(() => this.playService.streamUrl() ?? "")
   readonly mirrorPlayService = effect(() => {
     const el = this.audioRef.nativeElement
-    this.playService.isPlaying() ? el.play() : el.pause();
+    const url = this.playService.streamUrl()
+
+    // clear src
+    if (url == null) {
+      el.removeAttribute('src')
+      el.load()
+      return
+    }
+
+    // set src
+    if (el.getAttribute('src') !== url) {
+      el.setAttribute('src', url)
+      el.load()
+    }
+
+    // set playing status
+    this.playService.isPlaying() ? el.play() : el.pause()
   })
 
 
