@@ -16,7 +16,7 @@ interface IHttpParams {
   providedIn: 'root',
 })
 export class ApiService {
-  private baseUrl: string;
+  baseUrl: string;
   public serviceName: string;
   private readonly http = inject(HttpClient)
 

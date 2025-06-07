@@ -1,4 +1,17 @@
 <p>{{ this.currentMessage }}</p>
+<!-- <audio
+  #player
+  controls
+  [src]="playService.streamUrl()"
+  preload="none"
+  type="audio/mpeg"
+  style="width: 100px;"
+>
+  Your browser does not support the <code>audio</code> element.
+</audio> -->
+
+<app-audio-player />
+
 <button mat-fab (click)="togglePlay()">
   <mat-icon [class.playing]="playService.isPlaying()">{{ icon() }}</mat-icon>
 </button>
