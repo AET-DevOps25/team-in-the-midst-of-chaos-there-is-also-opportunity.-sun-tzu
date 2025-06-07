@@ -1,0 +1,8 @@
+@use "@angular/material" as mat;
+
+:host {
+  @include mat.progress-bar-overrides((
+    active-indicator-height: 12px,
+    track-height:            10px,
+  ));
+}
