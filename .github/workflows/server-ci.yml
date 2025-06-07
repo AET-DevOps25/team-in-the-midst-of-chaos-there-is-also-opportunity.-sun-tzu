@@ -27,15 +27,20 @@ jobs:
 
       - name: Grant execute permission to Gradle wrapper
         run: chmod +x gradlew
+        working-directory: server
 
       - name: Build all microservices
         run: ./gradlew build --no-daemon
+        working-directory: server
 
       - name: Run unit tests for StreamService
         run: ./gradlew :StreamService:test --no-daemon
+        working-directory: server
 
       - name: Run unit tests for PlaylistService
         run: ./gradlew :PlaylistService:test --no-daemon
+        working-directory: server
 
       - name: Run unit tests for AnnouncementService
         run: ./gradlew :AnnouncementService:test --no-daemon
+        working-directory: server
