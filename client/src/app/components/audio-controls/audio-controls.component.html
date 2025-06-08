@@ -1,8 +1,12 @@
-<p>{{ this.currentMessage }}</p>
 
-<mat-progress-bar [mode]="mode()" [value]="progressPercent()"></mat-progress-bar>
-<!-- <p>{{ playService. }} / {{ duration }} seconds</p> -->
 
-<button mat-fab (click)="togglePlay()">
-  <mat-icon [class.playing]="playService.isPlaying()">{{ icon() }}</mat-icon>
-</button>
+<div class="content">
+  <p>{{ this.currentMessage() }}</p>
+
+  <mat-progress-bar  #progressBar [mode]="mode()" [value]="progressPercent()"></mat-progress-bar>
+  <!-- <p>{{ playService. }} / {{ duration }} seconds</p> -->
+
+  <button mat-fab (click)="togglePlay()">
+    <mat-icon [class.playing]="playService.isPlaying()">{{ icon() }}</mat-icon>
+  </button>
+</div>

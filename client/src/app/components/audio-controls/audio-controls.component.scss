@@ -1,6 +1,11 @@
 @use '@angular/material' as mat;
 
-:host {
+
+
+.content {
+  height: fit-content;
+  margin: 30px;
+
   display: flex;
   flex-direction: column;
   justify-content: space-between;

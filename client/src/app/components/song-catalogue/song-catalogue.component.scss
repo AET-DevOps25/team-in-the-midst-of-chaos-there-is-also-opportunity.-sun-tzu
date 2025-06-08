@@ -1,0 +1,41 @@
+@use '@angular/material' as mat;
+
+// Customize the entire app. Change :root to your selector if you want to scope the styles.
+:host {
+  @include mat.list-overrides((
+    // active-indicator-color: orange,
+    // list-item-two-line-container-height: 100px,
+    list-item-leading-icon-end-space: 10px,
+    // list-item-trailing-icon-size: 100px,
+    // active-indicator-shape: red,
+  ));
+}
+
+mat-list {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}
+
+
+.front-icon mat-icon {
+  font-size: 40px;
+  width: min-content;
+  height: min-content;
+}
+
+
+.foo {
+  height: 100% !important;
+  // width: 100%;
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  width: min-content !important;
+}
+.meta {
+  height: 100%;
+  display: inline-flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}

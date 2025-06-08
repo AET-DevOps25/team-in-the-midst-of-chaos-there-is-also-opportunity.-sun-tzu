@@ -1,10 +1,11 @@
-import { Component, computed, Signal } from '@angular/core';
+import { Component, computed, effect, ElementRef, signal, Signal, ViewChild } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import {MatButtonModule} from '@angular/material/button';
 import { PlayService } from '../../services/play.service';
 import { inject } from '@angular/core';
 import { ApiService } from '../../services/api.service';
-import {MatProgressBarModule, ProgressBarMode} from '@angular/material/progress-bar';
+import {MatProgressBar, MatProgressBarModule, ProgressAnimationEnd, ProgressBarMode} from '@angular/material/progress-bar';
+import { TrackType } from '../../interfaces/track';
 
 
 @Component({
@@ -16,7 +17,17 @@ import {MatProgressBarModule, ProgressBarMode} from '@angular/material/progress-
 export class AudioControlsComponent {
   playService = inject(PlayService)
   apiService = inject(ApiService)
-  currentMessage: string = ""
+  currentMessage = computed(() => {
+    const track = this.playService.track()
+    if (track == null) return "(No song selected)"
+
+    switch (track.type) {
+      case TrackType.Song:
+        return `${track.artist} - ${track.title} (${track.year})`
+      case TrackType.Announcement:
+        return "(Announcement)"
+    }
+  })
 
   mode: Signal<ProgressBarMode> = computed(() => {
     if (!this.playService.canPlay())
@@ -37,10 +48,6 @@ export class AudioControlsComponent {
 
   togglePlay() {
     this.playService.togglePlayPause()
-    this.playService.greet().subscribe(r => {
-      if (!r.success) throw Error(r.error)
-      this.currentMessage = JSON.stringify(r.data)
-    })
   }
 
 }

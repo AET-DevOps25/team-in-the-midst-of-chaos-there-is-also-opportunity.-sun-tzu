@@ -1,35 +1,21 @@
 <h2>Available Songs</h2>
-<div class="example-button-row">
-  <div class="example-flex-container">
-    <button matIconButton aria-label="Example icon button with a vertical three dot icon">
-      <mat-icon>more_vert</mat-icon>
-    </button>
-    <button matIconButton disabled aria-label="Example icon button with a open in new tab icon">
-      <mat-icon>open_in_new</mat-icon>
-    </button>
-  </div>
-</div>
-
-  <div class="example-label">Mini FAB</div>
-  <div class="example-button-row">
-    <div class="example-flex-container">
-      <button matMiniFab aria-label="Example icon button with a menu icon">
-        <mat-icon>menu</mat-icon>
-      </button>
-      <button matMiniFab disabled aria-label="Example icon button with a home icon">
-        <mat-icon>home</mat-icon>
-      </button>
-    </div>
-  </div>
-<!-- <mat-list>
+<mat-list>
   @for (song of playlistService.availableSongs; track song.title) {
     <mat-list-item>
-      <mat-icon matListItemIcon>audio_file</mat-icon>
+      <div matListItemIcon class="foo front-icon">
+        <div class="meta">
+          <mat-icon>library_music</mat-icon>
+        </div>
+      </div>
       <div matListItemTitle>{{ song.title }}</div>
       <div matListItemLine>{{ song.artist }}</div>
-      <button matIconButton matListItemMeta>
-        <mat-icon>info</mat-icon>
-      </button>
+      <div matListItemMeta class="foo">
+        <div class="meta">
+        <button matIconButton>
+          <mat-icon>playlist_add</mat-icon>
+        </button>
+        </div>
+      </div>
     </mat-list-item>
   }
-</mat-list> -->
+</mat-list>

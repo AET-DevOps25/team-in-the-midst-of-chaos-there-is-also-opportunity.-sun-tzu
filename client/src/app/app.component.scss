@@ -1,19 +1,51 @@
+@use '@angular/material' as mat;
+
+// Customize the entire app. Change :root to your selector if you want to scope the styles.
+:host {
+  @include mat.divider-overrides((
+    color: lightgray,
+  ));
+}
+
 .container {
     display: flex;
-    flex-direction: column;
-    align-items: center;       // horizontally center
-    justify-content: center;   // vertically center
-    height: 100vh;             // full height of viewport
-    text-align: center;        // optional: center text inside components
+    flex-direction: row;
+    justify-content: center;
+    height: 100svh;
+    width: 100%;
+    text-align: center;
+    flex-wrap: wrap;
+
+    margin-top: 50px;
 }
 
-.container > * + * {
-    margin-top: 1rem; // or any value you like
+app-song-catalogue {
+    flex-grow: 1;
+    flex-basis: 0;
+    flex-shrink: 0;
+    min-width: 0;
 }
+
 
 app-audio-controls {
-    width: 100%;
-    min-width: 50px;
-    max-width: 50%;
-    height: min-content;
+    flex-grow: 1.5;
+    flex-basis: 0;
+    flex-shrink: 0;
+    min-width: 0;
+    // width: 100%;
+    // min-width: 50px;
+    // max-width: 50%;
+    // height: min-content;
+}
+
+app-queue {
+    flex-grow: 1;
+    flex-basis: 0;
+    flex-shrink: 0;
+    min-width: 0;
+}
+
+
+mat-divider {
+    height: 80%
 }
