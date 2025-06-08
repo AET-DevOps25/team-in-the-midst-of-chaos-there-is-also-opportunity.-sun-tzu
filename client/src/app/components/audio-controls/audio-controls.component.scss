@@ -1,0 +1,50 @@
+@use '@angular/material' as mat;
+
+:host {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+}
+
+
+button {
+  @include mat.fab-overrides((
+      container-shape: 100px,
+  ));
+
+  width: 100px;
+  height: 100px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  mat-icon {
+    $size: 70px;
+
+    font-size: $size;
+    line-height: 1;
+    width: $size;
+    height: $size;
+  }
+
+  // animation
+  mat-icon {
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    display: inline-block;
+
+    // animate on change
+    &.playing {
+      transform: rotate(180deg) scale(1);
+    }
+  }
+}
+
+
+mat-progress-bar {
+  @include mat.progress-bar-overrides((
+    active-indicator-height: 12px,
+    track-height:            10px,
+  ));
+}

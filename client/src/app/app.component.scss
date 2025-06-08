@@ -11,6 +11,9 @@
     margin-top: 1rem; // or any value you like
 }
 
-app-progress-bar {
-    width: 500px;
+app-audio-controls {
+    width: 100%;
+    min-width: 50px;
+    max-width: 50%;
+    height: min-content;
 }

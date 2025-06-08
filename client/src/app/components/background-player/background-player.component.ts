@@ -6,12 +6,12 @@ import { PlayService } from '../../services';
  * Wraps a native DOM audio element.
  */
 @Component({
-  selector: 'app-audio-player',
+  selector: 'app-background-player',
   imports: [],
-  templateUrl: './audio-player.component.html',
-  styleUrl: './audio-player.component.scss'
+  templateUrl: './background-player.component.html',
+  styleUrl: './background-player.component.scss'
 })
-export class AudioPlayerComponent {
+export class BackgroundPlayerComponent {
   playService = inject(PlayService)
   zone = inject(NgZone)
 

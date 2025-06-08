@@ -4,18 +4,30 @@ import {MatButtonModule} from '@angular/material/button';
 import { PlayService } from '../../services/play.service';
 import { inject } from '@angular/core';
 import { ApiService } from '../../services/api.service';
-import { AudioPlayerComponent } from '../audio-player/audio-player.component';
+import {MatProgressBarModule, ProgressBarMode} from '@angular/material/progress-bar';
+
 
 @Component({
-  selector: 'app-play-button',
-  imports: [MatIconModule, MatButtonModule, AudioPlayerComponent],
-  templateUrl: './play-button.component.html',
-  styleUrl: './play-button.component.scss'
+  selector: 'app-audio-controls',
+  imports: [MatIconModule, MatButtonModule, MatProgressBarModule],
+  templateUrl: './audio-controls.component.html',
+  styleUrl: './audio-controls.component.scss'
 })
-export class PlayButtonComponent {
+export class AudioControlsComponent {
   playService = inject(PlayService)
   apiService = inject(ApiService)
   currentMessage: string = ""
+
+  mode: Signal<ProgressBarMode> = computed(() => {
+    if (!this.playService.canPlay())
+      return "buffer"
+    return "determinate"
+  })
+
+  progressPercent = computed(() => {
+    const percent = (this.playService.currentTime() / this.playService.duration()) * 100;
+    return Math.min(percent, 100)
+  })
 
   icon: Signal<string> = computed(() => {
     if (this.playService.isPlaying())
