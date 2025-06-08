@@ -1,8 +1,6 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { HeaderComponent } from './header/header.component';
-import { PlayButtonComponent } from "./play-button/play-button.component";
-import { ProgressBarComponent } from "./progress-bar/progress-bar.component";
+import { HeaderComponent, ProgressBarComponent, PlayButtonComponent } from './components';
 
 @Component({
   selector: 'app-root',

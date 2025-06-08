@@ -6,11 +6,12 @@ import { Observable, of } from 'rxjs';
   providedIn: 'root'
 })
 export class ApiService {
-  private baseUrl = 'https://localhost:8080/api';
+  private baseUrl = 'http://localhost:8080/api';
   private http = inject(HttpClient)
 
   dummyRoute(): Observable<string> {
-    return of('hi')
-    return this.http.get(this.baseUrl + "/greet", {responseType: 'text'})
+    // return of('hi')
+    console.log(this.baseUrl + "/playlist/greet")
+    return this.http.get(this.baseUrl + "/playlist/greet", {responseType: 'text'})
   }
 }
