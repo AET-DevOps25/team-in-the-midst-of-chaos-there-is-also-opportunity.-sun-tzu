@@ -1,13 +1,17 @@
-# genai_service/requirements.txt
+# For FastAPI web framework and server
+fastapi
+uvicorn[standard]
+pydantic
 
-# Für LangChain und OpenAI-Modelle
+# For LangChain and OpenAI models
 langchain
 langchain-openai
-openai # Für direkten Zugriff auf TTS
+openai
 
-# Für das Laden von Umgebungsvariablen aus .env-Dateien (lokale Entwicklung)
+# For loading environment variables
 python-dotenv
 
-# Für das Erstellen der REST-API
-fastapi
-uvicorn[standard] # ASGI-Server für FastAPI, [standard] enthält empfohlene Extras
+# For testing
+pytest
+requests
+httpx
