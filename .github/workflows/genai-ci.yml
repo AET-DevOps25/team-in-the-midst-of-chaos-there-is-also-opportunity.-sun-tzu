@@ -1,0 +1,76 @@
+name: GenAI Service CI
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'genai/**'
+  pull_request:
+    paths:
+      - 'genai/**'
+
+jobs:
+  test_and_build:
+    name: Test and Build GenAI Service
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Docker Compose
+        run: sudo apt-get update && sudo apt-get install -y docker-compose
+
+      - name: Install Python dependencies
+        run: pip install -r genai/requirements.txt
+
+      - name: Run Unit and Integration Tests with Pytest
+        working-directory: ./genai
+        run: pytest
+
+      - name: Build Docker Compose services
+        working-directory: ./genai
+        env:
+            OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: docker-compose up -d --build
+
+      - name: Show container logs
+        if: always()
+        working-directory: ./genai
+        run: docker-compose logs
+
+      - name: Wait for GenAI service to be healthy
+        run: |
+          # Increased timeout to 90 seconds (45 attempts * 2 seconds)
+          for i in {1..45}; do
+            if curl -s http://localhost:8000/health | grep -q '"status":"ok"'; then
+              echo "GenAI service is up!"
+              exit 0
+            fi
+            echo "Waiting for GenAI service... ($i/45)"
+            sleep 2
+          done
+          echo "GenAI service did not start in time."
+          # Get logs again on failure
+          docker-compose -f genai/docker-compose.yaml logs
+          exit 1
+
+      - name: Run Component Test (API test)
+        working-directory: ./genai
+        run: python tests/test_api.py
+
+      - name: Stop services
+        if: always() # Always run this step to clean up
+        working-directory: ./genai
+        run: docker-compose down
+
+      - name: Build Production Docker Image
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: |
+          docker build -t genai-service:latest -f genai/Dockerfile ./genai
