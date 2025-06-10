@@ -7,7 +7,9 @@ services:
       dockerfile: Dockerfile
     restart: unless-stopped
     ports:
-      - 8081:80
+      - 80:80
+    networks:
+      - app-network
 
   db:
     build: ./server/database
