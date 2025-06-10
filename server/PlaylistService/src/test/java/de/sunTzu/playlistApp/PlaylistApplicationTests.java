@@ -16,6 +16,6 @@ class PlaylistApplicationTests {
 
 	@Test
 	void testSayHello() {
-		assertEquals("Hello World!", controller.sayHello());
+		assertEquals("Hello World!", controller.sayHello().get("message"));
 	}
 }
