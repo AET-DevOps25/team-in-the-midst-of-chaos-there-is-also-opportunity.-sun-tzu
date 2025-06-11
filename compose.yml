@@ -49,8 +49,6 @@ services:
     container_name: stream
     expose:
       - "8080"
-#    ports:
-#      - "8080:8080"
     depends_on:
       db:
         condition: service_healthy
@@ -59,7 +57,6 @@ services:
       SPRING_DATABASE_USERNAME: root
       SPRING_DATABASE_PASSWORD: root
       AUDIO_FILE_PATH: /audio
-      #SERVER_PORT: 8081
     volumes:
       - audio-files:/audio
     networks:
@@ -69,16 +66,20 @@ services:
     build:
       context: ./server
       dockerfile: PlaylistService/Dockerfile
-    image: server-playlistservice
+    image: server-playlistservice:latest
     container_name: playlist
     expose:
       - "8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      SPRING_DATABASE_URL: jdbc:mysql://db:3306/audioDB
+      SPRING_DATABASE_USERNAME: root
+      SPRING_DATABASE_PASSWORD: root
+      AUDIO_FILE_PATH: /audio
     networks:
       - app-network
-#    environment:
-#      SERVER_PORT: 8082
-#    ports:
-#      - "8081:8080"
 
 #  announcementservice:
 #    build:
