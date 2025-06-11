@@ -7,11 +7,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class PlaylistApplicationTests {
 
-	private HelloWorld controller;
+	private playlistController controller;
 
 	@BeforeEach
 	void setup() {
-		controller = new HelloWorld();
+		controller = new playlistController(null);
 	}
 
 	@Test

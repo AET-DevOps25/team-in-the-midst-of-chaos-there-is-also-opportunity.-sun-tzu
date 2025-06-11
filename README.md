@@ -38,5 +38,3 @@ off")
 ## Component diagram of architecture
 
 ![component architecture](./documentation/UML%20diagrams/components.svg)
-
-# Weekly Syncs
