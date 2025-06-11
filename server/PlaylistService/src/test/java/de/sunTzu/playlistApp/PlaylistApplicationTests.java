@@ -1,13 +1,21 @@
 package de.sunTzu.playlistApp;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 class PlaylistApplicationTests {
 
-	@Test
-	void contextLoads() {
+	private HelloWorld controller;
+
+	@BeforeEach
+	void setup() {
+		controller = new HelloWorld();
 	}
 
+	@Test
+	void testSayHello() {
+		assertEquals("Hello World!", controller.sayHello().get("message"));
+	}
 }
