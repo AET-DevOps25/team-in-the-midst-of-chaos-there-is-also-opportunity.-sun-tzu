@@ -9,6 +9,7 @@ COPY settings.gradle build.gradle gradlew gradle/ ./
 
 # Copy source code
 COPY PlaylistService ./PlaylistService
+COPY common ./common
 
 # Copy source code
 RUN gradle :PlaylistService:bootJar --no-daemon
@@ -20,6 +21,7 @@ WORKDIR /app
 
 # Copy the built JAR file from the build stage
 COPY --from=build /app/PlaylistService/build/libs/*.jar playlistService.jar
+COPY --from=build /app/common/build/libs/*.jar common.jar
 
 # Expose the port the app runs on
 # EXPOSE 8080
