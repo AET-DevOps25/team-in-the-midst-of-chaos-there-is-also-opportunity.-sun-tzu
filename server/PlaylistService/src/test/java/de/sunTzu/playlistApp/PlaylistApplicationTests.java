@@ -11,7 +11,7 @@ class PlaylistApplicationTests {
 
 	@BeforeEach
 	void setup() {
-		controller = new playlistController(null);
+		controller = new playlistController(null, null, null);
 	}
 
 	@Test

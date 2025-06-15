@@ -33,6 +33,7 @@ public class MetaData {
     public Map<String, String> getData() {
         Map<String, String> returnMap = new HashMap<>();
 
+        returnMap.put("type", type);
         returnMap.put("title", title);
         returnMap.put("artist", artist);
         returnMap.put("release_date", release_date);

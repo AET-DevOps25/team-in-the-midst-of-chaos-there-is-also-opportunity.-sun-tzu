@@ -4,7 +4,9 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import de.sunTzu.db.model.MetaData;
-import de.sunTzu.playlistApp.model.Playlist;
+import de.sunTzu.db.service.PlaylistQueueService;
+import de.sunTzu.db.service.PlaylistService;
+import de.sunTzu.playlistApp.model.PlaylistHandler;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterStyle;
@@ -13,7 +15,6 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.web.bind.annotation.*;
@@ -23,8 +24,8 @@ import de.sunTzu.db.service.MetaDataService;
 @RestController
 public class playlistController {
 
-    Playlist playlist;
     private final MetaDataService service;
+    PlaylistHandler playlistAcc;
 
     private Long getRandomSong() {
         Random rand = new Random();
@@ -32,17 +33,9 @@ public class playlistController {
         return availableSongs.get(rand.nextInt(availableSongs.size())).getId();
     }
 
-    playlistController(MetaDataService service) {
-        this.service = service;
-    }
-
-    @PostConstruct
-    public void initPlaylist() {
-        if (service != null) {
-            this.playlist = new Playlist();
-            // initialize playlist with 3 random songs
-            playlist.addMultiToPlaylist(List.of(getRandomSong(), getRandomSong(), getRandomSong()));
-        }
+    playlistController(MetaDataService MDservice, PlaylistService Pservice, PlaylistQueueService PQservice) {
+        this.playlistAcc = new PlaylistHandler(Pservice, PQservice);
+        this.service = MDservice;
     }
 
     @GetMapping(value = "/greet", produces = "application/json")
@@ -50,87 +43,104 @@ public class playlistController {
         return Collections.singletonMap("message", "Hello World!");
     }
 
-
     // Playlist
-    @Operation(summary = "Get the current song ID from the playlist head")
+    @Operation(summary = "Register new session")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Current song found",
+            @ApiResponse(responseCode = "200", description = "session registered",
                     content = @Content(mediaType = "application/json",
-                            examples = @ExampleObject(name = "CurrentSongExample", value = "{ \"ID\": 42 }")
-                    )),
-            @ApiResponse(responseCode = "404", description = "No song at playlist head", content = @Content())
+                            examples = @ExampleObject(name = "NewSessionExample", value = "{ \"session\": 3 }")
+                    ))
     })
-    @GetMapping(value = "/currentSong", produces = "application/json")
-    public Map<String, Long> provideCurrSong(
-            HttpServletResponse response) {
-        Long head = playlist.getPlaylistHead();
+    @PostMapping(value = "/newPlaylist", produces = "application/json")
+    public Map<String, Long> createNewSession(HttpServletResponse response) {
+        // register new session along with playlist
+        Long newSession = playlistAcc.createPlaylist();
+        // insert 3 random songs
+        playlistAcc.addMultiToPlaylist(newSession, List.of(getRandomSong(), getRandomSong(), getRandomSong()));
 
-        if (head == null) {
+        response.setStatus(HttpServletResponse.SC_OK);
+        return Collections.singletonMap("session", newSession);
+    }
+
+    @Operation(summary = "Get the current audio ID from the playlist head")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Current audio found",
+                    content = @Content(mediaType = "application/json",
+                            examples = @ExampleObject(name = "CurrentAudioExample", value = "{ \"audio\": 42 }")
+                    )),
+            @ApiResponse(responseCode = "404", description = "No audio at playlist head", content = @Content())
+    })
+    @GetMapping(value = "/currentAudio", produces = "application/json")
+    public Map<String, Long> provideCurrAudio(
+            @Parameter(description = "session ID", required = true) @RequestParam("session") Long session,
+            HttpServletResponse response) {
+        Optional<Long> head = playlistAcc.getPlaylistHead(session);
+
+        if (!head.isPresent()) {
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             return Map.of();
         }
 
         response.setStatus(HttpServletResponse.SC_OK);
-        return Collections.singletonMap("ID", head);
+        return Collections.singletonMap("audio", head.get());
     }
 
-    @Operation(summary = "Get list of IDs in playlist")
-    @ApiResponse(responseCode = "200", description = "List of song IDs",
+    @Operation(summary = "Get list of audio IDs in playlist")
+    @ApiResponse(responseCode = "200", description = "List of audio IDs",
             content = @Content(mediaType = "application/json",
-                    examples = @ExampleObject(name = "NextSongsExample", value = "{ \"IDs\": [101, 102, 103] }")
+                    examples = @ExampleObject(name = "NextSongsExample", value = "{ \"audio\": [101, 102, 103] }")
             ))
-    @GetMapping(value = "/nextSongs", produces = "application/json")
+    @GetMapping(value = "/nextAudios", produces = "application/json")
     public Map<String, List<Long>> providePlaylist(
+            @Parameter(description = "session ID", required = true) @RequestParam("session") Long session,
             HttpServletResponse response) {
         // throw error when playlist is empty?
         response.setStatus(HttpServletResponse.SC_OK);
-        return Collections.singletonMap("IDs", playlist.getPlaylist());
+        return Collections.singletonMap("audio", playlistAcc.getPlaylist(session));
     }
 
     @Operation(summary = "Add a song to the playlist by ID")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Song added"),
-            @ApiResponse(responseCode = "404", description = "Song with given ID not found")
+            @ApiResponse(responseCode = "404", description = "Song or session not found")
     })
     @PostMapping(value = "/addSong")
     public void addSongPlaylist(
-            @Parameter(description = "ID of the song to add", required = true) @RequestParam("id") Long id,
+            @Parameter(description = "ID of the song to add", required = true) @RequestParam("song") Long song,
+            @Parameter(description = "session ID", required = true) @RequestParam("session") Long session,
             HttpServletResponse response) {
         // check if ID exists
-        MetaData metaD = service.getById(id).orElse(null);
+        Optional<MetaData> metaD = service.getById(song);
 
-        if (metaD == null) {
-            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-            return;
+        if (metaD.isPresent()) {
+            // check if session exists
+            if (playlistAcc.addToPlaylist(session, song)) {
+                response.setStatus(HttpServletResponse.SC_OK);
+                return;
+            }
         }
 
-        playlist.addToPlaylist(id);
-        response.setStatus(HttpServletResponse.SC_OK);
+        response.setStatus(HttpServletResponse.SC_NOT_FOUND);
     }
 
     @Operation(summary = "Remove head of playlist")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Head removed"),
-            @ApiResponse(responseCode = "404", description = "No head to remove")
+            @ApiResponse(responseCode = "200", description = "Head removed (or already empty)"),
     })
     @DeleteMapping(value = "/removeHead")
     public void removeSongPlaylist(
+            @Parameter(description = "session ID", required = true) @RequestParam("session") Long session,
             HttpServletResponse response) {
-        Long head = playlist.getPlaylistHead();
 
-        if (head != null) {
-            playlist.removeHeadFromPlaylist();
+        playlistAcc.removeHeadFromPlaylist(session);
 
-            // add next song randomly
-            if (playlist.getPlaylist().size() < 3) {
-                playlist.addToPlaylist(getRandomSong());
-            }
-            // TODO: if head was announcement additionally delete from database and volume
-
-            response.setStatus(HttpServletResponse.SC_OK);
-        } else {
-            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+        // add next song randomly
+        if (playlistAcc.getPlaylist(session).size() < 3) {
+            playlistAcc.addToPlaylist(session, getRandomSong());
         }
+        // TODO: if head was announcement additionally delete from database and volume
+
+        response.setStatus(HttpServletResponse.SC_OK);
     }
 
     // Metadata
@@ -138,7 +148,7 @@ public class playlistController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Metadata retrieved",
                     content = @Content(mediaType = "application/json",
-                            examples = @ExampleObject(name = "MetadataExample", value = "{ \"title\": \"test title\", \"artist\": \"test artist\", \"release_date\": \"DD-MM-YYYY\", \"genre\": \"test genre\" }")
+                            examples = @ExampleObject(name = "MetadataExample", value = "{ \"title\": \"test title\", \"type\": \"song/announcement\", \"artist\": \"test artist\", \"release_date\": \"DD-MM-YYYY\", \"genre\": \"test genre\" }")
                     )),
             @ApiResponse(responseCode = "404", description = "Metadata not found", content = @Content())
     })
@@ -162,7 +172,7 @@ public class playlistController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Metadata list retrieved",
                     content = @Content(mediaType = "application/json",
-                            examples = @ExampleObject(name = "MetadataMultiExample", value = "[{ \"title\": \"test title\", \"artist\": \"test artist\", \"release_date\": \"DD-MM-YYYY\", \"genre\": \"test genre\" }, { \"title\": \"test title 2\", \"artist\": \"test artist 2\", \"release_date\": \"DD-MM-YYYY\", \"genre\": \"test genre 2\" }]")
+                            examples = @ExampleObject(name = "MetadataMultiExample", value = "[{ \"title\": \"test title\", \"type\": \"song/announcement\", \"artist\": \"test artist\", \"release_date\": \"DD-MM-YYYY\", \"genre\": \"test genre\" }, { \"title\": \"test title 2\", \"type\": \"song/announcement\", \"artist\": \"test artist 2\", \"release_date\": \"DD-MM-YYYY\", \"genre\": \"test genre 2\" }]")
                     )),
             @ApiResponse(responseCode = "404", description = "One or more metadata entries not found")
     })
