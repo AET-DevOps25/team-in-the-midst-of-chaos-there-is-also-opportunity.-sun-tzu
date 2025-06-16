@@ -9,6 +9,8 @@ services:
       - "80:80"
     networks:
       - app-network
+    depends_on:
+      - api-gateway
 
   db:
     build: ./server/database
