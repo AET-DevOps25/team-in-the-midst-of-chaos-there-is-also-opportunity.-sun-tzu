@@ -77,14 +77,12 @@ jobs:
         working-directory: ./genai
         run: pytest
       - name: Build Docker Compose services
-        working-directory: ./genai
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-        run: docker-compose -f genai/docker-compose.yaml up -d --build
+        run: docker-compose -f compose.yml up -d --build genai
       - name: Show container logs
         if: always()
-        working-directory: ./genai
-        run: docker-compose -f genai/docker-compose.yaml logs
+        run: docker-compose -f compose.yml logs genai
       - name: Wait for GenAI service to be healthy
         run: |
           for i in {1..45}; do
@@ -96,15 +94,14 @@ jobs:
             sleep 2
           done
           echo "GenAI service did not start in time."
-          docker-compose -f genai/docker-compose.yaml logs
+          docker-compose -f compose.yml logs genai
           exit 1
       - name: Run Component Test (API test)
         working-directory: ./genai
         run: python tests/test_api.py
       - name: Stop services
         if: always()
-        working-directory: ./genai
-        run: docker-compose -f genai/docker-compose.yaml down
+        run: docker-compose -f compose.yml down
       - name: Build Production Docker Image
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: docker build -t genai-service:latest -f genai/Dockerfile ./genai
