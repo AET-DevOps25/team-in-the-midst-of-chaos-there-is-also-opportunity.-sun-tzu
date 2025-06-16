@@ -4,5 +4,5 @@ import { InitializationService } from '@app/services';
 
 export const isUninitializedGuard: CanMatchFn = (route, segments) => {
   const initService = inject(InitializationService)
-  return !initService.isInitialized
+  return !initService.isInitialized()
 };

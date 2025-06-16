@@ -1,17 +1,17 @@
-import { Injectable } from '@angular/core';
-import { delay, Observable, of, tap, timeInterval, timeout } from 'rxjs';
+import { Injectable, signal } from '@angular/core';
+import { delay, Observable, of, tap } from 'rxjs';
 
 
 @Injectable({
   providedIn: 'root'
 })
 export class InitializationService {
-  isInitialized: boolean = false
+  isInitialized = signal(false)
 
   initialize(): Observable<void> {
     return of(undefined).pipe(
-      delay(5000),
-      tap(() => this.isInitialized = true)
+      delay(3000),
+      tap(() => this.isInitialized.set(true))
     )
   }
 

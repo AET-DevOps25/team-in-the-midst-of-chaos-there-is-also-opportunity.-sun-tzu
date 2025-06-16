@@ -13,12 +13,16 @@ import { InitialPageComponent } from '@app/components';
  */
 export const routes: Routes = [
   {
+    path: '',
+    loadComponent: () => import('@app/components').then(m => m.WelcomePageComponent)
+  },
+  {
     path: '**',
-    component: InitialPageComponent,
+    loadComponent: () => import('@app/components').then(m => m.InitialPageComponent),
     canMatch: [isUninitializedGuard]
   },
   {
-    path: '',
+    path: 'player',
     loadComponent: () => import('@app/components').then(m => m.MainPageComponent)
   },
   {
