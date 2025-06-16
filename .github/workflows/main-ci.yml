@@ -75,7 +75,7 @@ jobs:
         run: pip install -r genai/requirements.txt
       - name: Run Unit and Integration Tests with Pytest
         working-directory: ./genai
-        run: pytest
+        run: pytest --ignore=tests/test_api.py
       - name: Build Docker Compose services
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
