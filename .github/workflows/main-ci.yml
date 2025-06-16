@@ -72,18 +72,19 @@ jobs:
       - name: Install Docker Compose
         run: sudo apt-get update && sudo apt-get install -y docker-compose
       - name: Install Python dependencies
-        working-directory: ./genai
-        run: pip install -r requirements.txt
+        run: pip install -r genai/requirements.txt
       - name: Run Unit and Integration Tests with Pytest
         working-directory: ./genai
         run: pytest
       - name: Build Docker Compose services
+        working-directory: ./genai
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-        run: docker-compose -f compose.yml up -d --build genai
+        run: docker-compose -f genai/docker-compose.yaml up -d --build
       - name: Show container logs
         if: always()
-        run: docker-compose -f compose.yml logs genai
+        working-directory: ./genai
+        run: docker-compose -f genai/docker-compose.yaml logs
       - name: Wait for GenAI service to be healthy
         run: |
           for i in {1..45}; do
@@ -95,14 +96,15 @@ jobs:
             sleep 2
           done
           echo "GenAI service did not start in time."
-          docker-compose -f compose.yml logs genai
+          docker-compose -f genai/docker-compose.yaml logs
           exit 1
       - name: Run Component Test (API test)
         working-directory: ./genai
         run: python tests/test_api.py
       - name: Stop services
         if: always()
-        run: docker-compose -f compose.yml down
+        working-directory: ./genai
+        run: docker-compose -f genai/docker-compose.yaml down
       - name: Build Production Docker Image
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: docker build -t genai-service:latest -f genai/Dockerfile ./genai
