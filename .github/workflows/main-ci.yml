@@ -50,7 +50,7 @@ jobs:
       - name: Run tests
         working-directory: ./client
         # run: npm test -- --watch=false --browsers=ChromeHeadless
-        run: echo" npm test temporarily disabled"
+        run: echo "npm test temporarily disabled"
       - name: Build the application
         working-directory: ./client
         run: npm run build
