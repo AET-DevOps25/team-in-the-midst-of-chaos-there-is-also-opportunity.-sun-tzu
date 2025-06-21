@@ -19,15 +19,26 @@ and file names of the respective audio files for songs and announcements.
 
 ### Schema
 
-_audio_files_
+_audio_files_; key: (id)
 
 | id | filename (not null) |
 |----|---------------------|
 | 1  | file.mp3            |
 
-_meta_data_
+_meta_data_; key: (id)
 
 | id  | type | title | artist | release_date | genre |
 |-----|------|-------|--------|--------------|-------|
 | 1   |      |       |        |              |       |
 
+_playlists_; key: (session)
+
+| session | head | tail | created_at |
+|---------|------|------|------------|
+| 1       | 0    | 3    | timestamp  |
+
+_playlist_q_; key: (session, queue_pos)
+
+| session | queue_pos | audio_id |
+|---------|-----------|----------|
+| 1       | 0         | 13       |

@@ -13,6 +13,11 @@ public class AudioFile {
 
     public AudioFile() {}
 
+    public AudioFile(Long id, String filename) {
+        this.id = id;
+        this.filename = filename;
+    }
+
     public String getFilename() {
         return filename;
     }

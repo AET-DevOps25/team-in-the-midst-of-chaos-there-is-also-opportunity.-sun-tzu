@@ -17,12 +17,10 @@ public class PlaylistQueue {
 
     public PlaylistQueue() { }
 
-    public PlaylistQueueKey getId() { return id; }
+    public PlaylistQueue(Long session, Long queuePos, Long audio_id) {
+        this.id = new PlaylistQueueKey(session, queuePos);
+        this.audio_id = audio_id;
+    }
+
     public Long getAudio_id() { return audio_id; }
-
-    public Long getQueuePos() { return id.getQueuePos(); }
-
-    public void setId(PlaylistQueueKey id) { this.id = id; }
-
-    public void setAudio_id(Long audio_id) { this.audio_id = audio_id; }
 }

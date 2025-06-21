@@ -19,11 +19,7 @@ public class PlaylistHandler {
     }
 
     public Long createPlaylist() {
-        // get new session id
-        Long sessionID = Pservice.getPlaylistCount();
-        // create playlist
-        Pservice.createPlaylist(sessionID);
-        return sessionID;
+        return Pservice.createPlaylist();
     }
 
     public List<Long> getPlaylist(Long session) {
@@ -31,6 +27,7 @@ public class PlaylistHandler {
         return playlist.stream().map(PlaylistQueue::getAudio_id).collect(Collectors.toList());
     }
 
+    // returns audio ID at playlist head for session if present
     public Optional<Long> getPlaylistHead(Long session) {
         Optional<Playlist> playlist = Pservice.getBySession(session);
         if (playlist.isPresent()) {
@@ -38,7 +35,6 @@ public class PlaylistHandler {
 
             Optional<PlaylistQueue> playlistHead = PQservice.getPlaylistHeadBySession(session, head);
 
-            // TODO: unnecessary since playlistHead is always present when head != -1L
             if (playlistHead.isPresent()) {
                 return Optional.of(playlistHead.get().getAudio_id());
             } else {
@@ -76,12 +72,10 @@ public class PlaylistHandler {
         if (playlist.isPresent()) {
             // get head element
             Long head = playlist.get().getHead();
-            if (head != -1L) {
-                // remove song from playlist at head
-                PQservice.removeHeadFromPlaylist(session, head);
-                // increase head for playlist
-                Pservice.updatePlaylistHead(session, head + 1);
-            }
+            // remove song from playlist at head
+            PQservice.removeHeadFromPlaylist(session, head);
+            // increase head for playlist
+            Pservice.updatePlaylistHead(session, head + 1);
         }
     }
 }

@@ -3,6 +3,7 @@ package de.sunTzu.db.repository;
 import de.sunTzu.db.model.PlaylistQueue;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -14,4 +15,7 @@ public interface PlaylistQueueRepository extends JpaRepository<PlaylistQueue, Lo
     Optional<PlaylistQueue> findByIdSessionAndIdQueuePos(Long session_id, Long head);
 
     void deleteByIdSessionAndIdQueuePos(Long session_id, Long queue_pos);
+
+    @Transactional
+    void deleteByIdSession(Long session);
 }

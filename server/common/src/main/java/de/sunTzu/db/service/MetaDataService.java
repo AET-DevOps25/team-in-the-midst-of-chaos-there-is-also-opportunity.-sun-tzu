@@ -3,6 +3,7 @@ package de.sunTzu.db.service;
 import de.sunTzu.db.model.MetaData;
 import de.sunTzu.db.repository.MetaDataRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -20,4 +21,7 @@ public class MetaDataService {
     public List<MetaData> getAllSongs() { return repository.findAllByType("song"); }
 
     public List<MetaData> getAllStartWith(String pre) { return repository.findByTitleIgnoreCaseStartingWith(pre); }
+
+    @Transactional
+    public void delete(MetaData m) { repository.delete(m); }
 }

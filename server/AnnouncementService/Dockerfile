@@ -9,6 +9,7 @@ COPY settings.gradle build.gradle gradlew gradle/ ./
 
 # Copy source code
 COPY AnnouncementService ./AnnouncementService
+COPY common ./common
 
 # Build the application
 RUN gradle :AnnouncementService:bootJar --no-daemon
@@ -20,9 +21,7 @@ WORKDIR /app
 
 # Copy the built JAR file from the build stage
 COPY --from=build /app/AnnouncementService/build/libs/*.jar announcementService.jar
-
-# Expose the port the app runs on
-EXPOSE 8080
+COPY --from=build /app/common/build/libs/*.jar common.jar
 
 # Command to run the application
 ENTRYPOINT ["java", "-jar", "announcementService.jar"]

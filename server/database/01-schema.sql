@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS audio_files (
 );
 
 CREATE TABLE IF NOT EXISTS meta_data (
-  id INT PRIMARY KEY,
+  id INT AUTO_INCREMENT PRIMARY KEY,
   type VARCHAR(255) NOT NULL,
   title VARCHAR(255),
   artist VARCHAR(255),
@@ -13,9 +13,10 @@ CREATE TABLE IF NOT EXISTS meta_data (
 );
 
 CREATE TABLE IF NOT EXISTS playlists (
-  session INT PRIMARY KEY,
+  session INT AUTO_INCREMENT PRIMARY KEY,
   head INT NULL,
-  tail INT
+  tail INT,
+  created_at TIMESTAMP NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS playlist_q (
