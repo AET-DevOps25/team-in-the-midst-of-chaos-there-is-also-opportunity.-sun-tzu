@@ -1,5 +1,4 @@
 services:
-
   client:
     image: client:local
     build:
@@ -7,9 +6,11 @@ services:
       dockerfile: Dockerfile
     restart: unless-stopped
     ports:
-      - 80:80
+      - "80:80"
     networks:
       - app-network
+    depends_on:
+      - api-gateway
 
   db:
     build: ./server/database
@@ -22,8 +23,8 @@ services:
       timeout: 5s
       retries: 5
     volumes:
-      - mysql_data:/var/lib/mysql
-      - audio-files:/shared
+      - "mysql_data:/var/lib/mysql"
+      - "audio-files:/shared"
     networks:
       - app-network
 
@@ -56,7 +57,7 @@ services:
       SPRING_DATABASE_PASSWORD: root
       AUDIO_FILE_PATH: /audio
     volumes:
-      - audio-files:/audio
+      - "audio-files:/audio"
     networks:
       - app-network
 
@@ -79,13 +80,18 @@ services:
     networks:
       - app-network
 
-#  announcementservice:
-#    build:
-#      context: ./server
-#      dockerfile: AnnouncementService/Dockerfile
-#    image: server-announcementservice
-#    ports:
-#      - "8082:8080"
+  genai:
+    build:
+      context: ./genai
+      dockerfile: Dockerfile
+    image: genai-service-local
+    container_name: genai_service
+    ports:
+      - "8000:8000"
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    networks:
+      - app-network
 
 volumes:
   mysql_data:

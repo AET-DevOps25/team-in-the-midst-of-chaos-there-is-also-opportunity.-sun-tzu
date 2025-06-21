@@ -70,8 +70,9 @@ async def generate_audio_transition_endpoint(song_info: SongTransitionInfo):
             logger.error("Fallback audio is unavailable.")
             raise HTTPException(status_code=500, detail="Script generation failed and fallback audio is unavailable.")
 
-        logger.info("Returning fallback audio.")
-        return Response(content=audio_bytes, media_type="audio/mpeg")
+        logger.info("Returning fallback audio due to script generation failure.")
+        headers = {"X-Audio-Source": "backup_script_failure"}
+        return Response(content=audio_bytes, media_type="audio/mpeg", headers=headers)
 
     logger.info(f"Generated script: '{script_text}'. Converting to audio.")
     audio_bytes = text_to_audio(
@@ -87,10 +88,12 @@ async def generate_audio_transition_endpoint(song_info: SongTransitionInfo):
             raise HTTPException(status_code=500, detail="TTS conversion failed and fallback audio is unavailable.")
 
         logger.info("Returning fallback audio after TTS failure.")
-        return Response(content=audio_bytes, media_type="audio/mpeg")
+        headers = {"X-Audio-Source": "backup_tts_failure"}
+        return Response(content=audio_bytes, media_type="audio/mpeg", headers=headers)
 
     logger.info("Successfully generated audio. Returning response.")
-    return Response(content=audio_bytes, media_type="audio/mpeg")
+    headers = {"X-Audio-Source": "real"}
+    return Response(content=audio_bytes, media_type="audio/mpeg", headers=headers)
 
 
 @app.get("/health")
