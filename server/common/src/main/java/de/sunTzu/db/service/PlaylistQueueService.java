@@ -28,14 +28,7 @@ public class PlaylistQueueService {
     // adds new element to playlist
     @Transactional
     public void addToPlaylist(Long session_id, Long queue_pos, Long audio_id) {
-        PlaylistQueueKey newKey = new PlaylistQueueKey();
-        newKey.setSession(session_id);
-        newKey.setQueuePos(queue_pos);
-
-        PlaylistQueue newEntry = new PlaylistQueue();
-        newEntry.setId(newKey);
-        newEntry.setAudio_id(audio_id);
-
+        PlaylistQueue newEntry = new PlaylistQueue(session_id, queue_pos, audio_id);
         repository.save(newEntry);
     }
 

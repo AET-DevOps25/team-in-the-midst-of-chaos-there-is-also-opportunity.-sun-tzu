@@ -16,14 +16,8 @@ public class PlaylistQueueKey implements Serializable {
 
     public PlaylistQueueKey() { }
 
-    public Long getSession() { return session; }
-    public Long getQueuePos() {
-        return queuePos;
-    }
-    public void setSession(Long session) {
+    public PlaylistQueueKey(Long session, Long queuePos) {
         this.session = session;
-    }
-    public void setQueuePos(Long queuePos) {
         this.queuePos = queuePos;
     }
 

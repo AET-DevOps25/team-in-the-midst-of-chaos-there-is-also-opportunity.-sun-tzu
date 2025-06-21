@@ -5,6 +5,7 @@ import de.sunTzu.db.repository.PlaylistRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.util.Optional;
 
 @Service
@@ -17,17 +18,10 @@ public class PlaylistService {
         return repository.findById(session_id);
     }
 
-    public Long getPlaylistCount() {
-        return repository.count();
-    }
-
     @Transactional
-    public void createPlaylist(Long session_id) {
-        Playlist newEntry = new Playlist();
-        newEntry.setSession(session_id);
-        newEntry.setHead(0L);
-        newEntry.setTail(0L);
-        repository.save(newEntry);
+    public Long createPlaylist() {
+        Playlist newEntry = new Playlist(0L, 0L, Instant.now());
+        return repository.save(newEntry).getSession();
     }
 
     @Transactional

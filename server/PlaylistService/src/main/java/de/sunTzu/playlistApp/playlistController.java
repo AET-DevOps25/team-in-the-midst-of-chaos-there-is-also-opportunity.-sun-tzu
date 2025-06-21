@@ -1,12 +1,16 @@
 package de.sunTzu.playlistApp;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import de.sunTzu.db.model.MetaData;
+import de.sunTzu.db.service.AudioFileService;
 import de.sunTzu.db.service.PlaylistQueueService;
 import de.sunTzu.db.service.PlaylistService;
+import de.sunTzu.db.service.MetaDataService;
 import de.sunTzu.playlistApp.model.PlaylistHandler;
+import de.sunTzu.file.service.FileService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterStyle;
@@ -18,24 +22,29 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.web.bind.annotation.*;
-
-import de.sunTzu.db.service.MetaDataService;
+import org.springframework.web.client.RestTemplate;
 
 @RestController
 public class playlistController {
 
-    private final MetaDataService service;
+    private final MetaDataService MDservice;
+    private final AudioFileService AFservice;
+    private final FileService fileService;
+    private final RestTemplate restTemplate;
     PlaylistHandler playlistAcc;
 
     private Long getRandomSong() {
         Random rand = new Random();
-        List<MetaData> availableSongs = service.getAllSongs();
+        List<MetaData> availableSongs = MDservice.getAllSongs();
         return availableSongs.get(rand.nextInt(availableSongs.size())).getId();
     }
 
-    playlistController(MetaDataService MDservice, PlaylistService Pservice, PlaylistQueueService PQservice) {
+    playlistController(MetaDataService MDservice, AudioFileService AFservice, PlaylistService Pservice, PlaylistQueueService PQservice, FileService Fservice, RestTemplate restTemplate) {
         this.playlistAcc = new PlaylistHandler(Pservice, PQservice);
-        this.service = MDservice;
+        this.MDservice = MDservice;
+        this.AFservice = AFservice;
+        this.fileService = Fservice;
+        this.restTemplate = restTemplate;
     }
 
     @GetMapping(value = "/greet", produces = "application/json")
@@ -110,7 +119,7 @@ public class playlistController {
             @Parameter(description = "session ID", required = true) @RequestParam("session") Long session,
             HttpServletResponse response) {
         // check if ID exists
-        Optional<MetaData> metaD = service.getById(song);
+        Optional<MetaData> metaD = MDservice.getById(song);
 
         if (metaD.isPresent()) {
             // check if session exists
@@ -132,13 +141,30 @@ public class playlistController {
             @Parameter(description = "session ID", required = true) @RequestParam("session") Long session,
             HttpServletResponse response) {
 
-        playlistAcc.removeHeadFromPlaylist(session);
+        Optional<Long> head_audioOpt = playlistAcc.getPlaylistHead(session);
+
+        if (head_audioOpt.isPresent()) {
+            Long head_audio = head_audioOpt.get();
+            // check if announcement
+            Optional<MetaData> metaAnnOpt = MDservice.getById(head_audio);
+            if (metaAnnOpt.isPresent()) {
+                if (Objects.equals(metaAnnOpt.get().getData().get("type"), "announcement")) {
+                    // remove announcement from meta_data table
+                    MDservice.delete(metaAnnOpt.get());
+                    // remove announcement from file system and audio_files table
+                    // TODO: comment in once announcements have their own audiofiles
+                    //fileService.deleteFile(AFservice.getById(head_audio).get().getFilename());
+                    // AFservice.deleteById(head_audio);
+                }
+            }
+            // remove head
+            playlistAcc.removeHeadFromPlaylist(session);
+        }
 
         // add next song randomly
         if (playlistAcc.getPlaylist(session).size() < 3) {
             playlistAcc.addToPlaylist(session, getRandomSong());
         }
-        // TODO: if head was announcement additionally delete from database and volume
 
         response.setStatus(HttpServletResponse.SC_OK);
     }
@@ -157,7 +183,7 @@ public class playlistController {
             @Parameter(description = "ID of the song", required = true) @RequestParam("id") Long id,
             HttpServletRequest request,
             HttpServletResponse response) {
-        MetaData metaD = service.getById(id).orElse(null);
+        MetaData metaD = MDservice.getById(id).orElse(null);
 
         if (metaD == null) {
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
@@ -184,7 +210,7 @@ public class playlistController {
         List<Map<String, String>> returnMeta = new ArrayList<>();
 
         for (Long id : ids) {
-            MetaData metaD = service.getById((Long) id).orElse(null);
+            MetaData metaD = MDservice.getById((Long) id).orElse(null);
 
             if (metaD == null) {
                 response.setStatus(HttpServletResponse.SC_NOT_FOUND);
@@ -207,7 +233,7 @@ public class playlistController {
     public Map<String,List<Long>> matchingSongs(
             @Parameter(description = "Title prefix", required = true) @RequestParam("prefix") String prefix,
             HttpServletResponse response) {
-        List<MetaData> startingPre = service.getAllStartWith(prefix);
+        List<MetaData> startingPre = MDservice.getAllStartWith(prefix);
 
         return Collections.singletonMap("IDs", startingPre.stream().map(MetaData::getId).collect(Collectors.toList()));
     }

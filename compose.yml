@@ -93,6 +93,27 @@ services:
     networks:
       - app-network
 
+  announcementservice:
+      build:
+        context: ./server
+        dockerfile: AnnouncementService/Dockerfile
+      image: server-announcementservice:latest
+      container_name: announcement
+      expose:
+        - "8080"
+      depends_on:
+        db:
+          condition: service_healthy
+      environment:
+        SPRING_DATABASE_URL: jdbc:mysql://db:3306/audioDB
+        SPRING_DATABASE_USERNAME: root
+        SPRING_DATABASE_PASSWORD: root
+        AUDIO_FILE_PATH: /audio
+      volumes:
+        - audio-files:/audio
+      networks:
+        - app-network
+
 volumes:
   mysql_data:
   audio-files:
