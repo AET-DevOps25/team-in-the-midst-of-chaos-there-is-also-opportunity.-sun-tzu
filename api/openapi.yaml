@@ -4,21 +4,25 @@ info:
   title: AI.FM - Music Streaming and GenAI API
   description: API for the collaborative music streaming application with Generative AI integration, orchestrating playlists, audio streams, and dynamic announcements.
   version: 1.0.0
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
 servers:
-  # Base URL for requests, assuming API Gateway routes all traffic
   - url: http://localhost:8080/api/v1
     description: Local Development API Gateway
   - url: https://your-deployed-gateway.com/api/v1 # Placeholder for your deployed API Gateway URL
 
+security: []
+
 tags:
   - name: Playlists
-    description: Operations related to managing user playlists and retrieving song metadata.
+    description: Operations related to managing user playlists and retrieving song metadata
   - name: Streams
-    description: Operations for streaming audio files.
+    description: Operations for streaming audio files
   - name: Announcements
-    description: Internal operations for creating and managing announcements.
+    description: Internal operations for creating and managing announcements
   - name: GenAI
-    description: Generative AI services for dynamic content creation.
+    description: Generative AI services for dynamic content creation
 
 paths:
   /playlist/greet:
@@ -38,6 +42,8 @@ paths:
                   message:
                     type: string
                     example: Hello World!
+        '400':
+          $ref: '#/components/responses/BadRequest'
 
   /playlist/newPlaylist:
     post:
@@ -58,6 +64,10 @@ paths:
                     format: int64
                     description: The ID of the newly created session/playlist.
                     example: 12345
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          description: Internal server error during playlist creation.
 
   /playlist/currentAudio:
     get:
@@ -87,7 +97,9 @@ paths:
                     description: The ID of the audio file at the playlist head.
                     example: 42
         '404':
-          description: No audio found at the playlist head or session not found.
+          $ref: '#/components/responses/NotFound'
+        '400':
+          $ref: '#/components/responses/BadRequest'
 
   /playlist/nextAudios:
     get:
@@ -109,15 +121,17 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  audio:
-                    type: array
-                    items:
-                      type: integer
-                      format: int64
-                    description: A list of audio file IDs in the current playlist queue.
-                    example: [101, 102, 103]
+                type: array
+                items:
+                  type: integer
+                  format: int64
+                description: A list of audio file IDs in the current playlist queue.
+                example: [101, 102, 103]
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
 
   /playlist/addSong:
     post:
@@ -144,7 +158,10 @@ paths:
         '200':
           description: Song added successfully.
         '404':
-          description: Song or session not found.
+          $ref: '#/components/responses/NotFound'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
 
   /playlist/removeHead:
     delete:
@@ -163,6 +180,10 @@ paths:
       responses:
         '200':
           description: Playlist head removed. If it was an announcement, it might be deleted.
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '400':
+          $ref: '#/components/responses/BadRequest'
 
   /playlist/metadata:
     get:
@@ -186,7 +207,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/Metadata'
         '404':
-          description: Metadata not found for the given ID.
+          $ref: '#/components/responses/NotFound'
+        '400':
+          $ref: '#/components/responses/BadRequest'
 
   /playlist/metadataMulti:
     get:
@@ -205,7 +228,7 @@ paths:
             minItems: 1
           required: true
           description: Comma-separated list of IDs of the songs or announcements.
-          style: form # for comma-separated array in query
+          style: form
           explode: false
       responses:
         '200':
@@ -217,7 +240,9 @@ paths:
                 items:
                   $ref: '#/components/schemas/Metadata'
         '404':
-          description: One or more metadata entries not found.
+          $ref: '#/components/responses/NotFound'
+        '400':
+          $ref: '#/components/responses/BadRequest'
 
   /playlist/find:
     get:
@@ -234,7 +259,7 @@ paths:
           description: The title prefix to search for.
       responses:
         '200':
-          description: List of IDs for matching songs.
+          description: Matching song IDs returned.
           content:
             application/json:
               schema:
@@ -247,6 +272,10 @@ paths:
                       format: int64
                     description: List of IDs of songs whose titles match the prefix.
                     example: [1, 5, 8]
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
 
   /stream/greet:
     get:
@@ -262,6 +291,8 @@ paths:
               schema:
                 type: string
                 example: Hello World!
+        '400':
+          $ref: '#/components/responses/BadRequest'
 
   /stream/audio:
     get:
@@ -327,9 +358,9 @@ paths:
                 type: string
                 example: bytes 0-4095/65536
         '400':
-          description: Invalid Range header provided.
+          $ref: '#/components/responses/BadRequest'
         '404':
-          description: Audio file not found.
+          $ref: '#/components/responses/NotFound'
 
   /announcement/greet:
     get:
@@ -348,6 +379,8 @@ paths:
                   message:
                     type: string
                     example: Hello World!
+        '400':
+          $ref: '#/components/responses/BadRequest'
 
   /announcement/createAnnouncement:
     post:
@@ -381,14 +414,15 @@ paths:
             format: int32
             enum: [1, 2, 3]
           required: true
-          description: Type of announcement (1=start, 2=middle/standard, 3=user wish).
+          description: Type of announcement (start = 1, middle/std = 2, user wish = 3 ?).
       responses:
         '200':
           description: Announcement created successfully.
+        '400':
+          $ref: '#/components/responses/BadRequest'
         '500':
           description: Internal server error (e.g., file saving issue).
 
-  # GenAI Service Endpoints (assumed to be routed via API Gateway like other services)
   /genai/generate-transition:
     post:
       summary: Generate an audio transition script and convert to audio using GenAI
@@ -415,6 +449,8 @@ paths:
                 type: string
                 description: Indicates if the audio is real ('real') or a fallback ('backup_script_failure', 'backup_tts_failure').
                 example: real
+        '400':
+          $ref: '#/components/responses/BadRequest'
         '500':
           description: Server configuration error (e.g., missing API key) or script/TTS generation failed.
 
@@ -438,11 +474,17 @@ paths:
                   config_loaded:
                     type: boolean
                     example: true
+        '500':
+          description: Internal server error, e.g., configuration not loaded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericError'
 
 components:
   schemas:
     # Schema for Metadata (used by PlaylistService)
-    Metadata: # Based on server/common/src/main/java/de/sunTzu/db/model/MetaData.java
+    Metadata:
       type: object
       properties:
         id:
@@ -478,23 +520,8 @@ components:
         - type
         - title
 
-    # Schema for AudioFile (used by StreamService)
-    AudioFile: # Based on server/common/src/main/java/de/sunTzu/db/model/AudioFile.java
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int64
-          description: Unique identifier for the audio file.
-        filename:
-          type: string
-          description: The actual filename on the file system.
-      required:
-        - id
-        - filename
-
     # GenAI Service Pydantic Models
-    Song: # Based on genai/src/chains/transition_chain.py & genai/src/main.py
+    Song:
       type: object
       properties:
         title:
@@ -509,7 +536,7 @@ components:
       required:
         - title
 
-    SongTransitionInfo: # Based on genai/src/main.py
+    SongTransitionInfo:
       type: object
       properties:
         message_type:
@@ -532,3 +559,37 @@ components:
           nullable: true
       required:
         - message_type
+
+    GenericError: # Moved to schemas to be a reusable schema
+      type: object
+      properties:
+        statusCode:
+          type: integer
+          format: int32
+          description: HTTP status code of the error.
+        message:
+          type: string
+          description: A descriptive error message or an error type.
+      required:
+        - statusCode
+        - message
+
+  responses: # Reusable responses for common HTTP statuses
+    BadRequest:
+      description: Bad Request - Invalid input or parameters.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/GenericError'
+            example:
+              statusCode: 400
+              message: Invalid parameters provided
+    NotFound:
+      description: Not Found - The requested resource could not be found.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/GenericError'
+            example:
+              statusCode: 404
+              message: Resource not found
