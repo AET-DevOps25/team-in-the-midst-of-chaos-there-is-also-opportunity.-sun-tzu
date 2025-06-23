@@ -1,8 +1,29 @@
+// This block defines the versions of plugins that all subprojects will use.
+// 'apply false' makes them available without applying them to the root project itself.
+plugins {
+	id 'org.springframework.boot' version '3.2.5' apply false
+	id 'io.spring.dependency-management' version '1.1.4' apply false
+}
+
+// This block configures settings that are common to ALL subprojects.
 subprojects {
+	apply plugin: 'java'
+
+	group = 'de.sunTzu'
+	version = '0.0.1-SNAPSHOT'
+	sourceCompatibility = '17'
+
 	repositories {
 		mavenCentral()
 	}
 
-	group = 'de.sunTzu'
-	version = '0.0.1-SNAPSHOT'
+	// This block correctly includes the OpenAPI generated source code in the build
+	sourceSets {
+		main {
+			java {
+				srcDir 'src/main/java'
+				srcDir "$buildDir/generated/src/main/java"
+			}
+		}
+	}
 }
