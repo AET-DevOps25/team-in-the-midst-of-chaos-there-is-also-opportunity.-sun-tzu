@@ -23,8 +23,5 @@ WORKDIR /app
 COPY --from=build /app/PlaylistService/build/libs/*.jar playlistService.jar
 COPY --from=build /app/common/build/libs/*.jar common.jar
 
-# Expose the port the app runs on
-# EXPOSE 8080
-
 # Command to run the application
 ENTRYPOINT ["java", "-jar", "playlistService.jar"]

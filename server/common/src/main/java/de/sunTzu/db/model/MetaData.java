@@ -1,9 +1,6 @@
 package de.sunTzu.db.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -12,6 +9,7 @@ import java.util.Map;
 @Table(name = "meta_data")
 public class MetaData {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column
     private String title;
