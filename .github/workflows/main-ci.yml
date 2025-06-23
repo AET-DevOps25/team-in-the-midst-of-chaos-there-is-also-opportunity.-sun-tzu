@@ -4,10 +4,34 @@ on:
   push:
     branches:
       - main
+    paths-ignore:
+      - 'README.md'
   pull_request:
 
+concurrency: ci-${{ github.ref }} # Add concurrency to cancel outdated runs
+
 jobs:
+  openapi-validation-and-generation:
+    name: OpenAPI Validation and Code Generation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Install Node.js for Redocly CLI
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install Redocly CLI and openapi-typescript
+        run: npm install -g @redocly/cli openapi-typescript
+      - name: Lint OpenAPI
+        run: npx @redocly/cli lint api/openapi.yaml
+      - name: Generate code
+        run: ./api/scripts/gen-all.sh
+        shell: bash
+        # Note: If gen-all.sh modifies files, ensure they are committed or made available to subsequent jobs via artifacts.
+
   get-changed-files:
+    needs: openapi-validation-and-generation
     runs-on: ubuntu-latest
     outputs:
       client: ${{ steps.changed-files.outputs.client_any_changed }}
@@ -17,7 +41,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          # Required for the changed-files action to compare commits
           fetch-depth: 2
 
       - name: Get changed files
@@ -33,7 +56,7 @@ jobs:
               - 'server/**'
 
   test-and-build-client:
-    needs: get-changed-files
+    needs: [get-changed-files, openapi-validation-and-generation]
     if: needs.get-changed-files.outputs.client == 'true'
     name: Test and Build Client
     runs-on: ubuntu-latest
@@ -44,22 +67,39 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+      - name: Cache npm dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
       - name: Install dependencies
         working-directory: ./client
         run: npm install
       - name: Run tests
         working-directory: ./client
-        # run: npm test -- --watch=false --browsers=ChromeHeadless
-        run: echo "npm test temporarily disabled"
+        run: npm test -- --watchAll=false # Re-enabled client tests
       - name: Build the application
         working-directory: ./client
         run: npm run build
-      - name: Build Production Docker Image
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        run: docker build -t client:latest -f client/Dockerfile ./client
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and Push Client Docker Image
+        run: |
+          docker build -t ghcr.io/${{ github.repository }}/client:latest -f client/Dockerfile ./client
+          docker push ghcr.io/${{ github.repository }}/client:latest
+          docker build -t ghcr.io/${{ github.repository }}/client:${{ github.sha }} -f client/Dockerfile ./client
+          docker push ghcr.io/${{ github.repository }}/client:${{ github.sha }}
 
   test-and-build-genai:
-    needs: get-changed-files
+    needs: [get-changed-files, openapi-validation-and-generation]
     if: needs.get-changed-files.outputs.genai == 'true'
     name: Test and Build GenAI Service
     runs-on: ubuntu-latest
@@ -70,6 +110,13 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+      - name: Cache pip dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
       - name: Install Docker Compose
         run: sudo apt-get update && sudo apt-get install -y docker-compose
       - name: Install Python dependencies
@@ -103,12 +150,23 @@ jobs:
       - name: Stop services
         if: always()
         run: docker-compose -f compose.yml down
-      - name: Build Production Docker Image
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        run: docker build -t genai-service:latest -f genai/Dockerfile ./genai
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and Push GenAI Docker Image
+        run: |
+          docker build -t ghcr.io/${{ github.repository }}/genai-service:latest -f genai/Dockerfile ./genai
+          docker push ghcr.io/${{ github.repository }}/genai-service:latest
+          docker build -t ghcr.io/${{ github.repository }}/genai-service:${{ github.sha }} -f genai/Dockerfile ./genai
+          docker push ghcr.io/${{ github.repository }}/genai-service:${{ github.sha }}
 
   test-and-build-server:
-    needs: get-changed-files
+    needs: [get-changed-files, openapi-validation-and-generation]
     if: needs.get-changed-files.outputs.server == 'true'
     name: Build and Test Server
     runs-on: ubuntu-latest
@@ -120,6 +178,13 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
+      - name: Cache Gradle dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.gradle/caches
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/build.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
       - name: Grant execute permission to Gradle wrapper
         run: chmod +x gradlew
         working-directory: server
@@ -135,3 +200,39 @@ jobs:
       - name: Run unit tests for AnnouncementService
         run: ./gradlew :AnnouncementService:test --no-daemon
         working-directory: server
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and Push StreamService Docker Image
+        working-directory: ./server
+        run: |
+          docker build -t ghcr.io/${{ github.repository }}/streamservice:latest -f StreamService/Dockerfile .
+          docker push ghcr.io/${{ github.repository }}/streamservice:latest
+          docker build -t ghcr.io/${{ github.repository }}/streamservice:${{ github.sha }} -f StreamService/Dockerfile .
+          docker push ghcr.io/${{ github.repository }}/streamservice:${{ github.sha }}
+      - name: Build and Push PlaylistService Docker Image
+        working-directory: ./server
+        run: |
+          docker build -t ghcr.io/${{ github.repository }}/playlistservice:latest -f PlaylistService/Dockerfile .
+          docker push ghcr.io/${{ github.repository }}/playlistservice:latest
+          docker build -t ghcr.io/${{ github.repository }}/playlistservice:${{ github.sha }} -f PlaylistService/Dockerfile .
+          docker push ghcr.io/${{ github.repository }}/playlistservice:${{ github.sha }}
+      - name: Build and Push AnnouncementService Docker Image
+        working-directory: ./server
+        run: |
+          docker build -t ghcr.io/${{ github.repository }}/announcementservice:latest -f AnnouncementService/Dockerfile .
+          docker push ghcr.io/${{ github.repository }}/announcementservice:latest
+          docker build -t ghcr.io/${{ github.repository }}/announcementservice:${{ github.sha }} -f AnnouncementService/Dockerfile .
+          docker push ghcr.io/${{ github.repository }}/announcementservice:${{ github.sha }}
+      - name: Build and Push API Gateway Docker Image
+        working-directory: ./server
+        run: |
+          docker build -t ghcr.io/${{ github.repository }}/api-gateway:latest -f api-gateway/Dockerfile .
+          docker push ghcr.io/${{ github.repository }}/api-gateway:latest
+          docker build -t ghcr.io/${{ github.repository }}/api-gateway:${{ github.sha }} -f api-gateway/Dockerfile .
+          docker push ghcr.io/${{ github.repository }}/api-gateway:${{ github.sha }}
