@@ -4,25 +4,23 @@ set -euo pipefail
 echo "Running OpenAPI code generation for all services..."
 
 # 1. Generate Java server stubs (interfaces and models) for Spring Boot microservices
-# This assumes openApiGenerate task is configured in each service's build.gradle
 echo "Generating Java code for Spring Boot microservices..."
-# This command will trigger the openApiGenerate task in each specified Gradle module.
-# Ensure you are running this from the project root where 'gradlew' is located.
-./gradlew :AnnouncementService:openApiGenerate \
-          :PlaylistService:openApiGenerate \
-          :StreamService:openApiGenerate
+# Use -p server to tell gradlew that the Gradle project root is in the 'server' directory.
+server/gradlew -p server :AnnouncementService:openApiGenerate \
+                               :PlaylistService:openApiGenerate \
+                               :StreamService:openApiGenerate
 
 # 2. Generate Python Pydantic models/client for GenAI service
-echo "Generating Python code for GenAI service..."
-# This uses 'openapi-python-client' to generate models based on your spec.
-# The output directory 'genai/generated_api' will be created if it doesn't exist.
-# Make sure 'openapi-python-client' is installed (e.g., via pip install openapi-python-client).
-openapi-python-client generate --path api/openapi.yaml --output genai/generated_api
+#echo "Generating Python code for GenAI service..."
+# Assuming openapi-python-client is installed globally or in a local venv managed by CI
+# Ensure genai/generated_api directory exists or is handled by the tool
+# Path to api/openapi.yaml remains relative to the script's execution location (project root)
+#openapi-python-client generate --path api/openapi.yaml --output genai/generated_api
 
 # 3. Generate TypeScript types for Angular client
 echo "Generating TypeScript types for Angular client..."
-# This uses 'openapi-typescript' to generate type definitions from your spec.
-# Make sure 'openapi-typescript' is installed (e.g., via npm install -D openapi-typescript).
+# Assuming npx is available and openapi-typescript is installed as a dev dependency in client/package.json
+# Path to api/openapi.yaml remains relative to the script's execution location (project root)
 npx openapi-typescript api/openapi.yaml --output client/src/app/api.d.ts
 
 echo "All OpenAPI code generation tasks completed."

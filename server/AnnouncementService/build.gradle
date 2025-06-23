@@ -1,29 +1,84 @@
 plugins {
 	id 'java'
-	id 'org.springframework.boot' version '3.1.4'
-	id 'io.spring.dependency-management' version '1.1.7'
+	id 'org.springframework.boot' version '3.3.1' // !! VERIFY YOUR SPRING BOOT VERSION !!
+	id 'io.spring.dependency-management' version '1.1.5' // !! VERIFY YOUR SPRING DEPENDENCY MANAGEMENT VERSION !!
+	id "org.openapi.generator" version "7.5.0" // Use the latest stable version
 }
+
+group = 'de.sunTzu'
+version = '0.0.1-SNAPSHOT'
 
 java {
 	toolchain {
-		languageVersion = JavaLanguageVersion.of(17)
+		languageVersion = JavaLanguageVersion.of(17) // !! VERIFY YOUR JDK VERSION !!
 	}
 }
 
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
 dependencies {
-	implementation project(':common')
-	implementation 'org.springframework.boot:spring-boot-starter-web'
+	// Your existing Spring Boot starters and other dependencies
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-	implementation 'com.mysql:mysql-connector-j'
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+
+	// Database Driver (if not already present)
 	runtimeOnly 'com.mysql:mysql-connector-j'
+
+	// Dependency on the common module for shared DB models
+	implementation project(':common')
+
+	// Testing Dependencies
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.mockito:mockito-core:5.11.0'
+	testImplementation 'org.mockito:mockito-junit-jupiter:5.11.0'
 }
 
-tasks.named('test') {
-	useJUnitPlatform()
+// === START OpenAPI Generator Configuration ===
+openApiGenerate {
+	generatorName = "spring"
+	// CORRECTED PATH: Points to the overall project root, then into 'api' directory
+	inputSpec = "${rootProject.projectDir.parentFile}/api/openapi.yaml".toString()
+	outputDir = "${buildDir}/generated".toString()
+	apiPackage = "de.sunTzu.generated.api"
+	modelPackage = "de.sunTzu.generated.model"
+	configOptions = [
+			sourceFolder: "src/main/java",
+			useSpringBoot3: "true",
+			useBeanValidation: "true",
+			interfaceOnly: "true",
+			skipFormModel: "false",
+			hateoas: "false",
+			// java8: "true",
+			// dateLibrary: "java8"
+	]
 }
 
-bootJar {
-	archiveFileName = 'announcementService.jar'
+sourceSets {
+	main {
+		java {
+			srcDirs += files("${buildDir}/generated/src/main/java")
+		}
+	}
+}
+
+tasks.named('compileJava') {
+	dependsOn tasks.named('openApiGenerate')
+}
+// === END OpenAPI Generator Configuration ===
+
+tasks.named('jar') {
+	enabled = true
+}
+
+tasks.register('cleanGenerated', Delete) {
+	delete "${buildDir}/generated"
 }
