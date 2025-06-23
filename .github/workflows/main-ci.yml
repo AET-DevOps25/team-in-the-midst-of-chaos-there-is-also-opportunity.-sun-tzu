@@ -27,10 +27,11 @@ jobs:
         run: npx @redocly/cli lint api/openapi.yaml
       - name: Set execute permission for gen-all.sh
         run: chmod +x api/scripts/gen-all.sh
+      - name: Set execute permission for gradlew
+        run: chmod +x server/gradlew
       - name: Generate code
         run: ./api/scripts/gen-all.sh
         shell: bash
-        # Note: If gen-all.sh modifies files, ensure they are committed or made available to subsequent jobs via artifacts.
 
   get-changed-files:
     needs: openapi-validation-and-generation
@@ -189,8 +190,8 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
       - name: Grant execute permission to Gradle wrapper
-        run: chmod +x server/gradlew
-        working-directory: server
+        run: chmod +x server/gradlew # Ensure gradlew is executable
+        working-directory: server # Run from server directory
       - name: Build all microservices
         run: ./gradlew build --no-daemon
         working-directory: server
