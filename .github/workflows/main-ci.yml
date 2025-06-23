@@ -27,7 +27,8 @@ jobs:
         run: npx @redocly/cli lint api/openapi.yaml
       - name: Set execute permission for gen-all.sh
         run: chmod +x api/scripts/gen-all.sh
-      - name: Set execute permission for gradlew
+      - name: Set execute permission for gradlew (for gen-all.sh)
+        # This chmod is for when gen-all.sh executes server/gradlew from the root
         run: chmod +x server/gradlew
       - name: Generate code
         run: ./api/scripts/gen-all.sh
@@ -82,8 +83,7 @@ jobs:
         run: npm install
       - name: Run tests
         working-directory: ./client
-        # run: npm test -- --watch=false --browsers=ChromeHeadless
-        run: echo "npm test temporarily disabled"
+        run: npm test -- --watchAll=false
       - name: Build the application
         working-directory: ./client
         run: npm run build
@@ -190,8 +190,8 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
       - name: Grant execute permission to Gradle wrapper
-        run: chmod +x server/gradlew # Ensure gradlew is executable
-        working-directory: server # Run from server directory
+        run: chmod +x ./gradlew # CORRECTED: Relative path within working-directory
+        working-directory: server
       - name: Build all microservices
         run: ./gradlew build --no-daemon
         working-directory: server
