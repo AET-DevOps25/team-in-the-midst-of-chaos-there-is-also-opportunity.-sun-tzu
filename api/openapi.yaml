@@ -1,0 +1,534 @@
+# api/openapi.yaml
+openapi: 3.0.0
+info:
+  title: AI.FM - Music Streaming and GenAI API
+  description: API for the collaborative music streaming application with Generative AI integration, orchestrating playlists, audio streams, and dynamic announcements.
+  version: 1.0.0
+servers:
+  # Base URL for requests, assuming API Gateway routes all traffic
+  - url: http://localhost:8080/api/v1
+    description: Local Development API Gateway
+  - url: https://your-deployed-gateway.com/api/v1 # Placeholder for your deployed API Gateway URL
+
+tags:
+  - name: Playlists
+    description: Operations related to managing user playlists and retrieving song metadata.
+  - name: Streams
+    description: Operations for streaming audio files.
+  - name: Announcements
+    description: Internal operations for creating and managing announcements.
+  - name: GenAI
+    description: Generative AI services for dynamic content creation.
+
+paths:
+  /playlist/greet:
+    get:
+      summary: Greet the Playlist Service
+      operationId: playlistGreet
+      tags:
+        - Playlists
+      responses:
+        '200':
+          description: A greeting message from the Playlist service.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Hello World!
+
+  /playlist/newPlaylist:
+    post:
+      summary: Register a new session and create an initial playlist
+      operationId: createNewSession
+      tags:
+        - Playlists
+      responses:
+        '200':
+          description: Session registered and initial playlist created.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  session:
+                    type: integer
+                    format: int64
+                    description: The ID of the newly created session/playlist.
+                    example: 12345
+
+  /playlist/currentAudio:
+    get:
+      summary: Get the current audio ID from the playlist head for a session
+      operationId: provideCurrentAudio
+      tags:
+        - Playlists
+      parameters:
+        - in: query
+          name: session
+          schema:
+            type: integer
+            format: int64
+          required: true
+          description: The session ID.
+      responses:
+        '200':
+          description: Current audio ID found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  audio:
+                    type: integer
+                    format: int64
+                    description: The ID of the audio file at the playlist head.
+                    example: 42
+        '404':
+          description: No audio found at the playlist head or session not found.
+
+  /playlist/nextAudios:
+    get:
+      summary: Get a list of audio IDs in the playlist for a session
+      operationId: provideNextAudios
+      tags:
+        - Playlists
+      parameters:
+        - in: query
+          name: session
+          schema:
+            type: integer
+            format: int64
+          required: true
+          description: The session ID.
+      responses:
+        '200':
+          description: List of audio IDs in the playlist.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  audio:
+                    type: array
+                    items:
+                      type: integer
+                      format: int64
+                    description: A list of audio file IDs in the current playlist queue.
+                    example: [101, 102, 103]
+
+  /playlist/addSong:
+    post:
+      summary: Add a song to a playlist by its ID
+      operationId: addSongToPlaylist
+      tags:
+        - Playlists
+      parameters:
+        - in: query
+          name: song
+          schema:
+            type: integer
+            format: int64
+          required: true
+          description: ID of the song to add.
+        - in: query
+          name: session
+          schema:
+            type: integer
+            format: int64
+          required: true
+          description: Session ID of the playlist.
+      responses:
+        '200':
+          description: Song added successfully.
+        '404':
+          description: Song or session not found.
+
+  /playlist/removeHead:
+    delete:
+      summary: Remove the current song (head) from the playlist
+      operationId: removeHeadFromPlaylist
+      tags:
+        - Playlists
+      parameters:
+        - in: query
+          name: session
+          schema:
+            type: integer
+            format: int64
+          required: true
+          description: Session ID of the playlist.
+      responses:
+        '200':
+          description: Playlist head removed. If it was an announcement, it might be deleted.
+
+  /playlist/metadata:
+    get:
+      summary: Get metadata for a specific song or announcement by ID
+      operationId: provideMetaData
+      tags:
+        - Playlists
+      parameters:
+        - in: query
+          name: id
+          schema:
+            type: integer
+            format: int64
+          required: true
+          description: ID of the song or announcement.
+      responses:
+        '200':
+          description: Metadata retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Metadata'
+        '404':
+          description: Metadata not found for the given ID.
+
+  /playlist/metadataMulti:
+    get:
+      summary: Get metadata for multiple songs or announcements by IDs
+      operationId: provideMetaDataMulti
+      tags:
+        - Playlists
+      parameters:
+        - in: query
+          name: ids
+          schema:
+            type: array
+            items:
+              type: integer
+              format: int64
+            minItems: 1
+          required: true
+          description: Comma-separated list of IDs of the songs or announcements.
+          style: form # for comma-separated array in query
+          explode: false
+      responses:
+        '200':
+          description: List of metadata entries retrieved.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Metadata'
+        '404':
+          description: One or more metadata entries not found.
+
+  /playlist/find:
+    get:
+      summary: Find songs by title prefix (case insensitive)
+      operationId: matchingSongsByPrefix
+      tags:
+        - Playlists
+      parameters:
+        - in: query
+          name: prefix
+          schema:
+            type: string
+          required: true
+          description: The title prefix to search for.
+      responses:
+        '200':
+          description: List of IDs for matching songs.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  IDs:
+                    type: array
+                    items:
+                      type: integer
+                      format: int64
+                    description: List of IDs of songs whose titles match the prefix.
+                    example: [1, 5, 8]
+
+  /stream/greet:
+    get:
+      summary: Greet the Stream Service
+      operationId: streamGreet
+      tags:
+        - Streams
+      responses:
+        '200':
+          description: A greeting message from the Stream service.
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Hello World!
+
+  /stream/audio:
+    get:
+      summary: Stream audio by ID
+      operationId: streamAudio
+      tags:
+        - Streams
+      parameters:
+        - in: query
+          name: id
+          schema:
+            type: integer
+            format: int64
+          required: true
+          description: ID of the audio file to stream.
+        - in: header
+          name: Range
+          schema:
+            type: string
+          required: false
+          description: HTTP Range header for partial content requests (e.g., bytes=0-4095).
+      responses:
+        '200':
+          description: Full audio content streamed.
+          content:
+            audio/mpeg:
+              schema:
+                type: string
+                format: binary
+          headers:
+            Accept-Ranges:
+              schema:
+                type: string
+                example: bytes
+            Content-Length:
+              schema:
+                type: integer
+                format: int64
+                example: 65536
+            Content-Range:
+              schema:
+                type: string
+                example: bytes 0-65535/65536
+        '206':
+          description: Partial audio content streamed.
+          content:
+            audio/mpeg:
+              schema:
+                type: string
+                format: binary
+          headers:
+            Accept-Ranges:
+              schema:
+                type: string
+                example: bytes
+            Content-Length:
+              schema:
+                type: integer
+                format: int64
+                example: 4096
+            Content-Range:
+              schema:
+                type: string
+                example: bytes 0-4095/65536
+        '400':
+          description: Invalid Range header provided.
+        '404':
+          description: Audio file not found.
+
+  /announcement/greet:
+    get:
+      summary: Greet the Announcement Service
+      operationId: announcementGreet
+      tags:
+        - Announcements
+      responses:
+        '200':
+          description: A greeting message from the Announcement service.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Hello World!
+
+  /announcement/createAnnouncement:
+    post:
+      summary: Create a new announcement and associate it with audio files
+      operationId: createAnnouncement
+      tags:
+        - Announcements
+      parameters:
+        - in: query
+          name: newID
+          schema:
+            type: integer
+            format: int64
+          required: true
+          description: Audio ID for the announcement to insert into the audio_files table.
+        - in: query
+          name: audios
+          schema:
+            type: array
+            items:
+              type: integer
+              format: int64
+          required: true
+          description: Comma-separated list of audio IDs that the announcement is about.
+          style: form
+          explode: false
+        - in: query
+          name: type
+          schema:
+            type: integer
+            format: int32
+            enum: [1, 2, 3]
+          required: true
+          description: Type of announcement (1=start, 2=middle/standard, 3=user wish).
+      responses:
+        '200':
+          description: Announcement created successfully.
+        '500':
+          description: Internal server error (e.g., file saving issue).
+
+  # GenAI Service Endpoints (assumed to be routed via API Gateway like other services)
+  /genai/generate-transition:
+    post:
+      summary: Generate an audio transition script and convert to audio using GenAI
+      operationId: generateAudioTransition
+      tags:
+        - GenAI
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SongTransitionInfo'
+      responses:
+        '200':
+          description: Successfully generated and returned audio for the transition.
+          content:
+            audio/mpeg:
+              schema:
+                type: string
+                format: binary
+          headers:
+            X-Audio-Source:
+              schema:
+                type: string
+                description: Indicates if the audio is real ('real') or a fallback ('backup_script_failure', 'backup_tts_failure').
+                example: real
+        '500':
+          description: Server configuration error (e.g., missing API key) or script/TTS generation failed.
+
+  /genai/health:
+    get:
+      summary: Check health of the GenAI service
+      operationId: getGenAIHealth
+      tags:
+        - GenAI
+      responses:
+        '200':
+          description: GenAI service is healthy.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+                  config_loaded:
+                    type: boolean
+                    example: true
+
+components:
+  schemas:
+    # Schema for Metadata (used by PlaylistService)
+    Metadata: # Based on server/common/src/main/java/de/sunTzu/db/model/MetaData.java
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          readOnly: true
+          description: Unique identifier for the metadata entry (song or announcement).
+        type:
+          type: string
+          description: Type of the entry (e.g., "song", "announcement").
+          example: song
+        title:
+          type: string
+          description: Title of the song or announcement.
+          example: My Awesome Song
+        artist:
+          type: string
+          nullable: true
+          description: Artist of the song (null for announcements).
+          example: The Great Artist
+        release_date:
+          type: string
+          nullable: true
+          description: Release date of the song (e.g., DD-MM-YYYY, null for announcements).
+          example: 01-01-2023
+        genre:
+          type: string
+          nullable: true
+          description: Genre of the song (null for announcements).
+          example: Pop
+      required:
+        - id
+        - type
+        - title
+
+    # Schema for AudioFile (used by StreamService)
+    AudioFile: # Based on server/common/src/main/java/de/sunTzu/db/model/AudioFile.java
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: Unique identifier for the audio file.
+        filename:
+          type: string
+          description: The actual filename on the file system.
+      required:
+        - id
+        - filename
+
+    # GenAI Service Pydantic Models
+    Song: # Based on genai/src/chains/transition_chain.py & genai/src/main.py
+      type: object
+      properties:
+        title:
+          type: string
+          description: Title of the song.
+          example: Bohemian Rhapsody
+        artist:
+          type: string
+          nullable: true
+          description: Artist of the song.
+          example: Queen
+      required:
+        - title
+
+    SongTransitionInfo: # Based on genai/src/main.py
+      type: object
+      properties:
+        message_type:
+          type: integer
+          format: int32
+          description: Type of message to generate (1=Introduction, 2=Quick Transition, 3=Fun Fact).
+          enum: [1, 2, 3]
+          example: 1
+        previous_song:
+          $ref: '#/components/schemas/Song'
+          description: Details of the song that just finished playing.
+          nullable: true
+        next_song:
+          $ref: '#/components/schemas/Song'
+          description: Details of the song about to play.
+          nullable: true
+        after_next_song:
+          $ref: '#/components/schemas/Song'
+          description: Details of the song that will play after the next one.
+          nullable: true
+      required:
+        - message_type
