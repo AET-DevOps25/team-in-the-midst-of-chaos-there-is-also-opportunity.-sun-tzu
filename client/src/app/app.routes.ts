@@ -1,29 +1,36 @@
 import { Routes } from '@angular/router';
-
-import { isUninitializedGuard } from '@app/guards';
-import { InitialPageComponent } from '@app/components';
+import { welcomeRedirectGuard } from './guards/welcome-redirect.guard';
+import { playerAccessGuard } from './guards/player-access.guard';
+import { sessionRestoreGuard } from './guards/session-restore.guard';
 
 
 /**
- * First, load initial component.
- * This deactivates its route guard, so that upon reload, the actual route is loaded.
- * For root route, the first empty path is taken, i.e. try to load the landing page
- * (its guard might still redirect to the home page).
  * 
+ * GUARD: ensureSessionStateKnown
+ *   path "" - guard (redirect to either welcome or player, depending on session state)
+ *   path "welcome" - guard (load component if no session, else redirect to player)
+ *   path "player" - guard (load component if session, else redirect to welcome)
+ * path "**" - 404 page
  */
+
+
+
 export const routes: Routes = [
   {
     path: '',
-    loadComponent: () => import('@app/components').then(m => m.WelcomePageComponent)
-  },
-  {
-    path: '**',
-    loadComponent: () => import('@app/components').then(m => m.InitialPageComponent),
-    canMatch: [isUninitializedGuard]
-  },
-  {
-    path: 'player',
-    loadComponent: () => import('@app/components').then(m => m.MainPageComponent)
+    canActivate: [sessionRestoreGuard],
+    children: [
+      {
+        path: '',
+        canActivate: [welcomeRedirectGuard],
+        loadComponent: () => import('@app/components').then(m => m.WelcomePageComponent)
+      },
+      {
+        path: 'player',
+        canActivate: [playerAccessGuard],
+        loadComponent: () => import('@app/components').then(m => m.MainPageComponent)
+      }
+    ]
   },
   {
     path: '**',

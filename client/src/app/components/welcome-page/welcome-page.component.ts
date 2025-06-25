@@ -2,9 +2,8 @@ import { Component, effect, inject, OnDestroy, OnInit, signal } from '@angular/c
 import { MatButtonModule } from '@angular/material/button';
 import { Router, RouterModule } from '@angular/router';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
-import { InitializationService } from '@app/services';
 
-import { getTakeUntilDestroyed } from '@app/take-until-destroyed';
+import { SessionService } from '@app/services/session.service';
 
 
 @Component({
@@ -13,26 +12,14 @@ import { getTakeUntilDestroyed } from '@app/take-until-destroyed';
   templateUrl: './welcome-page.component.html',
   styleUrl: './welcome-page.component.scss'
 })
-export class WelcomePageComponent implements OnInit {
+export class WelcomePageComponent {
   router = inject(Router)
-  initService = inject(InitializationService)
-  takeUntilDestroyed = getTakeUntilDestroyed()
+  sessionService = inject(SessionService)
+  readonly isLoading = signal(false)
 
-  isClicked = signal(false)
-
-  readonly enterApp = effect(() => {
-    const isInitialized = this.initService.isInitialized()
-    const isClicked = this.isClicked()
-
-    if (isClicked && isInitialized) {
-      this.router.navigate(['/player'])
-    }
-  })
-
-  ngOnInit(): void {
-    this.initService.initialize().pipe(
-      this.takeUntilDestroyed()
-    ).subscribe()
+  onClick() {
+    this.isLoading.set(true)
+    this.router.navigate(['/player'])
   }
 
 }

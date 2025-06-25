@@ -3,8 +3,8 @@
     <h1 class="title">ai.FM</h1>
     <h2 class="subtitle">Your Radio. Now.</h2>
 
-    <button mat-raised-button class="enter-button" [disabled]="isClicked()" (click)="isClicked.set(true)">
-      @if (isClicked()) {
+    <button mat-raised-button class="enter-button" [disabled]="isLoading()" (click)="onClick()">
+      @if (isLoading()) {
         <mat-spinner color="accent" diameter="25"/>
       } @else {
         ENTER
