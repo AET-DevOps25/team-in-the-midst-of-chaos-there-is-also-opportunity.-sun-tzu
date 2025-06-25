@@ -43,4 +43,4 @@ export interface ErrorResponse<T extends ErrorType> extends HttpResponse {
   error: T;
 }
 
-export type ApiResponse<Success, Error extends ErrorType> = SuccessResponse<Success> | ErrorResponse<Error>;
+export type ApiResponse<Success, Error extends ErrorType = never> = SuccessResponse<Success> | ErrorResponse<Error>;

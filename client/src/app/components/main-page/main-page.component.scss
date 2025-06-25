@@ -1,0 +1,55 @@
+@use '@angular/material' as mat;
+
+
+// Customize the entire app. Change :root to your selector if you want to scope the styles.
+:host {
+    @include mat.divider-overrides((
+        color: lightgray,
+    ));
+    display: flex;
+    flex-direction: column;
+}
+
+.container {
+    flex: 1; /* take up remaining space */
+    overflow: auto; /* scroll if needed */
+
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    text-align: center;
+    flex-wrap: wrap;
+
+    margin-top: 50px;
+}
+
+app-song-catalogue {
+    flex-grow: 1;
+    flex-basis: 0;
+    flex-shrink: 0;
+    min-width: 0;
+}
+
+
+app-audio-controls {
+    flex-grow: 1.5;
+    flex-basis: 0;
+    flex-shrink: 0;
+    min-width: 0;
+    // width: 100%;
+    // min-width: 50px;
+    // max-width: 50%;
+    // height: min-content;
+}
+
+app-queue {
+    flex-grow: 1;
+    flex-basis: 0;
+    flex-shrink: 0;
+    min-width: 0;
+}
+
+
+mat-divider {
+    height: 80%
+}
