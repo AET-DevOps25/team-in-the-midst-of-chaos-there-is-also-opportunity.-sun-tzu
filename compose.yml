@@ -12,11 +12,36 @@ services:
     depends_on:
       - api-gateway
 
+  downloader:
+    build: ./server/database/downloader
+    volumes:
+      - audio-files:/audio
+      - sql-files:/docker-entrypoint-initdb.d
+    networks:
+      - app-network
+
+  init-db-data:
+    image: alpine:latest
+    depends_on: 
+      downloader:
+        condition: service_completed_successfully
+    volumes:
+      - sql-files:/docker-entrypoint-initdb.d
+    command: 
+      - /bin/sh
+      - -c
+      - |
+        echo "[INIT] Waiting for /sql/02-data.sql..." &&
+        while [ ! -f /docker-entrypoint-initdb.d/02-data.sql ]; do sleep 1; done
+
   db:
     build: ./server/database
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: audioDB
+    depends_on:
+      init-db-data:
+        condition: service_completed_successfully
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
       interval: 10s
@@ -24,7 +49,7 @@ services:
       retries: 5
     volumes:
       - "mysql_data:/var/lib/mysql"
-      - "audio-files:/shared"
+      - "sql-files:/docker-entrypoint-initdb.d"
     networks:
       - app-network
 
@@ -45,7 +70,6 @@ services:
       context: ./server
       dockerfile: StreamService/Dockerfile
     image: server-streamservice:latest
-    container_name: stream
     expose:
       - "8080"
     depends_on:
@@ -66,7 +90,6 @@ services:
       context: ./server
       dockerfile: PlaylistService/Dockerfile
     image: server-playlistservice:latest
-    container_name: playlist
     expose:
       - "8080"
     depends_on:
@@ -94,29 +117,39 @@ services:
       - app-network
 
   announcementservice:
-      build:
-        context: ./server
-        dockerfile: AnnouncementService/Dockerfile
-      image: server-announcementservice:latest
-      container_name: announcement
-      expose:
-        - "8080"
-      depends_on:
-        db:
-          condition: service_healthy
-      environment:
-        SPRING_DATABASE_URL: jdbc:mysql://db:3306/audioDB
-        SPRING_DATABASE_USERNAME: root
-        SPRING_DATABASE_PASSWORD: root
-        AUDIO_FILE_PATH: /audio
-      volumes:
-        - audio-files:/audio
-      networks:
-        - app-network
+    build:
+      context: ./server
+      dockerfile: AnnouncementService/Dockerfile
+    image: server-announcementservice:latest
+    expose:
+      - "8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      SPRING_DATABASE_URL: jdbc:mysql://db:3306/audioDB
+      SPRING_DATABASE_USERNAME: root
+      SPRING_DATABASE_PASSWORD: root
+      AUDIO_FILE_PATH: /audio
+    volumes:
+      - audio-files:/audio
+    networks:
+      - app-network
+      
+  prometheus:
+    build: ./monitoring/prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - prometheus_data:/prometheus
+    networks:
+      - app-network
 
 volumes:
   mysql_data:
+  sql-files:
   audio-files:
+  prometheus_data:
 
 networks:
   app-network:
