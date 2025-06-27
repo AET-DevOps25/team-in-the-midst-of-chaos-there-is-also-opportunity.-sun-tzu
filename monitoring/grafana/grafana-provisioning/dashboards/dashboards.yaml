@@ -1,8 +1,9 @@
 apiVersion: 1
 providers:
-  - name: 'default'
+  - name: 'DevOps dashboard'
     orgId: 1
-    folder: ''
+    folder: DevOps
     type: file
+    updateIntervalSeconds: 900
     options:
       path: /var/lib/grafana/dashboards

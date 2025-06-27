@@ -13,11 +13,11 @@ groups:
               relativeTimeRange:
                 from: 600
                 to: 0
-              datasourceUid: aeq4fez426800e
+              datasourceUid: PBFA97CFB590B2093
               model:
                 datasource:
                     type: prometheus
-                    uid: aeq4fez426800e
+                    uid: PBFA97CFB590B2093
                 editorMode: code
                 expr: up{job=~"genai-service|stream-service|playlist-service"} == 0
                 hide: false

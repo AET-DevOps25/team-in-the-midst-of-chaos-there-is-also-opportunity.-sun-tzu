@@ -138,10 +138,28 @@ services:
       
   prometheus:
     build: ./monitoring/prometheus
+    container_name: prometheus
     ports:
       - "9090:9090"
     volumes:
       - prometheus_data:/prometheus
+    networks:
+      - app-network
+
+  grafana:
+    image: grafana/grafana-oss
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./monitoring/grafana/grafana-dashboard:/var/lib/grafana/dashboards/DevOps
+      - ./monitoring/grafana/grafana-provisioning:/etc/grafana/provisioning
+    depends_on:
+      - prometheus
+    environment:
+      - GF_LOG_LEVEL=warn
+      - GF_USERS_DEFAULT_THEME=light
+      - GF_USERS_HOME_DASHBOARD_UID=beq4femso72f4a
     networks:
       - app-network
 
