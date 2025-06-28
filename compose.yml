@@ -20,27 +20,13 @@ services:
     networks:
       - app-network
 
-  init-db-data:
-    image: alpine:latest
-    depends_on: 
-      downloader:
-        condition: service_completed_successfully
-    volumes:
-      - sql-files:/docker-entrypoint-initdb.d
-    command: 
-      - /bin/sh
-      - -c
-      - |
-        echo "[INIT] Waiting for /sql/02-data.sql..." &&
-        while [ ! -f /docker-entrypoint-initdb.d/02-data.sql ]; do sleep 1; done
-
   db:
     build: ./server/database
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: audioDB
     depends_on:
-      init-db-data:
+      downloader:
         condition: service_completed_successfully
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
@@ -159,7 +145,6 @@ services:
     environment:
       - GF_LOG_LEVEL=warn
       - GF_USERS_DEFAULT_THEME=light
-      - GF_USERS_HOME_DASHBOARD_UID=beq4femso72f4a
     networks:
       - app-network
 

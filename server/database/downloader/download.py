@@ -1,6 +1,9 @@
 import os
 import requests
-from datetime import datetime
+import random
+import tempfile
+from mutagen import File
+import shutil
 
 # Output locations
 AUDIO_DIR = "/audio"
@@ -9,12 +12,14 @@ DATA_SQL = "/docker-entrypoint-initdb.d/02-data.sql"
 os.makedirs(AUDIO_DIR, exist_ok=True)
 
 ARCHIVE_API_URL = "https://archive.org/advancedsearch.php"
-MAX_ITEMS = 2
+MAX_ITEMS = 20
+MAX_DURATION_SECONDS = 6 * 60
+PARTIAL_BYTES = 2 * 1024 * 1024
 
 def fetch_items():
     params = {
-        "q": "subject:classical AND mediatype:audio",
-        "fl[]": "identifier,title,creator,date",
+        "q": "subject:(classical) AND mediatype:(audio)",
+        "fl[]": "identifier,title,creator,year,genre",
         "rows": MAX_ITEMS,
         "output": "json"
     }
@@ -29,22 +34,35 @@ def get_mp3_links(identifier):
     files = r.json().get('files', [])
     return [f"https://archive.org/download/{identifier}/{f['name']}" for f in files if f['name'].endswith(".mp3")]
 
+def get_audio_duration(path):
+    try:
+        audio = File(path)
+        return audio.info.length if audio and audio.info else None
+    except Exception:
+        return None
+
 def download_file(url, dest_dir):
     filename = url.split('/')[-1]
     path = os.path.join(dest_dir, filename)
-    r = requests.get(url, stream=True)
-    if r.status_code == 200:
-        with open(path, "wb") as f:
-            for chunk in r.iter_content(8192):
-                f.write(chunk)
-        return filename
-    return None
 
-def format_date(archive_date):
-    try:
-        return datetime.strptime(archive_date, "%Y-%m-%d").strftime("%d-%m-%Y")
-    except:
-        return "01-01-1900"
+    with tempfile.NamedTemporaryFile(delete=False) as tmp:
+        tmp_path = tmp.name
+        r = requests.get(url, stream=True)
+        if r.status_code == 200:
+            for chunk in r.iter_content(8192):
+                tmp.write(chunk)
+        else:
+            return None
+
+    # Check duration
+    duration = get_audio_duration(tmp_path)
+    if duration is not None and duration <= MAX_DURATION_SECONDS:
+        shutil.move(tmp_path, path)
+        return filename
+    else:
+        print("Removed download due to size")
+        os.remove(tmp_path)
+        return None
 
 def main():
     items = fetch_items()
@@ -57,15 +75,21 @@ def main():
         identifier = item['identifier']
         title = item.get('title', f"Title {song_id}")
         artist = item.get('creator', "Unknown Artist")
-        release_date = format_date(item.get('date', '1900-01-01'))
-        genre = "Classical"
-
+        if isinstance(artist, list):
+            artist = artist[0]
+        release_date = item.get('year', 'Unknown release year')
+        genre = item.get('genre', 'Classical')
+        if isinstance(genre, list):
+            genre = random.sample(genre, 1)[0]
+        print(str(item))
         try:
             urls = get_mp3_links(identifier)
+            if len(urls) > 1:
+                urls = random.sample(urls, 2) # take only two out of collection
             for url in urls:
                 filename = url.split('/')[-1]
                 if filename in existing_files:
-                    print(f"Skipping download for file \"{filename}\"", flush=True)
+                    print(f"Skipping \"{filename}\" (already present)", flush=True)
                     continue
 
                 filename = download_file(url, AUDIO_DIR)
@@ -74,7 +98,7 @@ def main():
                 audio_entries.append(f"('{song_id}', '{filename}')")
                 metadata_entries.append(f"('{song_id}', 'song', '{title}', '{artist}', '{release_date}', '{genre}')")
                 song_id += 1
-                print(f"Downloaded file \"{filename}\"", flush=True)
+                print(f"Downloaded \"{filename}\"", flush=True)
         except Exception as e:
             print(f"Error processing {identifier}: {e}")
 
