@@ -54,13 +54,22 @@ export class PlaylistService {
     this.availableSongs[0]
   ]
 
-  constructor() { }
+  constructor() {
+    this.createPlaylist().subscribe(x => {
+      x
+    })
+  }
 
   getAvailableSongs(): Observable<ApiResponse<
-    SongDto[],
-    never
+    SongDto[]
   >> {
     return this.apiService.get('availableSongs')
+  }
+
+  createPlaylist(): Observable<ApiResponse<
+    any
+  >> {
+    return this.apiService.get('newPlaylist')
   }
 
   getTrack(id: number): Track {

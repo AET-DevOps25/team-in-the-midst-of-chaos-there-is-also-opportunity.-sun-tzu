@@ -1,51 +1,12 @@
-@use '@angular/material' as mat;
-
-// Customize the entire app. Change :root to your selector if you want to scope the styles.
 :host {
-  @include mat.divider-overrides((
-    color: lightgray,
-  ));
-}
+  // allow outlet to expand to full height
+  display: flex;
+  flex-direction: column;
 
-.container {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    height: 100svh;
-    width: 100%;
-    text-align: center;
-    flex-wrap: wrap;
+  min-height: 100vh;
 
-    margin-top: 50px;
-}
-
-app-song-catalogue {
+  // stretch router outlet
+  .outlet {
     flex-grow: 1;
-    flex-basis: 0;
-    flex-shrink: 0;
-    min-width: 0;
-}
-
-
-app-audio-controls {
-    flex-grow: 1.5;
-    flex-basis: 0;
-    flex-shrink: 0;
-    min-width: 0;
-    // width: 100%;
-    // min-width: 50px;
-    // max-width: 50%;
-    // height: min-content;
-}
-
-app-queue {
-    flex-grow: 1;
-    flex-basis: 0;
-    flex-shrink: 0;
-    min-width: 0;
-}
-
-
-mat-divider {
-    height: 80%
+  }
 }
