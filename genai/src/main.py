@@ -8,6 +8,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.responses import Response
 from pydantic import BaseModel
 from dotenv import load_dotenv
+from prometheus_fastapi_instrumentator import Instrumentator
 
 from core.config import load_app_config, ConfigError
 from core.tts_handler import text_to_audio, load_fallback_audio
@@ -34,6 +35,8 @@ app = FastAPI(
     version="1.1.0"
 )
 
+# --- Prometheus metrics ---
+Instrumentator().instrument(app).expose(app)
 
 # --- Pydantic Models for API ---
 class Song(BaseModel):

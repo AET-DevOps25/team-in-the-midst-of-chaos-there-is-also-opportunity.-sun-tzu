@@ -2,6 +2,7 @@
 fastapi
 uvicorn[standard]
 pydantic
+prometheus-fastapi-instrumentator
 
 # For LangChain and OpenAI models
 langchain
