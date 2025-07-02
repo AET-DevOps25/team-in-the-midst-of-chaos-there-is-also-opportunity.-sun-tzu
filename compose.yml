@@ -17,6 +17,7 @@ services:
     environment:
       - BASIC_AUTH_USER=${BASIC_AUTH_USER}
       - BASIC_AUTH_PASS=${BASIC_AUTH_PASS}
+      - BASIC_AUTH_URL=${BASIC_AUTH_URL}
     volumes:
       - audio-files:/audio
       - sql-files:/docker-entrypoint-initdb.d

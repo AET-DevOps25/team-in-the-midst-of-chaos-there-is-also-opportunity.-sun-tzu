@@ -7,7 +7,7 @@ import urllib.parse
 AUDIO_DIR = "/audio"
 DATA_SQL = "/docker-entrypoint-initdb.d/02-data.sql"
 # Download parameter
-BASE_URL = "https://ai-fm.dotan.de/"
+BASE_URL = os.getenv('BASIC_AUTH_URL')
 user = os.getenv('BASIC_AUTH_USER')
 password = os.getenv('BASIC_AUTH_PASS')
 AUTH = requests.auth.HTTPBasicAuth(user, password)
