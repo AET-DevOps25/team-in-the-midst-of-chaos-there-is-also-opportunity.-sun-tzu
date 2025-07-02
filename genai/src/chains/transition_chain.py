@@ -3,6 +3,7 @@
 from typing import Dict, Any, Optional
 import logging
 from langchain_openai import ChatOpenAI
+from langchain_community.chat_models import ChatOllama
 from pydantic import BaseModel
 from langchain_core.prompts import ChatPromptTemplate
 
@@ -23,6 +24,29 @@ class SongTransitionInfo(BaseModel):
     previous_song: Optional[Song] = None
     next_song: Optional[Song] = None
     after_next_song: Optional[Song] = None
+
+
+# --- Local LLM Function ---
+def generate_script_local(
+        prompt_template: ChatPromptTemplate,
+        app_config: Dict[str, Any]
+) -> Optional[str]:
+    """
+    Generates a script using a local LLM as a fallback.
+    """
+    try:
+        logger.info("Attempting to use local LLM...")
+        local_llm = ChatOllama(model=app_config.get("local_llm_model_name", "llama2"))
+
+        chain = prompt_template | local_llm
+        response = chain.invoke({})
+
+        logger.info("Local LLM call completed successfully.")
+        return response.content
+
+    except Exception as e:
+        logger.error(f"Failed to generate script with local LLM: {e}")
+        return None
 
 
 # --- Main Function ---
@@ -71,9 +95,7 @@ def generate_script(
 
         logger.info("About to call the Language Model (LLM)...")
 
-        # ***** THE CORRECTED FIX IS HERE *****
         # Chain the prompt template directly to the LLM.
-        # LangChain's pipe operator `|` handles the conversion automatically.
         chain = prompt_template | llm
         response = chain.invoke({})  # Invoke the chain with an empty dict as variables are already in the prompt
 
@@ -82,5 +104,6 @@ def generate_script(
         return response.content
 
     except Exception as e:
-        logger.error(f"Failed to generate script: {e}")
-        return None
+        logger.error(f"Failed to generate script with OpenAI: {e}")
+        # Fallback to local LLM
+        return generate_script_local(prompt_template, app_config)

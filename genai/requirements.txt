@@ -8,6 +8,8 @@ prometheus-fastapi-instrumentator
 langchain
 langchain-openai
 openai
+langchain-community
+ollama
 
 # For loading environment variables
 python-dotenv
