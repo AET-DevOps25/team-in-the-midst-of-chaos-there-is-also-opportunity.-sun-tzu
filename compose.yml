@@ -14,6 +14,9 @@ services:
 
   downloader:
     build: ./server/database/downloader
+    environment:
+      - BASIC_AUTH_USER=${BASIC_AUTH_USER}
+      - BASIC_AUTH_PASS=${BASIC_AUTH_PASS}
     volumes:
       - audio-files:/audio
       - sql-files:/docker-entrypoint-initdb.d
@@ -35,7 +38,7 @@ services:
       retries: 5
     volumes:
       - "mysql_data:/var/lib/mysql"
-      - "sql-files:/docker-entrypoint-initdb.d"
+      - sql-files:/docker-entrypoint-initdb.d
     networks:
       - app-network
 
