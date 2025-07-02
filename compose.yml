@@ -109,6 +109,7 @@ services:
         SPRING_DATABASE_USERNAME: root
         SPRING_DATABASE_PASSWORD: root
         AUDIO_FILE_PATH: /audio
+        GENAI_SERVICE_URL: http://genai:8000/generate_audio_transition
       volumes:
         - audio-files:/audio
       networks:
