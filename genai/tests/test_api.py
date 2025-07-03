@@ -16,7 +16,7 @@ def main():
 
     # The JSON data for the request body
     payload = {
-        "message_type": 1,
+        "message_type": 3,
         "next_song": {
             "title": "Here Comes The Sun",
             "artist": "The Beatles"

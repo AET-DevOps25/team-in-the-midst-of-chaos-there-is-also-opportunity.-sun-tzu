@@ -7,7 +7,7 @@ from langchain_community.chat_models import ChatOllama
 from pydantic import BaseModel
 from langchain_core.prompts import ChatPromptTemplate
 
-from prompts.transition_prompts import get_introduction_prompt, get_quick_transition_prompt
+from prompts.transition_prompts import get_long_transition_prompt, get_quick_transition_prompt, get_wish_announcement_prompt
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
@@ -70,21 +70,26 @@ def generate_script(
 
         # Logic to select the correct prompt template
         if song_info.message_type == 1 and song_info.next_song:
-            logger.info("Generating script for type 1: Introduction")
-            prompt_template = get_introduction_prompt(
-                next_song_data=song_info.next_song.model_dump(),
-                dj_name=app_config.get("dj_name", "DJ")
-            )
-        elif song_info.message_type == 2 and song_info.previous_song and song_info.next_song:
-            logger.info("Generating script for type 2: Quick Transition")
+            logger.info("Generating script for type 1: Quick Transition")
             prompt_template = get_quick_transition_prompt(
-                previous_song_data=song_info.previous_song.model_dump(),
+                previous_song_data=song_info.previous_song.model_dump() if song_info.previous_song else None,
                 next_song_data=song_info.next_song.model_dump(),
                 after_next_song_data=song_info.after_next_song.model_dump() if song_info.after_next_song else None
             )
-        elif song_info.message_type == 3:
-            logger.info("Type 3 (Fun Fact) is not yet implemented. Returning placeholder.")
-            return "And now for something completely different, a true classic!"
+        elif song_info.message_type == 2 and song_info.next_song:
+            logger.info("Generating script for type 2: Long Transition")
+            prompt_template = get_long_transition_prompt(
+                previous_song_data=song_info.previous_song.model_dump() if song_info.previous_song else None,
+                next_song_data=song_info.next_song.model_dump(),
+                after_next_song_data=song_info.after_next_song.model_dump() if song_info.after_next_song else None,
+                dj_name=app_config.get("dj_name", "DJ")
+            )
+        elif song_info.message_type == 3 and song_info.next_song:
+            logger.info("Generating script for type 3: Wish Announcement")
+            prompt_template = get_wish_announcement_prompt(
+                next_song_data=song_info.next_song.model_dump(),
+                dj_name=app_config.get("dj_name", "DJ")
+            )
         else:
             logger.error(f"Invalid message_type or missing song data for type: {song_info.message_type}")
             return None
