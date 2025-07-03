@@ -111,6 +111,7 @@ services:
       context: ./server
       dockerfile: AnnouncementService/Dockerfile
     image: server-announcementservice:latest
+    container_name: announcement
     expose:
       - "8080"
     depends_on:
@@ -121,11 +122,12 @@ services:
       SPRING_DATABASE_USERNAME: root
       SPRING_DATABASE_PASSWORD: root
       AUDIO_FILE_PATH: /audio
+      GENAI_SERVICE_URL: http://genai:8000/generate_audio_transition
     volumes:
       - audio-files:/audio
     networks:
       - app-network
-      
+
   prometheus:
     build: ./monitoring/prometheus
     container_name: prometheus
