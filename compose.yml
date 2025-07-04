@@ -91,6 +91,8 @@ services:
       SPRING_DATABASE_PASSWORD: root
       AUDIO_FILE_PATH: /audio
       ANNOUNCEMENT_SERVICE_URL: http://announcementservice:8080/announcement
+    volumes:
+      - audio-files:/audio
     networks:
       - app-network
 
