@@ -1,16 +1,18 @@
 package de.sunTzu.playlistApp;
 
-import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import de.sunTzu.db.model.AudioFile;
 import de.sunTzu.db.model.MetaData;
 import de.sunTzu.db.service.AudioFileService;
 import de.sunTzu.db.service.PlaylistQueueService;
 import de.sunTzu.db.service.PlaylistService;
 import de.sunTzu.db.service.MetaDataService;
+import de.sunTzu.playlistApp.model.AnnouncementHandler;
 import de.sunTzu.playlistApp.model.PlaylistHandler;
 import de.sunTzu.file.service.FileService;
+import de.sunTzu.playlistApp.service.AsyncPostService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterStyle;
@@ -22,7 +24,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestTemplate;
 
 @RestController
 public class playlistController {
@@ -30,8 +31,8 @@ public class playlistController {
     private final MetaDataService MDservice;
     private final AudioFileService AFservice;
     private final FileService fileService;
-    private final RestTemplate restTemplate;
     PlaylistHandler playlistAcc;
+    AnnouncementHandler announcementAcc;
 
     private Long getRandomSong() {
         Random rand = new Random();
@@ -39,12 +40,12 @@ public class playlistController {
         return availableSongs.get(rand.nextInt(availableSongs.size())).getId();
     }
 
-    playlistController(MetaDataService MDservice, AudioFileService AFservice, PlaylistService Pservice, PlaylistQueueService PQservice, FileService Fservice, RestTemplate restTemplate) {
+    playlistController(MetaDataService MDservice, AudioFileService AFservice, PlaylistService Pservice, PlaylistQueueService PQservice, FileService Fservice, AsyncPostService APservice) {
         this.playlistAcc = new PlaylistHandler(Pservice, PQservice);
+        this.announcementAcc = new AnnouncementHandler(MDservice, APservice);
         this.MDservice = MDservice;
         this.AFservice = AFservice;
         this.fileService = Fservice;
-        this.restTemplate = restTemplate;
     }
 
     @GetMapping(value = "/greet", produces = "application/json")
@@ -64,9 +65,17 @@ public class playlistController {
     public Map<String, Long> createNewSession(HttpServletResponse response) {
         // register new session along with playlist
         Long newSession = playlistAcc.createPlaylist();
-        // insert 3 random songs
-        playlistAcc.addMultiToPlaylist(newSession, List.of(getRandomSong(), getRandomSong(), getRandomSong()));
-
+        // insert gretting
+        playlistAcc.addToPlaylist(newSession, 0L);
+        // register new announcement & insert in playlist
+        Long newAnnouncementId = announcementAcc.registerNewAnnouncement();
+        playlistAcc.addToPlaylist(newSession, newAnnouncementId);
+        // insert 2 random songs
+        List<Long> newSongs = List.of(getRandomSong(), getRandomSong());
+        playlistAcc.addMultiToPlaylist(newSession, newSongs);
+        // send request to generate announcement
+        announcementAcc.requestNewAnnouncement(newAnnouncementId, null, newSongs);
+        // return new session id
         response.setStatus(HttpServletResponse.SC_OK);
         return Collections.singletonMap("session", newSession);
     }
@@ -118,17 +127,23 @@ public class playlistController {
             @Parameter(description = "ID of the song to add", required = true) @RequestParam("song") Long song,
             @Parameter(description = "session ID", required = true) @RequestParam("session") Long session,
             HttpServletResponse response) {
-        // check if ID exists
+        // check if song exists
         Optional<MetaData> metaD = MDservice.getById(song);
-
         if (metaD.isPresent()) {
             // check if session exists
-            if (playlistAcc.addToPlaylist(session, song)) {
+            if (playlistAcc.existsPlaylist(session)) {
+                // register new announcement
+                Long newAnnouncementId = announcementAcc.registerNewAnnouncement();
+                // insert in playlist along with user song
+                playlistAcc.addMultiToPlaylist(session, List.of(newAnnouncementId, song));
+                // initiate announcement generation
+                announcementAcc.requestNewUserAnnouncement(newAnnouncementId, null, List.of(song));
+                // return
                 response.setStatus(HttpServletResponse.SC_OK);
                 return;
             }
         }
-
+        // either song or session not found
         response.setStatus(HttpServletResponse.SC_NOT_FOUND);
     }
 
@@ -148,22 +163,36 @@ public class playlistController {
             // check if announcement
             Optional<MetaData> metaAnnOpt = MDservice.getById(head_audio);
             if (metaAnnOpt.isPresent()) {
-                if (Objects.equals(metaAnnOpt.get().getData().get("type"), "announcement")) {
+                MetaData metaAnn = metaAnnOpt.get();
+                if (Objects.equals(metaAnn.getData().get("type"), "announcement") && metaAnn.getId() != 0L) {
                     // remove announcement from meta_data table
-                    MDservice.delete(metaAnnOpt.get());
-                    // remove announcement from file system and audio_files table
-                    // TODO: comment in once announcements have their own audiofiles
-                    //fileService.deleteFile(AFservice.getById(head_audio).get().getFilename());
-                    // AFservice.deleteById(head_audio);
+                    MDservice.delete(metaAnn);
+
+                    Optional<AudioFile> metaAudioOpt = AFservice.getById(metaAnn.getId());
+                    if (metaAudioOpt.isPresent()) {
+                        // remove announcement from file system
+                        fileService.deleteFile(metaAudioOpt.get().getFilename());
+                        // remove announcement from audio_files table
+                        AFservice.deleteById(metaAnn.getId());
+                    }
                 }
             }
-            // remove head
+            // remove head from playlist
             playlistAcc.removeHeadFromPlaylist(session);
-        }
 
-        // add next song randomly
-        if (playlistAcc.getPlaylist(session).size() < 3) {
-            playlistAcc.addToPlaylist(session, getRandomSong());
+            // add next song randomly
+            if (playlistAcc.getPlaylist(session).size() < 3) {
+                // get previous song
+                Long prevSong = playlistAcc.getSongAtPlaylistTail(session).orElse(null);
+                // register new announcement
+                Long newAnnouncementId = announcementAcc.registerNewAnnouncement();
+                playlistAcc.addToPlaylist(session, newAnnouncementId);
+                // insert in playlist along with two random songs
+                List<Long> newSongs = List.of(getRandomSong(), getRandomSong());
+                playlistAcc.addMultiToPlaylist(session, newSongs);
+                // initiate announcement generation
+                announcementAcc.requestNewUserAnnouncement(newAnnouncementId, prevSong, newSongs);
+            }
         }
 
         response.setStatus(HttpServletResponse.SC_OK);

@@ -25,6 +25,11 @@ public class PlaylistQueueService {
         return repository.findByIdSessionAndIdQueuePos(session_id, head);
     }
 
+    // returns tail of queue for session
+    public Optional<PlaylistQueue> getPlaylistTailBySession(Long session_id, Long tail) {
+        return repository.findByIdSessionAndIdQueuePos(session_id, tail);
+    }
+
     // adds new element to playlist
     @Transactional
     public void addToPlaylist(Long session_id, Long queue_pos, Long audio_id) {

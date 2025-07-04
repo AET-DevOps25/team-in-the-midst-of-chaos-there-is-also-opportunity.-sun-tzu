@@ -22,9 +22,29 @@ public class PlaylistHandler {
         return Pservice.createPlaylist();
     }
 
+    public boolean existsPlaylist(Long session) {
+        Optional<Playlist> playlist = Pservice.getBySession(session);
+        if (playlist.isPresent()) {
+            return true;
+        }
+        return false;
+    }
+
     public List<Long> getPlaylist(Long session) {
         List<PlaylistQueue> playlist = PQservice.getPlaylistBySession(session);
         return playlist.stream().map(PlaylistQueue::getAudio_id).collect(Collectors.toList());
+    }
+
+    public Optional<Long> getSongAtPlaylistTail(Long session) {
+        Optional<Playlist> playlist = Pservice.getBySession(session);
+        if (playlist.isPresent()) {
+            Long tail = playlist.get().getTail();
+            Optional<PlaylistQueue> tailPQ = PQservice.getPlaylistTailBySession(session, tail);
+            if (tailPQ.isPresent()) {
+                return Optional.of(tailPQ.get().getAudio_id());
+            }
+        }
+        return Optional.empty();
     }
 
     // returns audio ID at playlist head for session if present

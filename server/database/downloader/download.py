@@ -167,6 +167,7 @@ def main():
             f.write("INSERT INTO audio_files (id, filename)\nVALUES\n")
             f.write(",\n".join(audio_entries) + ";\n\n")
         if metadata_entries:
+            f.write("SET SESSION sql_mode = \'NO_AUTO_VALUE_ON_ZERO\';\n")
             f.write("INSERT IGNORE INTO meta_data (id, type, title, artist, release_date, genre)\nVALUES\n")
             f.write(",\n".join(metadata_entries) + ";\n")
 
