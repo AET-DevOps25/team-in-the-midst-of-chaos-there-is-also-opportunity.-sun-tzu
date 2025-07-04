@@ -164,7 +164,7 @@ public class playlistController {
             Optional<MetaData> metaAnnOpt = MDservice.getById(head_audio);
             if (metaAnnOpt.isPresent()) {
                 MetaData metaAnn = metaAnnOpt.get();
-                if (Objects.equals(metaAnn.getData().get("type"), "announcement")) {
+                if (Objects.equals(metaAnn.getData().get("type"), "announcement") && metaAnn.getId() != 0L) {
                     // remove announcement from meta_data table
                     MDservice.delete(metaAnn);
 
