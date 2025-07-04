@@ -24,4 +24,10 @@ public class MetaDataService {
 
     @Transactional
     public void delete(MetaData m) { repository.delete(m); }
+
+    @Transactional
+    public Long addAnnouncement() {
+        MetaData newEntry = new MetaData("announcement");
+        return repository.save(newEntry).getId();
+    }
 }
