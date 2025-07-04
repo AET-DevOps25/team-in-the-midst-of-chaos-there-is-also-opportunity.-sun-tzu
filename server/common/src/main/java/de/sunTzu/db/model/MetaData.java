@@ -24,6 +24,10 @@ public class MetaData {
 
     public MetaData() {}
 
+    public MetaData(String type) {
+        this.type = type;
+    }
+
     public Long getId() {
         return id;
     }
