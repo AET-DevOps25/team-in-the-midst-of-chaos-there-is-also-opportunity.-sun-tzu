@@ -55,9 +55,9 @@ jobs:
       - name: Build the application
         working-directory: ./client
         run: npm run build
-      # ✅ FIX: Convert repository name to lowercase for the tag
-      - name: Set repo name to lowercase
-        run: echo "REPO_LOWER=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+      # ✅ FIX: Convert repo name to lowercase and remove trailing period
+      - name: Sanitize repository name for Docker tag
+        run: echo "REPO_LOWER=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]' | sed 's/\.$//')" >> $GITHUB_ENV
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v2
         with:
@@ -123,9 +123,9 @@ jobs:
       - name: Stop services
         if: always()
         run: docker-compose -f compose.yml down
-      # ✅ FIX: Convert repository name to lowercase for the tag
-      - name: Set repo name to lowercase
-        run: echo "REPO_LOWER=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+      # ✅ FIX: Convert repo name to lowercase and remove trailing period
+      - name: Sanitize repository name for Docker tag
+        run: echo "REPO_LOWER=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]' | sed 's/\.$//')" >> $GITHUB_ENV
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v2
         with:
@@ -171,9 +171,9 @@ jobs:
       - name: Run unit tests for AnnouncementService
         run: ./gradlew :AnnouncementService:test --no-daemon
         working-directory: server
-      # ✅ FIX: Convert repository name to lowercase for the tag
-      - name: Set repo name to lowercase
-        run: echo "REPO_LOWER=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+      # ✅ FIX: Convert repo name to lowercase and remove trailing period
+      - name: Sanitize repository name for Docker tag
+        run: echo "REPO_LOWER=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]' | sed 's/\.$//')" >> $GITHUB_ENV
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v2
         with:
