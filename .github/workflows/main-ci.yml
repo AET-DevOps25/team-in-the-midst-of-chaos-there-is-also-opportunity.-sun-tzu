@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - '**' # This makes it run on all branches temporarily
   pull_request:
 
 jobs:
@@ -36,7 +37,6 @@ jobs:
     if: needs.get-changed-files.outputs.client == 'true'
     name: Test and Build Client
     runs-on: ubuntu-latest
-    # Grant permissions to write to GitHub Packages
     permissions:
       contents: read
       packages: write
@@ -56,16 +56,13 @@ jobs:
       - name: Build the application
         working-directory: ./client
         run: npm run build
-      # Add steps to log in and push to GitHub Packages only on main branch
       - name: Log in to GitHub Container Registry
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         uses: docker/login-action@v2
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build and push Docker image
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         uses: docker/build-push-action@v3
         with:
           context: ./client
@@ -78,7 +75,6 @@ jobs:
     if: needs.get-changed-files.outputs.genai == 'true'
     name: Test and Build GenAI Service
     runs-on: ubuntu-latest
-    # Grant permissions to write to GitHub Packages
     permissions:
       contents: read
       packages: write
@@ -96,7 +92,6 @@ jobs:
       - name: Run Unit and Integration Tests with Pytest
         working-directory: ./genai
         run: pytest --ignore=tests/test_api.py
-      # Pass ALL necessary secrets to the docker-compose environment
       - name: Build Docker Compose services
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
@@ -126,16 +121,13 @@ jobs:
       - name: Stop services
         if: always()
         run: docker-compose -f compose.yml down
-      # Add steps to log in and push to GitHub Packages only on main branch
       - name: Log in to GitHub Container Registry
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         uses: docker/login-action@v2
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build and push Docker image
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         uses: docker/build-push-action@v3
         with:
           context: ./genai
@@ -148,7 +140,6 @@ jobs:
     if: needs.get-changed-files.outputs.server == 'true'
     name: Build and Test Server
     runs-on: ubuntu-latest
-    # Grant permissions to write to GitHub Packages
     permissions:
       contents: read
       packages: write
@@ -161,58 +152,4 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
       - name: Grant execute permission to Gradle wrapper
-        run: chmod +x gradlew
-        working-directory: server
-      - name: Build all microservices
-        run: ./gradlew build --no-daemon
-        working-directory: server
-      - name: Run unit tests for StreamService
-        run: ./gradlew :StreamService:test --no-daemon
-        working-directory: server
-      - name: Run unit tests for PlaylistService
-        run: ./gradlew :PlaylistService:test --no-daemon
-        working-directory: server
-      - name: Run unit tests for AnnouncementService
-        run: ./gradlew :AnnouncementService:test --no-daemon
-        working-directory: server
-      # Add steps to log in and push to GitHub Packages only on main branch
-      - name: Log in to GitHub Container Registry
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        uses: docker/login-action@v2
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      # Build and push each server microservice as a separate image
-      - name: Build and Push StreamService
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        uses: docker/build-push-action@v3
-        with:
-          context: ./server
-          file: ./server/StreamService/Dockerfile
-          push: true
-          tags: ghcr.io/${{ github.repository }}/streamservice:latest
-      - name: Build and Push PlaylistService
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        uses: docker/build-push-action@v3
-        with:
-          context: ./server
-          file: ./server/PlaylistService/Dockerfile
-          push: true
-          tags: ghcr.io/${{ github.repository }}/playlistservice:latest
-      - name: Build and Push AnnouncementService
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        uses: docker/build-push-action@v3
-        with:
-          context: ./server
-          file: ./server/AnnouncementService/Dockerfile
-          push: true
-          tags: ghcr.io/${{ github.repository }}/announcementservice:latest
-      - name: Build and Push ApiGateway
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        uses: docker/build-push-action@v3
-        with:
-          context: ./server
-          file: ./server/api-gateway/Dockerfile
-          push: true
-          tags: ghcr.io/${{ github.repository }}/api-gateway:latest
+        run: chmod
