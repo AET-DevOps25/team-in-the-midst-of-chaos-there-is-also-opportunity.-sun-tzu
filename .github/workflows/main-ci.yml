@@ -51,11 +51,11 @@ jobs:
         run: npm install
       - name: Run tests
         working-directory: ./client
+        # run: npm test -- --watch=false --browsers=ChromeHeadless
         run: echo "npm test temporarily disabled"
       - name: Build the application
         working-directory: ./client
         run: npm run build
-      # ✅ FIX: Convert to lowercase AND remove all periods
       - name: Sanitize repository name for Docker tag
         run: echo "REPO_LOWER=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]' | tr -d '.')" >> $GITHUB_ENV
       - name: Log in to GitHub Container Registry
@@ -123,7 +123,6 @@ jobs:
       - name: Stop services
         if: always()
         run: docker-compose -f compose.yml down
-      # ✅ FIX: Convert to lowercase AND remove all periods
       - name: Sanitize repository name for Docker tag
         run: echo "REPO_LOWER=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]' | tr -d '.')" >> $GITHUB_ENV
       - name: Log in to GitHub Container Registry
