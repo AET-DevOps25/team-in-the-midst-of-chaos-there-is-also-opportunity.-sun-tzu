@@ -1,93 +1,32 @@
 plugins {
-    id 'java'
-    id 'org.springframework.boot' version '3.3.1' // !! VERIFY YOUR SPRING BOOT VERSION !!
-    id 'io.spring.dependency-management' version '1.1.5' // !! VERIFY YOUR SPRING DEPENDENCY MANAGEMENT VERSION !!
-    id "org.openapi.generator" version "7.5.0" // Use the latest stable version
+	id 'java'
+	id 'org.springframework.boot' version '3.1.4'
+	id 'io.spring.dependency-management' version '1.1.7'
 }
-
-group = 'de.sunTzu'
-version = '0.0.1-SNAPSHOT'
 
 java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(17) // !! VERIFY YOUR JDK VERSION !!
-    }
-}
-
-configurations {
-    compileOnly {
-        extendsFrom annotationProcessor
-    }
-}
-
-repositories {
-    mavenCentral()
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(17)
+	}
 }
 
 dependencies {
-    // Your existing Spring Boot starters and other dependencies
-    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    implementation 'org.springframework.boot:spring-boot-starter-web'
-    implementation 'org.springframework.boot:spring-boot-starter-actuator'
-
-    // Database Driver
-    runtimeOnly 'com.mysql:mysql-connector-j'
-
-    // Dependency on the common module
-    implementation project(':common')
-
-    // Testing Dependencies
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testImplementation 'org.mockito:mockito-core:5.11.0'
-    testImplementation 'org.mockito:mockito-junit-jupiter:5.11.0'
-
-    // --- START Added Dependencies for OpenAPI Generated Code Compilation ---
-    implementation 'org.openapitools:jackson-databind-nullable:0.2.6'
-    implementation 'jakarta.validation:jakarta.validation-api:3.0.2'
-    implementation 'io.swagger.core.v3:swagger-annotations:2.2.21'
-    implementation 'org.springframework.hateoas:spring-hateoas:2.3.0'
-    implementation 'com.fasterxml.jackson.core:jackson-annotations:2.17.1'
-    // --- END Added Dependencies ---
+	implementation project(':common')
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0'
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'com.mysql:mysql-connector-j'
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+	implementation 'io.micrometer:micrometer-registry-prometheus'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+	runtimeOnly 'com.mysql:mysql-connector-j'
 }
 
-// === START OpenAPI Generator Configuration ===
-openApiGenerate {
-    generatorName = "spring"
-    inputSpec = "${rootProject.projectDir.parentFile}/api/openapi.yaml".toString()
-    outputDir = "${buildDir}/generated".toString()
-    apiPackage = "de.sunTzu.generated.api"
-    modelPackage = "de.sunTzu.generated.model"
-    configOptions = [
-            sourceFolder: "src/main/java",
-            useSpringBoot3: "true",
-            useBeanValidation: "true",
-            interfaceOnly: "true",
-            skipFormModel: "false",
-            hateoas: "false",
-            // java8: "true",
-            // dateLibrary: "java8"
-    ]
+tasks.named('test') {
+	useJUnitPlatform()
 }
 
-sourceSets {
-    main {
-        java {
-            // Explicitly set source directories to include both your main Java code
-            // and the generated API interfaces/models.
-            setSrcDirs(['src/main/java', file("${buildDir}/generated/src/main/java")])
-        }
-    }
-}
-
-tasks.named('compileJava') {
-    dependsOn tasks.named('openApiGenerate')
-}
-// === END OpenAPI Generator Configuration ===
-
-tasks.named('jar') {
-    enabled = true
-}
-
-tasks.register('cleanGenerated', Delete) {
-    delete "${buildDir}/generated"
+bootJar {
+	archiveFileName = 'playlistService.jar'
 }

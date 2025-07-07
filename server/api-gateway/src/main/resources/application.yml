@@ -8,27 +8,34 @@ spring:
   cloud:
     gateway:
       routes:
+        - id: deny-actuator
+          uri: http://localhost
+          predicates:
+            - Path=/api/*/actuator/**
+          filters:
+            - SetStatus=403
+
         - id: streamservice
-          uri: http://stream:8080
+          uri: http://streamservice:8080
           predicates:
             - Path=/api/stream/**
           filters:
             - RewritePath=/api/stream/(?<segment>.*), /${segment}
         - id: stream-docs
-          uri: http://stream:8080
+          uri: http://streamservice:8080
           predicates:
             - Path=/api/stream/v3/api-docs
           filters:
             - RewritePath=/api/stream/v3/api-docs, /v3/api-docs
 
         - id: playlistservice
-          uri: http://playlist:8080
+          uri: http://playlistservice:8080
           predicates:
             - Path=/api/playlist/**
           filters:
             - RewritePath=/api/playlist/(?<segment>.*), /${segment}
         - id: playlist-docs
-          uri: http://playlist:8080
+          uri: http://playlistservice:8080
           predicates:
             - Path=/api/playlist/v3/api-docs
           filters:
@@ -37,9 +44,9 @@ spring:
 springdoc:
   swagger-ui:
     urls:
-      - name: stream
+      - name: streamservice
         url: /api/stream/v3/api-docs
-      - name: playlist
+      - name: playlistservice
         url: /api/playlist/v3/api-docs
   api-docs:
     enabled: true

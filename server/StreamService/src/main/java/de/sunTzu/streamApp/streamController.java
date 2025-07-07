@@ -1,28 +1,20 @@
 package de.sunTzu.streamApp;
 
-import de.sunTzu.db.model.AudioFile; // Keep your internal DB model
-import de.sunTzu.streamApp.model.RangeResponse; // Keep your internal model
-import de.sunTzu.streamApp.service.AudioStreamRangeService; // Keep your internal service
-
-// --- REMOVE ALL SWAGGER/SPRINGDOC IMPORTS ---
-// import io.swagger.v3.oas.annotations.Operation;
-// import io.swagger.v3.oas.annotations.Parameter;
-// import io.swagger.v3.oas.annotations.enums.ParameterIn;
-// import io.swagger.v3.oas.annotations.headers.Header;
-// import io.swagger.v3.oas.annotations.media.Content;
-// import io.swagger.v3.oas.annotations.responses.ApiResponse;
-// import io.swagger.v3.oas.annotations.responses.ApiResponses;
-// import io.swagger.v3.oas.annotations.tags.Tag;
-// --- END REMOVE ---
-
+import de.sunTzu.db.model.AudioFile;
+import de.sunTzu.streamApp.model.RangeResponse;
+import de.sunTzu.streamApp.service.AudioStreamRangeService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.headers.Header;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.http.ResponseEntity;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.HttpHeaders;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,13 +23,10 @@ import java.io.RandomAccessFile;
 import java.util.Optional;
 
 import de.sunTzu.db.service.AudioFileService;
-// --- START Generated Imports ---
-import de.sunTzu.generated.api.StreamsApi; // Import the generated API interface
-// --- END Generated Imports ---
 
 @RestController
-// @Tag(name = "Audio Streaming") // This tag is now defined in openapi.yaml
-public class streamController implements StreamsApi { // Implement the generated interface
+@Tag(name = "Audio Streaming")
+public class streamController {
     @Value("${AUDIO_FILE_PATH:/audio}")
     private String AUDIO_PATH;
     private final AudioFileService service;
@@ -46,20 +35,42 @@ public class streamController implements StreamsApi { // Implement the generated
         this.service = service;
     }
 
-    @Override // Added @Override
     @GetMapping(value = "/greet", produces = "text/plain")
-    public ResponseEntity<String> streamGreet() { // Renamed to match openapi.yaml operationId
-        return ResponseEntity.ok("Hello World!");
+    public String sayHello() {
+        return "Hello World!";
     }
 
-    @Override // Added @Override
+
+    @Operation(
+            summary = "Stream audio by ID",
+            description = "Streams an audio file for the given ID, supports HTTP Range requests for partial playback."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Full audio content streamed",
+                    content = @Content(mediaType = "audio/mpeg"),
+                    headers = {
+                            @Header(name = "Accept-Ranges", description = "Indicates byte range support. Always: bytes"),
+                            @Header(name = "Content-Length", description = "Length of the audio content. Example: 65536"),
+                            @Header(name = "Content-Range", description = "Range of bytes served (total). Example: 0-65535/65536")
+                    }),
+            @ApiResponse(responseCode = "206", description = "Partial audio content streamed",
+                    content = @Content(mediaType = "audio/mpeg"),
+                    headers = {
+                            @Header(name = "Accept-Ranges", description = "Indicates byte range support. Always: bytes"),
+                            @Header(name = "Content-Length", description = "Length of the audio content. Example: 4096"),
+                            @Header(name = "Content-Range", description = "Range of bytes served (partial). Example: 0-4095/65536")
+                    }),
+            @ApiResponse(responseCode = "400", description = "Invalid Range header"),
+            @ApiResponse(responseCode = "404", description = "Audio file not found")
+    })
     @GetMapping("/audio")
-    public void streamAudio( // Keep void return type for direct HttpServletResponse manipulation
-                             @RequestParam("id") Long id,
-                             @RequestHeader(value = "Range", required = false) String range,
-                             HttpServletRequest request, // Keep if generated interface includes it
-                             HttpServletResponse response // Keep if generated interface includes it
-    ) throws IOException {
+    public void streamAudio(
+            @Parameter(name = "id", description = "ID of the audio file", required = true)
+            @RequestParam("id") Long id,
+            @Parameter(name = "Range", description = "Range header for partial streaming", in = ParameterIn.HEADER, example = "bytes=0-4095")
+            @RequestHeader(value = "Range", required = false) String range,
+            HttpServletRequest request,
+            HttpServletResponse response) throws IOException {
 
         // get audiofile for ID from database
         AudioFile file = service.getById(id).orElse(null);
