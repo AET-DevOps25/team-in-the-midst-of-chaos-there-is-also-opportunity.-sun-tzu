@@ -63,13 +63,13 @@ export class PlaylistService {
   getAvailableSongs(): Observable<ApiResponse<
     SongDto[]
   >> {
-    return this.apiService.get('availableSongs')
+    return this.apiService.get('/availableSongs')
   }
 
   createPlaylist(): Observable<ApiResponse<
     any
   >> {
-    return this.apiService.get('newPlaylist')
+    return this.apiService.get('/newPlaylist')
   }
 
   getTrack(id: number): Track {
