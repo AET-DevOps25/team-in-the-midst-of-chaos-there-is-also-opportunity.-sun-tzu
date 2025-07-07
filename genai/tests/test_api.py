@@ -52,7 +52,7 @@ def main():
         print(f"\nReceived audio. Source: '{audio_source}'")
 
         # Check 4: Was the audio real or a backup?
-        if audio_source != 'real_llm': # Assuming 'real_llm' is your primary source name
+        if audio_source != 'real': # Updated to check for 'real'
             print("\nWARNING: The returned audio was from a fallback or backup source.")
             # You can optionally fail the test by uncommenting the next line
             # sys.exit(1)
