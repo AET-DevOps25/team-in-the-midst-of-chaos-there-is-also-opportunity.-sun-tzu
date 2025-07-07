@@ -3,8 +3,7 @@ name: Main CI Workflow
 on:
   push:
     branches:
-      - main
-      - '**' # This makes it run on all branches
+      - '**' # This makes it run on all branches, for testing
   pull_request:
 
 jobs:
@@ -56,6 +55,9 @@ jobs:
       - name: Build the application
         working-directory: ./client
         run: npm run build
+      # ✅ FIX: Convert repository name to lowercase for the tag
+      - name: Set repo name to lowercase
+        run: echo "REPO_LOWER=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v2
         with:
@@ -68,7 +70,7 @@ jobs:
           context: ./client
           file: ./client/Dockerfile
           push: true
-          tags: ghcr.io/${{ github.repository }}/client:latest
+          tags: ghcr.io/${{ env.REPO_LOWER }}/client:latest
 
   test-and-build-genai:
     needs: get-changed-files
@@ -121,6 +123,9 @@ jobs:
       - name: Stop services
         if: always()
         run: docker-compose -f compose.yml down
+      # ✅ FIX: Convert repository name to lowercase for the tag
+      - name: Set repo name to lowercase
+        run: echo "REPO_LOWER=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v2
         with:
@@ -133,7 +138,7 @@ jobs:
           context: ./genai
           file: ./genai/Dockerfile
           push: true
-          tags: ghcr.io/${{ github.repository }}/genai-service:latest
+          tags: ghcr.io/${{ env.REPO_LOWER }}/genai-service:latest
 
   test-and-build-server:
     needs: get-changed-files
@@ -152,7 +157,7 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
       - name: Grant execute permission to Gradle wrapper
-        run: chmod +x gradlew
+        run: chmod +x ./gradlew
         working-directory: server
       - name: Build all microservices
         run: ./gradlew build --no-daemon
@@ -166,6 +171,9 @@ jobs:
       - name: Run unit tests for AnnouncementService
         run: ./gradlew :AnnouncementService:test --no-daemon
         working-directory: server
+      # ✅ FIX: Convert repository name to lowercase for the tag
+      - name: Set repo name to lowercase
+        run: echo "REPO_LOWER=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v2
         with:
@@ -178,25 +186,25 @@ jobs:
           context: ./server
           file: ./server/StreamService/Dockerfile
           push: true
-          tags: ghcr.io/${{ github.repository }}/streamservice:latest
+          tags: ghcr.io/${{ env.REPO_LOWER }}/streamservice:latest
       - name: Build and Push PlaylistService
         uses: docker/build-push-action@v3
         with:
           context: ./server
           file: ./server/PlaylistService/Dockerfile
           push: true
-          tags: ghcr.io/${{ github.repository }}/playlistservice:latest
+          tags: ghcr.io/${{ env.REPO_LOWER }}/playlistservice:latest
       - name: Build and Push AnnouncementService
         uses: docker/build-push-action@v3
         with:
           context: ./server
           file: ./server/AnnouncementService/Dockerfile
           push: true
-          tags: ghcr.io/${{ github.repository }}/announcementservice:latest
+          tags: ghcr.io/${{ env.REPO_LOWER }}/announcementservice:latest
       - name: Build and Push ApiGateway
         uses: docker/build-push-action@v3
         with:
           context: ./server
           file: ./server/api-gateway/Dockerfile
           push: true
-          tags: ghcr.io/${{ github.repository }}/api-gateway:latest
+          tags: ghcr.io/${{ env.REPO_LOWER }}/api-gateway:latest
