@@ -31,34 +31,56 @@ def build_song_details_string(title: Optional[str], artist: Optional[str]) -> st
     return " ".join(parts)
 
 
-def get_introduction_prompt(next_song_data: Dict, dj_name: str = "Mike") -> ChatPromptTemplate:
-    # TODO: change Name of DJ/delete
+def get_long_transition_prompt(
+        previous_song_data: SongInfo,
+        next_song_data: Dict,
+        after_next_song_data: SongInfo,
+        dj_name: str,
+) -> ChatPromptTemplate:
     """
-    Generates a ChatPromptTemplate for a song introduction.
-    The human message is dynamically constructed by Python.
+    Generates a ChatPromptTemplate for a long, dynamic song transition.
+    The human message is dynamically constructed using Python's conditional logic.
     """
     system_prompt = SystemMessagePromptTemplate.from_template(
         COMMON_DJ_SYSTEM_MESSAGE_DEFAULT
     )
 
-    next_song_title = next_song_data.get("title")
-    next_song_artist = next_song_data.get("artist")
+    human_message_parts = []
+    if previous_song_data:
+        prev_title = previous_song_data.get("title")
+        if prev_title:
+            prev_artist = previous_song_data.get("artist")
+            prev_song_details_str = build_song_details_string(prev_title, prev_artist)
+            human_message_parts.append(f"That was {prev_song_details_str}.")
 
-    if not next_song_title:
-        human_message_string = f"Please write a generic welcome message for the show, {dj_name}."
+    next_title = next_song_data.get("title")
+    if next_title:
+        next_artist = next_song_data.get("artist")
+        next_song_details_str = build_song_details_string(next_title, next_artist)
+        human_message_parts.append(f"Next up is {next_song_details_str}.")
     else:
-        song_details_str = build_song_details_string(next_song_title, next_song_artist)
-        human_message_string = (
-            f"The next song is {song_details_str}. "
-            f"As {dj_name}, please write a suitable and engaging introduction for this song. Welcome the listeners."
-        )
+        human_message_parts.append("And now for some more great music!")
 
-    human_prompt = HumanMessagePromptTemplate.from_template(human_message_string)
+    if after_next_song_data:
+        after_next_title = after_next_song_data.get("title")
+        if after_next_title:
+            after_next_artist = after_next_song_data.get("artist")
+            after_next_song_details_str = build_song_details_string(after_next_title, after_next_artist)
+            human_message_parts.append(f"And after that, we'll hear {after_next_song_details_str}.")
+
+    human_message_parts.append(
+        f"\nAs {dj_name}, what do you say as a transition? Feel free to add a fun fact about one of the artists, a personal comment about your day, or ask the listeners how their day is going, but don't do all of the mentioned. Make it an engaging and longer transition. Please provide only the pure transition text, without any additional greetings or sign-offs. The song will follow immediately."
+    )
+
+    final_human_message_string = " ".join(
+        filter(None, human_message_parts))  # filter(None,...) to remove empty strings if any part was empty
+
+    human_prompt = HumanMessagePromptTemplate.from_template(final_human_message_string)
     return ChatPromptTemplate.from_messages([system_prompt, human_prompt])
 
 
 def get_quick_transition_prompt(
-        previous_song_data: Dict,
+        previous_song_data: SongInfo,
         next_song_data: Dict,
         after_next_song_data: SongInfo = None,  # Optional
 ) -> ChatPromptTemplate:
@@ -71,12 +93,12 @@ def get_quick_transition_prompt(
     )
 
     human_message_parts = []
-
-    prev_title = previous_song_data.get("title")
-    if prev_title:
-        prev_artist = previous_song_data.get("artist")
-        prev_song_details_str = build_song_details_string(prev_title, prev_artist)
-        human_message_parts.append(f"That was {prev_song_details_str}.")
+    if previous_song_data:
+        prev_title = previous_song_data.get("title")
+        if prev_title:
+            prev_artist = previous_song_data.get("artist")
+            prev_song_details_str = build_song_details_string(prev_title, prev_artist)
+            human_message_parts.append(f"That was {prev_song_details_str}.")
 
     next_title = next_song_data.get("title")
     if next_title:
@@ -105,23 +127,23 @@ def get_quick_transition_prompt(
     return ChatPromptTemplate.from_messages([system_prompt, human_prompt])
 
 
-# --- Old German prompts from your original file ---
-OLD_COMMON_DJ_SYSTEM_MESSAGE = SystemMessagePromptTemplate.from_template(
-    """Du bist ein kreativer und freundlicher Radio-DJ.
-    Deine Aufgabe ist es, einen kurzen und ansprechenden Übergang zwischen zwei Songs zu moderieren.
-    Sprich direkt zum Zuhörer. Sei enthusiastisch, aber nicht übertrieben."""
-)
+def get_wish_announcement_prompt(next_song_data: Dict, dj_name: str) -> ChatPromptTemplate:
+    """
+    Generates a ChatPromptTemplate for a wish announcement.
+    The human message is dynamically constructed by Python.
+    """
+    system_prompt = SystemMessagePromptTemplate.from_template(
+        COMMON_DJ_SYSTEM_MESSAGE_DEFAULT
+    )
 
+    next_song_title = next_song_data.get("title")
+    next_song_artist = next_song_data.get("artist")
 
-def get_basic_song_transition_prompt() -> ChatPromptTemplate:
-    """
-    Gibt ein ChatPromptTemplate für einen einfachen Song-Übergang zurück.
-    Benötigt: previous_song_title, previous_artist_name, next_song_title, next_artist_name
-    """
-    human_message_content = """
-    Das war "{previous_song_title}" von "{previous_artist_name}".
-    Und als nächstes kommt "{next_song_title}" von "{next_artist_name}".
-    Was sagst du dazu als Übergang? Bitte nur der reine Übergangstext, ohne zusätzliche Begrüßungen oder Verabschiedungen von dir als DJ. Der Song kommt direkt im Anschluss.
-    """
-    human_prompt = HumanMessagePromptTemplate.from_template(human_message_content)
-    return ChatPromptTemplate.from_messages([OLD_COMMON_DJ_SYSTEM_MESSAGE, human_prompt])
+    song_details_str = build_song_details_string(next_song_title, next_song_artist)
+    human_message_string = (
+        f"The next song is a wish from the listener. It's {song_details_str}. "
+        f"As {dj_name}, please make a short and friendly announcement."
+    )
+
+    human_prompt = HumanMessagePromptTemplate.from_template(human_message_string)
+    return ChatPromptTemplate.from_messages([system_prompt, human_prompt])
