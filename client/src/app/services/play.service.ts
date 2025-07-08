@@ -8,6 +8,7 @@ import { PlaylistService } from './playlist.service';
 import { SessionService } from './session.service';
 import { MetadataDto } from '@app/dtos/get-metadata';
 import { E } from '@angular/cdk/keycodes';
+import { QueueService } from './queue.service';
 
 @Injectable({
   providedIn: 'root'
@@ -16,6 +17,7 @@ export class PlayService {
   api = inject(ApiService)
   playlist = inject(PlaylistService)
   sessionService = inject(SessionService)
+  queueService = inject(QueueService)
 
   private _isPlaying = signal(false)
   readonly isPlaying = this._isPlaying.asReadonly()
@@ -79,6 +81,7 @@ export class PlayService {
     const sessionToken = this.sessionService.sessionToken!
     const sub = this.playlist.removeHead(sessionToken).pipe(
       concatWith(this.syncAudioId()),
+      concatWith(this.queueService.updateNextAudios())
     ).subscribe()
   }
 

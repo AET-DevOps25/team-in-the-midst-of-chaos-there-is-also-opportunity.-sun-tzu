@@ -1,6 +1,6 @@
 <h2>Available Songs</h2>
 <mat-list>
-  @for (song of queueService.availableSongs(); track song.id) {
+  @for (song of queueService.availableSongs(); track $index) {
     <mat-list-item>
       <div matListItemIcon class="foo front-icon">
         <div class="meta">

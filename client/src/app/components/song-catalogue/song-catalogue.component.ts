@@ -17,7 +17,6 @@ export class SongCatalogueComponent implements OnInit {
   queueService = inject(QueueService)
 
   ngOnInit(): void {
-    this.queueService.updateAvailableSongs()
-    this.queueService.updateNextAudios()
+    const sub = this.queueService.updateAvailableSongs().subscribe()
   }
 }

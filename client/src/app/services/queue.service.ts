@@ -1,9 +1,9 @@
-import { inject, Injectable, Signal, WritableSignal, signal } from '@angular/core';
+import { inject, Injectable, Signal, WritableSignal, signal, computed } from '@angular/core';
 import { MetadataDto } from '@app/dtos/get-metadata';
 import { PlaylistService } from './playlist.service';
 import { SessionService } from './session.service';
 import { NextAudiosDto } from '@app/dtos/next-audios';
-import { concatMap, tap } from 'rxjs';
+import { concatMap, filter, tap } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -12,11 +12,18 @@ export class QueueService {
   playlistService = inject(PlaylistService)
   sessionService = inject(SessionService)
   
-  availableSongs: WritableSignal<MetadataDto[]> = signal([])
+  availableAudios: WritableSignal<MetadataDto[]> = signal([])
+  availableSongs = computed(() => {
+    return this.availableAudios().filter(item => item.type == "song")
+  })
+
   nextAudios: WritableSignal<MetadataDto[]> = signal([])
+  nextSongs = computed(() => {
+    return this.nextAudios().slice(1).filter(item => item.type == "song")
+  })
 
   updateNextAudios() {
-    const sub = this.playlistService.getNextAudios(this.sessionService.sessionToken!).pipe(
+    return this.playlistService.getNextAudios(this.sessionService.sessionToken!).pipe(
       concatMap(r => {
         if (!r.success) throw r.error
         return this.playlistService.getMetadataMulti(r.data.audio)
@@ -25,20 +32,20 @@ export class QueueService {
         if (!r.success) throw r.error
         this.nextAudios.set(r.data)
       })
-    ).subscribe()
+    )
   }
 
   updateAvailableSongs() {
-    const sub = this.playlistService.findSong("").pipe(
+    return this.playlistService.findSong("").pipe(
       concatMap(r => {
         if (!r.success) throw r.error
         return this.playlistService.getMetadataMulti(r.data.IDs)
       }),
       tap(r => {
         if (!r.success) throw r.error
-        this.availableSongs.set(r.data)
+        this.availableAudios.set(r.data)
       })
-    ).subscribe()
+    )
   }
 
 
