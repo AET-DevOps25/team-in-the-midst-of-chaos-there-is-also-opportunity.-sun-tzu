@@ -1,10 +1,12 @@
-name: Main CI Workflow
+name: Main CI/CD Workflow
 
 on:
   push:
     branches:
       - main
   pull_request:
+    branches:
+      - main
 
 jobs:
   get-changed-files:
@@ -17,7 +19,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          # Required for the changed-files action to compare commits
           fetch-depth: 2
 
       - name: Get changed files
@@ -37,6 +38,9 @@ jobs:
     if: needs.get-changed-files.outputs.client == 'true'
     name: Test and Build Client
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -54,15 +58,35 @@ jobs:
       - name: Build the application
         working-directory: ./client
         run: npm run build
-      - name: Build Production Docker Image
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        run: docker build -t client:latest -f client/Dockerfile ./client
+
+      # --- CD Steps: Publish to GitHub Packages ---
+      - name: Sanitize repository name for Docker tag
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: echo "REPO_LOWER=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]' | tr -d '.')" >> $GITHUB_ENV
+      - name: Log in to GitHub Container Registry
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push Docker image
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: docker/build-push-action@v3
+        with:
+          context: ./client
+          file: ./client/Dockerfile
+          push: true
+          tags: ghcr.io/${{ env.REPO_LOWER }}/client:latest
 
   test-and-build-genai:
     needs: get-changed-files
     if: needs.get-changed-files.outputs.genai == 'true'
     name: Test and Build GenAI Service
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -80,6 +104,9 @@ jobs:
       - name: Build Docker Compose services
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          BASIC_AUTH_USER: ${{ secrets.BASIC_AUTH_USER }}
+          BASIC_AUTH_PASS: ${{ secrets.BASIC_AUTH_PASS }}
+          BASIC_AUTH_URL: ${{ secrets.BASIC_AUTH_URL }}
         run: docker-compose -f compose.yml up -d --build genai
       - name: Show container logs
         if: always()
@@ -103,15 +130,35 @@ jobs:
       - name: Stop services
         if: always()
         run: docker-compose -f compose.yml down
-      - name: Build Production Docker Image
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        run: docker build -t genai-service:latest -f genai/Dockerfile ./genai
+
+      # --- CD Steps: Publish to GitHub Packages ---
+      - name: Sanitize repository name for Docker tag
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: echo "REPO_LOWER=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]' | tr -d '.')" >> $GITHUB_ENV
+      - name: Log in to GitHub Container Registry
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push Docker image
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: docker/build-push-action@v3
+        with:
+          context: ./genai
+          file: ./genai/Dockerfile
+          push: true
+          tags: ghcr.io/${{ env.REPO_LOWER }}/genai-service:latest
 
   test-and-build-server:
     needs: get-changed-files
     if: needs.get-changed-files.outputs.server == 'true'
     name: Build and Test Server
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -121,17 +168,55 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
       - name: Grant execute permission to Gradle wrapper
-        run: chmod +x gradlew
+        run: chmod +x ./gradlew
         working-directory: server
       - name: Build all microservices
         run: ./gradlew build --no-daemon
         working-directory: server
-      - name: Run unit tests for StreamService
-        run: ./gradlew :StreamService:test --no-daemon
+      - name: Run unit tests for all services
+        run: ./gradlew test --no-daemon
         working-directory: server
-      - name: Run unit tests for PlaylistService
-        run: ./gradlew :PlaylistService:test --no-daemon
-        working-directory: server
-      - name: Run unit tests for AnnouncementService
-        run: ./gradlew :AnnouncementService:test --no-daemon
-        working-directory: server
+
+      # --- CD Steps: Publish to GitHub Packages ---
+      - name: Sanitize repository name for Docker tag
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: echo "REPO_LOWER=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]' | tr -d '.')" >> $GITHUB_ENV
+      - name: Log in to GitHub Container Registry
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and Push StreamService
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: docker/build-push-action@v3
+        with:
+          context: ./server
+          file: ./server/StreamService/Dockerfile
+          push: true
+          tags: ghcr.io/${{ env.REPO_LOWER }}/streamservice:latest
+      - name: Build and Push PlaylistService
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: docker/build-push-action@v3
+        with:
+          context: ./server
+          file: ./server/PlaylistService/Dockerfile
+          push: true
+          tags: ghcr.io/${{ env.REPO_LOWER }}/playlistservice:latest
+      - name: Build and Push AnnouncementService
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: docker/build-push-action@v3
+        with:
+          context: ./server
+          file: ./server/AnnouncementService/Dockerfile
+          push: true
+          tags: ghcr.io/${{ env.REPO_LOWER }}/announcementservice:latest
+      - name: Build and Push ApiGateway
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: docker/build-push-action@v3
+        with:
+          context: ./server
+          file: ./server/api-gateway/Dockerfile
+          push: true
+          tags: ghcr.io/${{ env.REPO_LOWER }}/api-gateway:latest

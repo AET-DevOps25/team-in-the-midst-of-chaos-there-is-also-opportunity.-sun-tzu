@@ -13,7 +13,7 @@ It is designed as a modular microservice that communicates via a REST-API with t
 
 ## Directory Structure and Components
 
-The service now uses a standard `src` layout for better organization and more reliable imports.
+The service now uses a standard `src` layout for better organization and more reliable imports. 
 
 <pre>
 genai/
