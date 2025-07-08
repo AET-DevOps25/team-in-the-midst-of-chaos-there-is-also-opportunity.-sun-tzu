@@ -208,7 +208,7 @@ public class playlistController {
             @ApiResponse(responseCode = "404", description = "Metadata not found", content = @Content())
     })
     @GetMapping(value = "/metadata", produces = "application/json")
-    public Map<String, String> provideMetaData(
+    public Map<String, Object> provideMetaData(
             @Parameter(description = "ID of the song", required = true) @RequestParam("id") Long id,
             HttpServletRequest request,
             HttpServletResponse response) {
@@ -232,11 +232,11 @@ public class playlistController {
             @ApiResponse(responseCode = "404", description = "One or more metadata entries not found")
     })
     @GetMapping(value = "/metadataMulti", produces = "application/json")
-    public List<Map<String, String>> provideMetaDataMulti(
+    public List<Map<String, Object>> provideMetaDataMulti(
             @Parameter(description = "IDs of the songs", required = true, style = ParameterStyle.SIMPLE, example = "1,2,3", schema = @Schema(type = "array")) @RequestParam("ids") List<Long> ids,
             HttpServletRequest request,
             HttpServletResponse response) {
-        List<Map<String, String>> returnMeta = new ArrayList<>();
+        List<Map<String, Object>> returnMeta = new ArrayList<>();
 
         for (Long id : ids) {
             MetaData metaD = MDservice.getById((Long) id).orElse(null);

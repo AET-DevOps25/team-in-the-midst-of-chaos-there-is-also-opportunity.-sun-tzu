@@ -7,6 +7,7 @@ import { Song, Track } from '../interfaces/track';
 import { PlaylistService } from './playlist.service';
 import { SessionService } from './session.service';
 import { MetadataDto } from '@app/dtos/get-metadata';
+import { E } from '@angular/cdk/keycodes';
 
 @Injectable({
   providedIn: 'root'
@@ -28,17 +29,6 @@ export class PlayService {
   private _currentMetadata = signal<MetadataDto | null>(null)
   readonly currentMetadata = this._currentMetadata.asReadonly()
 
-  // ngOnInit(): void {
-  //   const sessionToken = this.sessionService.sessionToken!
-  //   const sub = this.playlist.currentAudio(sessionToken).subscribe(r => {
-  //     if (!r.success) throw r.error
-  //     this.setAudioId(r.data.audio)
-  //   })
-  // }
-
-  // readonly x = setTimeout(() => {
-  //   this.setAudioId(1)
-  // }, 3000)
 
   syncAudioId() {
     const sessionToken = this.sessionService.sessionToken
@@ -61,12 +51,12 @@ export class PlayService {
     }
 
     this._audioId.set(id);
-    // const sub = this.playlist.getMetadata(id).pipe(
-    //   tap(r => {
-    //     if (!r.success) return
-    //     this._currentMetadata.set(r.data)
-    //   })
-    // )
+    const sub = this.playlist.getMetadata(id).pipe(
+      tap(r => {
+        if (!r.success) throw r.error
+        this._currentMetadata.set(r.data)
+      })
+    ).subscribe()
   }
 
 
@@ -87,13 +77,9 @@ export class PlayService {
     this.setAudioId(null)
 
     const sessionToken = this.sessionService.sessionToken!
-    return this.playlist.removeHead(sessionToken).pipe(
+    const sub = this.playlist.removeHead(sessionToken).pipe(
       concatWith(this.syncAudioId()),
     ).subscribe()
-    this.syncAudioId().subscribe()
-    // setTimeout(() => {
-    //   this.setAudioId(1)
-    // }, 3000)
   }
 
   readonly streamUrl = computed(() => {

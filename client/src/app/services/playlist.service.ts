@@ -8,6 +8,8 @@ import { SongCatalogueComponent } from '../components/song-catalogue/song-catalo
 import { NewPlaylistDto } from '@app/dtos/new-playlist';
 import { CurrentAudio } from '@app/dtos/current-audio';
 import { MetadataDto } from '@app/dtos/get-metadata';
+import { NextAudiosDto } from '@app/dtos/next-audios';
+import { FindSongDto } from '@app/dtos/find-song';
 
 @Injectable({
   providedIn: 'root'
@@ -31,7 +33,7 @@ export class PlaylistService {
     )
   }
 
-  getNextAudios(session: number): Observable<ApiResponse<any>> {
+  getNextAudios(session: number | string): Observable<ApiResponse<NextAudiosDto>> {
     return this.apiService.get(
       this.baseUrl + '/nextAudios',
       {session: session}
@@ -45,14 +47,14 @@ export class PlaylistService {
     )
   }
 
-  getMetadataMulti(songIds: number[]): Observable<ApiResponse<any>> {
+  getMetadataMulti(songIds: number[]): Observable<ApiResponse<MetadataDto[]>> {
     return this.apiService.get(
-      this.baseUrl + '/metadata',
+      this.baseUrl + '/metadataMulti',
       {ids: songIds}
     )
   }
 
-  findSong(prefix: string) {
+  findSong(prefix: string): Observable<ApiResponse<FindSongDto>> {
     return this.apiService.get(
       this.baseUrl + '/find',
       {prefix: prefix}
