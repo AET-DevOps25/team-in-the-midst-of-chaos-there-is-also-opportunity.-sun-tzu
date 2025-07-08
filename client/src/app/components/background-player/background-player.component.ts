@@ -1,5 +1,7 @@
-import { Component, computed, effect, ElementRef, EventEmitter, inject, Input, NgZone, Output, Signal, ViewChild } from '@angular/core';
+import { Component, computed, effect, ElementRef, EventEmitter, inject, Input, NgZone, OnInit, Output, Signal, ViewChild } from '@angular/core';
 import { PlayService } from '../../services';
+import { PlaylistService } from '@app/services/playlist.service';
+import { delay, of, switchMap } from 'rxjs';
 
 
 /**
@@ -11,8 +13,9 @@ import { PlayService } from '../../services';
   templateUrl: './background-player.component.html',
   styleUrl: './background-player.component.scss'
 })
-export class BackgroundPlayerComponent {
+export class BackgroundPlayerComponent implements OnInit {
   playService = inject(PlayService)
+  playlistService = inject(PlaylistService)
   zone = inject(NgZone)
 
   @ViewChild('audio', { static: true })
@@ -51,6 +54,10 @@ export class BackgroundPlayerComponent {
       el.addEventListener('ended', () => s.trackFinished());
       el.addEventListener('canplay', () => s.canPlay.set(true));
     });
+  }
+
+  ngOnInit(): void {
+    const sub = of(undefined).pipe(delay(2000), switchMap(() => this.playService.syncAudioId())).subscribe()
   }
 
 }

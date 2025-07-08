@@ -1,6 +1,7 @@
 import { inject, Injectable, signal, Signal } from '@angular/core';
 import { delay, map, Observable, of, ReplaySubject, tap } from 'rxjs';
 import { ApiService } from './api.service';
+import { PlaylistService } from './playlist.service';
 
 
 export const TOKEN_NAME = 'sessionToken';
@@ -12,7 +13,7 @@ type Token = string | null;
   providedIn: 'root'
 })
 export class SessionService {
-  private apiService = inject(ApiService)
+  private playlistService = inject(PlaylistService)
 
   private readonly _isInitialized = signal(false)
   public readonly isInitialized = this._isInitialized.asReadonly()
@@ -21,9 +22,11 @@ export class SessionService {
   public readonly hasSession = this._hasSession.asReadonly()
 
   createSession(): Observable<void> {
-    return this.apiService.get('/newPlaylist').pipe(
-      tap(() => {
-        this.sessionToken = 'dummy_token'
+    return this.playlistService.newPlaylist().pipe(
+      tap((r) => {
+        console.log("HERE")
+        if (!r.success) throw r.error
+        this.sessionToken = r.data.session.toString()
         this._hasSession.set(true)
       }),
       map(() => undefined)
