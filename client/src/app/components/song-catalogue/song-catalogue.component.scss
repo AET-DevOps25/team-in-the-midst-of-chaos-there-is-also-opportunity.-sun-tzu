@@ -9,6 +9,11 @@
     // list-item-trailing-icon-size: 100px,
     // active-indicator-shape: red,
   ));
+  // @include mat.form-field-overrides((
+  //   container-height: 3px,
+  //   container-text-line-height: 3px,
+  //   filled-active-indicator-height: 3px
+  // ))
 }
 
 mat-list {
@@ -39,3 +44,19 @@ mat-list {
   justify-content: center;
   align-items: center;
 }
+
+
+// .filter {
+//   display: block;
+//   width: 80%;
+
+// }
+
+
+  mat-form-field {
+    display: block;
+    min-width: 0;
+    margin: 0 20px 0 20px;
+    // margin-left: 10px;
+    // margin-right: 10px;
+  }

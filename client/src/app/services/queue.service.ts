@@ -11,11 +11,6 @@ import { concatMap, filter, tap } from 'rxjs';
 export class QueueService {
   playlistService = inject(PlaylistService)
   sessionService = inject(SessionService)
-  
-  availableAudios: WritableSignal<MetadataDto[]> = signal([])
-  availableSongs = computed(() => {
-    return this.availableAudios().filter(item => item.type == "song")
-  })
 
   nextAudios: WritableSignal<MetadataDto[]> = signal([])
   nextSongs = computed(() => {
@@ -35,18 +30,6 @@ export class QueueService {
     )
   }
 
-  updateAvailableSongs() {
-    return this.playlistService.findSong("").pipe(
-      concatMap(r => {
-        if (!r.success) throw r.error
-        return this.playlistService.getMetadataMulti(r.data.IDs)
-      }),
-      tap(r => {
-        if (!r.success) throw r.error
-        this.availableAudios.set(r.data)
-      })
-    )
-  }
 
 
 }
