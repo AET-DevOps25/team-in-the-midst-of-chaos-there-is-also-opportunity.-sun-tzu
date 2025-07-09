@@ -18,9 +18,12 @@ export class AudioControlsComponent {
   playService = inject(PlayService)
   apiService = inject(ApiService)
 
-  bars = Array.from({ length: 10 }, (_, i) => ({
-    delay: Math.random() * 1 // Random delay to desync animation
-  }));
+  bars = computed(() => {
+    const s = this.playService.isPlaying()
+    return Array.from({ length: 10 }, (_, i) => ({
+      delay: Math.random() * 1 // Random delay to desync animation
+    }));
+  })
 
   currentMessage = computed(() => {
     const metadata = this.playService.currentMetadata()
@@ -53,9 +56,6 @@ export class AudioControlsComponent {
 
   togglePlay() {
     this.playService.togglePlayPause()
-    // for (let bar of this.bars) {
-    //   bar.delay = 0
-    // }
   }
 
 }
