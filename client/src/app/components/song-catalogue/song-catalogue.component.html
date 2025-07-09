@@ -11,7 +11,7 @@
       <div matListItemLine>{{ song.artist }}</div>
       <div matListItemMeta class="foo">
         <div class="meta">
-        <button matIconButton>
+        <button matIconButton (click)="addToQueue(song.id)">
           <mat-icon>playlist_add</mat-icon>
         </button>
         </div>

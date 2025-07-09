@@ -26,7 +26,7 @@ export class PlaylistService {
     )
   }
 
-  addSong(session: number, song: number): Observable<ApiResponse<any>> {
+  addSong(session: number | string, song: number): Observable<ApiResponse<any>> {
     return this.apiService.post(
       this.baseUrl + '/addSong',
       {session: session, song: song}
