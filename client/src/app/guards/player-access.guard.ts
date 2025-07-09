@@ -8,8 +8,6 @@ import { map, of, tap, EMPTY, concat, concatMap } from 'rxjs';
 
 export const playerAccessGuard: CanActivateFn = (route, state) => {
   const sessionService = inject(SessionService);
-  const playService = inject(PlayService)
-  const playlistService = inject(PlaylistService)
 
   return sessionService.hasSession()
     ? of(true)

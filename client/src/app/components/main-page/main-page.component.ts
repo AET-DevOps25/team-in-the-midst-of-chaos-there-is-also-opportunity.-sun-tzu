@@ -9,6 +9,8 @@ import {
   QueueComponent,
   SongCatalogueComponent
 } from '@app/components';
+import { PlayService } from '@app/services';
+import { QueueService } from '@app/services/queue.service';
 
 
 @Component({
@@ -22,6 +24,7 @@ import {
     QueueComponent,
     SongCatalogueComponent
   ],
+  providers: [PlayService, QueueService],
   templateUrl: './main-page.component.html',
   styleUrl: './main-page.component.scss'
 })

@@ -5,9 +5,7 @@ import { SessionService } from './session.service';
 import { NextAudiosDto } from '@app/dtos/next-audios';
 import { concatMap, filter, tap } from 'rxjs';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable()
 export class QueueService {
   playlistService = inject(PlaylistService)
   sessionService = inject(SessionService)

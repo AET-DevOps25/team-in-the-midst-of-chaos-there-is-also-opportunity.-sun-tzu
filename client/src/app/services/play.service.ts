@@ -10,9 +10,7 @@ import { MetadataDto } from '@app/dtos/get-metadata';
 import { E } from '@angular/cdk/keycodes';
 import { QueueService } from './queue.service';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable()
 export class PlayService {
   api = inject(ApiService)
   playlist = inject(PlaylistService)
