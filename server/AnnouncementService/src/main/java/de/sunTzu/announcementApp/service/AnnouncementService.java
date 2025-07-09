@@ -75,7 +75,7 @@ public class AnnouncementService {
     }
 
     private Song createSongFromMetaData(MetaData metaData) {
-        Map<String, String> data = metaData.getData();
-        return new Song(data.get("title"), data.get("artist"));
+        Map<String, Object> data = metaData.getData();
+        return new Song((String) data.get("title"), (String) data.get("artist"));
     }
 }

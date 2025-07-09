@@ -17,14 +17,22 @@ import { TrackType } from '../../interfaces/track';
 export class AudioControlsComponent {
   playService = inject(PlayService)
   apiService = inject(ApiService)
-  currentMessage = computed(() => {
-    const track = this.playService.track()
-    if (track == null) return "(No song selected)"
 
-    switch (track.type) {
-      case TrackType.Song:
-        return `${track.artist} - ${track.title} (${track.year})`
-      case TrackType.Announcement:
+  bars = computed(() => {
+    const s = this.playService.isPlaying()
+    return Array.from({ length: 10 }, (_, i) => ({
+      delay: Math.random() * 1 // Random delay to desync animation
+    }));
+  })
+
+  currentMessage = computed(() => {
+    const metadata = this.playService.currentMetadata()
+    if (metadata == null) return "(No song selected)"
+
+    switch (metadata.type) {
+      case "song":
+        return `${metadata.artist} - ${metadata.title} (${metadata.release_date})`
+      case "announcement":
         return "(Announcement)"
     }
   })

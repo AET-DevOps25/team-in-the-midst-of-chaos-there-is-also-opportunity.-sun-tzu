@@ -1,17 +1,21 @@
-import { computed, inject, Injectable } from '@angular/core';
+import { computed, effect, inject, Injectable, OnInit } from '@angular/core';
 import { signal } from '@angular/core';
-import { Observable, single } from 'rxjs';
+import { concatMap, concatWith, Observable, of, single, tap } from 'rxjs';
 import { ApiResponse } from '../interfaces';
 import { ApiService } from './api.service';
 import { Song, Track } from '../interfaces/track';
 import { PlaylistService } from './playlist.service';
+import { SessionService } from './session.service';
+import { MetadataDto } from '@app/dtos/get-metadata';
+import { E } from '@angular/cdk/keycodes';
+import { QueueService } from './queue.service';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable()
 export class PlayService {
   api = inject(ApiService)
   playlist = inject(PlaylistService)
+  sessionService = inject(SessionService)
+  queueService = inject(QueueService)
 
   private _isPlaying = signal(false)
   readonly isPlaying = this._isPlaying.asReadonly()
@@ -22,25 +26,39 @@ export class PlayService {
   private _audioId = signal<number | null>(null);
   readonly audioId = this._audioId.asReadonly();
 
-  private _track = signal<Track | null>(null)
-  readonly track = this._track.asReadonly()
+  private _currentMetadata = signal<MetadataDto | null>(null)
+  readonly currentMetadata = this._currentMetadata.asReadonly()
 
-  readonly x = setTimeout(() => {
-    this.setAudioId(1)
-  }, 3000)
 
+  syncAudioId() {
+    const sessionToken = this.sessionService.sessionToken
+    if (sessionToken == null)
+      throw Error("Session token cannot be null")
+    return this.playlist.currentAudio(sessionToken).pipe(
+      tap(r => {
+        if (!r.success) throw r.error
+        this.setAudioId(r.data.audio)
+      })
+    )
+  }
 
   setAudioId(id: number|null) {
     if (id == null) {
       this._audioId.set(null)
-      this._track.set(null)
+      this._currentMetadata.set(null)
       this.canPlay.set(false)
       return
     }
 
     this._audioId.set(id);
-    this._track.set(this.playlist.getTrack(id))
+    const sub = this.playlist.getMetadata(id).pipe(
+      tap(r => {
+        if (!r.success) throw r.error
+        this._currentMetadata.set(r.data)
+      })
+    ).subscribe()
   }
+
 
   play() {
     this._isPlaying.set(true)
@@ -57,9 +75,12 @@ export class PlayService {
   trackFinished() {
     console.log("The track has finished")
     this.setAudioId(null)
-    setTimeout(() => {
-      this.setAudioId(1)
-    }, 3000)
+
+    const sessionToken = this.sessionService.sessionToken!
+    const sub = this.playlist.removeHead(sessionToken).pipe(
+      concatWith(this.syncAudioId()),
+      concatWith(this.queueService.updateNextAudios())
+    ).subscribe()
   }
 
   readonly streamUrl = computed(() => {

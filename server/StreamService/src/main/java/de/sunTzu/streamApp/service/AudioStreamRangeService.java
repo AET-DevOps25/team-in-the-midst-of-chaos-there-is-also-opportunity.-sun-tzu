@@ -16,7 +16,12 @@ public class AudioStreamRangeService {
         String[] parts = rangeHeader.substring("bytes=".length()).split("-");
         try {
             long start = Long.parseLong(parts[0]);
-            long end = Long.parseLong(parts[1]);
+            long end;
+            if (parts.length == 1 || parts[1].isEmpty()) {
+                end = fileLength - 1;
+            } else {
+                end = Long.parseLong(parts[1]);
+            }
 
             if (start > end || end >= fileLength) {
                 return Optional.empty(); // Invalid range

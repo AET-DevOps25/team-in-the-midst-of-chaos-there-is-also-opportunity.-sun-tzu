@@ -15,9 +15,9 @@ services:
   downloader:
     build: ./server/database/downloader
     environment:
-      - BASIC_AUTH_USER=${BASIC_AUTH_USER}
+      - BASIC_AUTH_USER=user
       - BASIC_AUTH_PASS=${BASIC_AUTH_PASS}
-      - BASIC_AUTH_URL=${BASIC_AUTH_URL}
+      - BASIC_AUTH_URL=https://ai-fm.dotan.de/
     volumes:
       - audio-files:/audio
       - sql-files:/docker-entrypoint-initdb.d

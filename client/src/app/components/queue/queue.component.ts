@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, computed, inject, OnInit } from '@angular/core';
 import { MatButton, MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import {MatListModule} from '@angular/material/list';
+import { QueueService } from '@app/services/queue.service';
 
 @Component({
   selector: 'app-queue',
@@ -9,8 +10,10 @@ import {MatListModule} from '@angular/material/list';
   templateUrl: './queue.component.html',
   styleUrl: './queue.component.scss'
 })
-export class QueueComponent {
+export class QueueComponent implements OnInit {
+  queueService = inject(QueueService)
 
-  // tracks: Track[] = []
-
+  ngOnInit(): void {
+    const sub = this.queueService.updateNextAudios().subscribe()
+  }
 }

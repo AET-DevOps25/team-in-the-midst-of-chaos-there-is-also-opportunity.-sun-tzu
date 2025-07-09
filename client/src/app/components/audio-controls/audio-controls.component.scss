@@ -14,6 +14,52 @@
 }
 
 
+.equalizer {
+  display: flex;
+  gap: 6px;
+  height: 60px;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.bar {
+  width: 10px;
+  height: 15%;
+  background: linear-gradient(0deg, #00f260, #0575e6, #f7971e, #ffd200, #fc466b, #3f5efb, #00f260);
+  background-size: 800% 800%;
+  // background-size: 400% 400%;
+  border-radius: 3px;
+  box-shadow: 0 0 15px 0px rgba(76, 175, 79, 0.58);
+}
+
+.equalizer.playing .bar {
+  animation:
+    bounce 0.8s infinite ease-in-out,
+    gradientShift 20s linear infinite;
+}
+
+
+
+@keyframes bounce {
+  0%, 100% { height: 15%; }
+  50% { height: 100%; }
+}
+
+@keyframes gradientShift {
+  0% {
+    background-position: 50% 0%;
+  }
+  50% {
+    background-position: 50% 100%;
+  }
+  100% {
+    background-position: 50% 0%;
+  }
+}
+
+
+
+
 button {
   @include mat.fab-overrides((
       container-shape: 100px,

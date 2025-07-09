@@ -32,9 +32,10 @@ public class MetaData {
         return id;
     }
 
-    public Map<String, String> getData() {
-        Map<String, String> returnMap = new HashMap<>();
+    public Map<String, Object> getData() {
+        Map<String, Object> returnMap = new HashMap<>();
 
+        returnMap.put("id", id);
         returnMap.put("type", type);
         returnMap.put("title", title);
         returnMap.put("artist", artist);
