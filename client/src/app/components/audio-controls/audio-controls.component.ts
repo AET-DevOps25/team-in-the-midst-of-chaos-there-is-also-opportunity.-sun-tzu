@@ -53,6 +53,9 @@ export class AudioControlsComponent {
 
   togglePlay() {
     this.playService.togglePlayPause()
+    // for (let bar of this.bars) {
+    //   bar.delay = 0
+    // }
   }
 
 }
