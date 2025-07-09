@@ -35,7 +35,7 @@ class StreamApplicationTests {
 	@Test
 	void parseOpenEndedRange() {
 		Optional<RangeResponse> result = AudioStreamRangeService.parseRangeHeader("bytes=100-", 1000);
-		assertFalse(result.isPresent());
+		assertTrue(result.isPresent());
 	}
 
 	@Test
