@@ -17,6 +17,11 @@ import { TrackType } from '../../interfaces/track';
 export class AudioControlsComponent {
   playService = inject(PlayService)
   apiService = inject(ApiService)
+
+  bars = Array.from({ length: 10 }, (_, i) => ({
+    delay: Math.random() * 1 // Random delay to desync animation
+  }));
+
   currentMessage = computed(() => {
     const metadata = this.playService.currentMetadata()
     if (metadata == null) return "(No song selected)"

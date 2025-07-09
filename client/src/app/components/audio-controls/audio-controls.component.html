@@ -1,6 +1,14 @@
 
 
 <div class="content">
+
+<div class="equalizer">
+  @for (bar of bars; track $index) {
+    <div class="bar" [style.animation-delay]="bar.delay + 's'"></div>
+  }
+</div>
+
+
   <p>{{ this.currentMessage() }}</p>
 
   <mat-progress-bar  #progressBar [mode]="mode()" [value]="progressPercent()"></mat-progress-bar>
