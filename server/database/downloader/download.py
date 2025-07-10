@@ -11,7 +11,7 @@ BASE_URL = os.getenv('BASIC_AUTH_URL')
 user = os.getenv('BASIC_AUTH_USER')
 password = os.getenv('BASIC_AUTH_PASS')
 AUTH = requests.auth.HTTPBasicAuth(user, password)
-NUM_SONGS = 10
+NUM_SONGS = os.getenv('NUM_DOWNLOADS')
 
 os.makedirs(AUDIO_DIR, exist_ok=True)
 

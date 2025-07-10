@@ -18,6 +18,13 @@ public class AsyncPostService {
 
     @Async
     public void sendAsynAnnouncementPost(Long id, Long prevId, List<Long> songIds, int type) {
+        System.out.print(String.format("Sending generate announcement request for announcement id: %d, previous song: %d, of type %d, next songs:", id, prevId, type));
+        for (Long songid:songIds) {
+            System.out.print(String.format(" %d", songid));
+        }
+        System.out.println("");
+        System.out.flush();
+
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(announcementServiceUrl)
             .queryParam("id", id)
             .queryParam("type", type);
