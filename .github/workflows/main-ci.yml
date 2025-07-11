@@ -140,7 +140,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        image: [client, playlist-service]
+        image: [client, downloader, db, api-gateway, stream-service, playlist-service, genai-service, announcement-service, prometheus]
     env:
       REMOTE_IMAGE: ghcr.io/${{ needs.setup.outputs.repo_sanitized }}/${{ matrix.image }}
       IMAGE_TIMESTAMP: ${{ needs.setup.outputs.timestamp }}
@@ -185,7 +185,7 @@ jobs:
     needs: [setup, build]
     strategy:
       matrix:
-        image: [client, playlist-service]
+        image: [client, downloader, db, api-gateway, stream-service, playlist-service, genai-service, announcement-service, prometheus]
     env:
       REMOTE_IMAGE: ghcr.io/${{ needs.setup.outputs.repo_sanitized }}/${{ matrix.image }}
 
