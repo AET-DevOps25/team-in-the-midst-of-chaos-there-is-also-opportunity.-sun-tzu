@@ -24,8 +24,6 @@ jobs:
     name: Test Client
     needs: setup
     runs-on: ubuntu-latest
-    env:
-      REPO_SANITIZED: ${{ needs.setup.outputs.repo_sanitized }}
     permissions:
       contents: read
       packages: write
@@ -144,8 +142,7 @@ jobs:
       matrix:
         image: [client, playlist-service]
     env:
-      REPO_SANITIZED: ${{ needs.setup.outputs.repo_sanitized }}
-      REMOTE_IMAGE: ghcr.io/${{ env.REPO_SANITIZED }}/${{ matrix.image }}
+      REMOTE_IMAGE: ghcr.io/${{ needs.setup.outputs.repo_sanitized }}/${{ matrix.image }}
 
     steps:
       - name: Checkout Repository
@@ -187,8 +184,7 @@ jobs:
       matrix:
         image: [client, playlist-service]
     env:
-      REPO_SANITIZED: ${{ needs.setup.outputs.repo_sanitized }}
-      REMOTE_IMAGE: ghcr.io/${{ env.REPO_SANITIZED }}/${{ matrix.image }}
+      REMOTE_IMAGE: ghcr.io/${{ needs.setup.outputs.repo_sanitized }}/${{ matrix.image }}
 
     steps:
       - name: Download artifact
