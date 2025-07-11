@@ -1,0 +1,50 @@
+version: "3.9"
+
+services:
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    image: client:local
+
+  downloader:
+    build: ./server/database/downloader
+    image: downloader:local
+
+  db:
+    build: ./server/database
+    image: db:local
+
+  api-gateway:
+    build:
+      context: ./server
+      dockerfile: api-gateway/Dockerfile
+    image: api-gateway:local
+
+  streamservice:
+    build:
+      context: ./server
+      dockerfile: StreamService/Dockerfile
+    image: server-streamservice:local
+
+  playlistservice:
+    build:
+      context: ./server
+      dockerfile: PlaylistService/Dockerfile
+    image: server-playlistservice:local
+
+  genai:
+    build:
+      context: ./genai
+      dockerfile: Dockerfile
+    image: genai-service-local
+
+  announcementservice:
+    build:
+      context: ./server
+      dockerfile: AnnouncementService/Dockerfile
+    image: server-announcementservice:local
+
+  prometheus:
+    build: ./monitoring/prometheus
+    image: prometheus:local

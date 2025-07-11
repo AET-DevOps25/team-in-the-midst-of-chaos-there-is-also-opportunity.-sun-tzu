@@ -1,9 +1,8 @@
+version: "3.9"
+
 services:
   client:
-    image: client:local
-    build:
-      context: ./client
-      dockerfile: Dockerfile
+    image: ghcr.io/your-org/client:latest
     restart: unless-stopped
     ports:
       - "80:80"
@@ -13,7 +12,7 @@ services:
       - api-gateway
 
   downloader:
-    build: ./server/database/downloader
+    image: ghcr.io/your-org/downloader:latest
     environment:
       - BASIC_AUTH_USER=user
       - BASIC_AUTH_PASS=${BASIC_AUTH_PASS}
@@ -26,7 +25,7 @@ services:
       - app-network
 
   db:
-    build: ./server/database
+    image: ghcr.io/your-org/db:latest
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: audioDB
@@ -39,15 +38,13 @@ services:
       timeout: 5s
       retries: 5
     volumes:
-      - "mysql_data:/var/lib/mysql"
+      - mysql_data:/var/lib/mysql
       - sql-files:/docker-entrypoint-initdb.d
     networks:
       - app-network
 
   api-gateway:
-    build:
-      context: ./server
-      dockerfile: api-gateway/Dockerfile
+    image: ghcr.io/your-org/api-gateway:latest
     ports:
       - "8080:8080"
     depends_on:
@@ -57,10 +54,7 @@ services:
       - app-network
 
   streamservice:
-    build:
-      context: ./server
-      dockerfile: StreamService/Dockerfile
-    image: server-streamservice:latest
+    image: ghcr.io/your-org/server-streamservice:latest
     expose:
       - "8080"
     depends_on:
@@ -72,15 +66,12 @@ services:
       SPRING_DATABASE_PASSWORD: root
       AUDIO_FILE_PATH: /audio
     volumes:
-      - "audio-files:/audio"
+      - audio-files:/audio
     networks:
       - app-network
 
   playlistservice:
-    build:
-      context: ./server
-      dockerfile: PlaylistService/Dockerfile
-    image: server-playlistservice:latest
+    image: ghcr.io/your-org/server-playlistservice:latest
     expose:
       - "8080"
     depends_on:
@@ -98,10 +89,7 @@ services:
       - app-network
 
   genai:
-    build:
-      context: ./genai
-      dockerfile: Dockerfile
-    image: genai-service-local
+    image: ghcr.io/your-org/genai-service:latest
     container_name: genai_service
     ports:
       - "8000:8000"
@@ -111,10 +99,7 @@ services:
       - app-network
 
   announcementservice:
-    build:
-      context: ./server
-      dockerfile: AnnouncementService/Dockerfile
-    image: server-announcementservice:latest
+    image: ghcr.io/your-org/server-announcementservice:latest
     container_name: announcement
     expose:
       - "8080"
@@ -133,7 +118,7 @@ services:
       - app-network
 
   prometheus:
-    build: ./monitoring/prometheus
+    image: ghcr.io/your-org/prometheus:latest
     container_name: prometheus
     ports:
       - "9090:9090"
