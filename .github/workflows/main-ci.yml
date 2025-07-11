@@ -195,7 +195,7 @@ jobs:
           context: ./server
           file: ./server/StreamService/Dockerfile
           push: true
-          tags: ghcr.io/${{ env.REPO_LOWER }}/streamservice:latest
+          tags: ghcr.io/${{ env.REPO_LOWER }}/stream-service:latest
       - name: Build and Push PlaylistService
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: docker/build-push-action@v3
@@ -203,7 +203,7 @@ jobs:
           context: ./server
           file: ./server/PlaylistService/Dockerfile
           push: true
-          tags: ghcr.io/${{ env.REPO_LOWER }}/playlistservice:latest
+          tags: ghcr.io/${{ env.REPO_LOWER }}/playlist-service:latest
       - name: Build and Push AnnouncementService
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: docker/build-push-action@v3
@@ -211,7 +211,7 @@ jobs:
           context: ./server
           file: ./server/AnnouncementService/Dockerfile
           push: true
-          tags: ghcr.io/${{ env.REPO_LOWER }}/announcementservice:latest
+          tags: ghcr.io/${{ env.REPO_LOWER }}/announcement-service:latest
       - name: Build and Push ApiGateway
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: docker/build-push-action@v3
