@@ -236,7 +236,11 @@ jobs:
       # --- CD Steps: Publish to GitHub Packages ---
       - name: Sanitize repository name for Docker tag
         # if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        run: echo "REPO_LOWER=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]' | tr -d '.')" >> $GITHUB_ENV
+        run: echo "REPO_SANITIZED=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]' | tr -d '.')" >> $GITHUB_ENV
+
+      - name: Remote image name
+        run: |
+          echo "REMOTE_IMAGE=ghcr.io/${REPO_SANITIZED}/downloader" >> $GITHUB_ENV
 
       - name: Log in to GitHub Container Registry
         # if: github.event_name == 'push' && github.ref == 'refs/heads/main'
@@ -247,37 +251,46 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build image
-        run: docker compose -f compose.yml build downloader
+        run: docker compose build downloader
 
-      - name: Push to registry
-        run: docker push --all-tags ghcr.io/${{ env.REPO_LOWER }}/downloader
-
-  build-prometheus:
-    needs: get-changed-files
-    name: Build Prometheus
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      # --- CD Steps: Publish to GitHub Packages ---
-      - name: Sanitize repository name for Docker tag
-        # if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        run: echo "REPO_LOWER=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]' | tr -d '.')" >> $GITHUB_ENV
-
-      - name: Log in to GitHub Container Registry
-        # if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        uses: docker/login-action@v2
+      - name: Generate timestamped tag
+        id: meta
+        uses: docker/metadata-action@v5
         with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Build image
-        run: docker compose -f compose.yml build prometheus
+          images: ${{ env.REMOTE_IMAGE }}
+          tags: |
+            type=raw,value=${{ github.run_id }}-${{ github.run_attempt }}
+            type=raw,value={{date 'YYYYMMDD-HHmmss'}}
 
       - name: Push to registry
-        run: docker push --all-tags ghcr.io/${{ env.REPO_LOWER }}/prometheus
+        run: docker push --all-tags ${{ env.REMOTE_IMAGE }}
+
+  # build-prometheus:
+  #   needs: get-changed-files
+  #   name: Build Prometheus
+  #   runs-on: ubuntu-latest
+  #   permissions:
+  #     contents: read
+  #     packages: write
+  #   steps:
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v4
+
+  #     # --- CD Steps: Publish to GitHub Packages ---
+  #     - name: Sanitize repository name for Docker tag
+  #       # if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+  #       run: echo "REPO_LOWER=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]' | tr -d '.')" >> $GITHUB_ENV
+
+  #     - name: Log in to GitHub Container Registry
+  #       # if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+  #       uses: docker/login-action@v2
+  #       with:
+  #         registry: ghcr.io
+  #         username: ${{ github.actor }}
+  #         password: ${{ secrets.GITHUB_TOKEN }}
+
+  #     - name: Build image
+  #       run: docker compose -f compose.yml build prometheus
+
+  #     - name: Push to registry
+  #       run: docker push --all-tags ghcr.io/${{ env.REPO_LOWER }}/prometheus
