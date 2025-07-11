@@ -52,7 +52,7 @@ services:
       - app-network
 
   streamservice:
-    image: ghcr.io/AET-DevOps25/team-in-the-midst-of-chaos-there-is-also-opportunity.-sun-tzu/server-streamservice:latest
+    image: ghcr.io/AET-DevOps25/team-in-the-midst-of-chaos-there-is-also-opportunity.-sun-tzu/stream-service:latest
     expose:
       - "8080"
     depends_on:
@@ -69,7 +69,7 @@ services:
       - app-network
 
   playlistservice:
-    image: ghcr.io/AET-DevOps25/team-in-the-midst-of-chaos-there-is-also-opportunity.-sun-tzu/server-playlistservice:latest
+    image: ghcr.io/AET-DevOps25/team-in-the-midst-of-chaos-there-is-also-opportunity.-sun-tzu/playlist-service:latest
     expose:
       - "8080"
     depends_on:
@@ -97,7 +97,7 @@ services:
       - app-network
 
   announcementservice:
-    image: ghcr.io/AET-DevOps25/team-in-the-midst-of-chaos-there-is-also-opportunity.-sun-tzu/server-announcementservice:latest
+    image: ghcr.io/AET-DevOps25/team-in-the-midst-of-chaos-there-is-also-opportunity.-sun-tzu/announcement-service:latest
     container_name: announcement
     expose:
       - "8080"
