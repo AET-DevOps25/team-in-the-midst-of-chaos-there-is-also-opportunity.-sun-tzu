@@ -247,7 +247,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build image
-        run: docker compose build downloader
+        run: docker compose build -f compose.yml downloader
 
       - name: Push to registry
         run: docker push --all-tags ghcr.io/${{ env.REPO_LOWER }}/downloader
@@ -277,7 +277,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build image
-        run: docker compose build prometheus
+        run: docker compose build -f compose.yml prometheus
 
       - name: Push to registry
         run: docker push --all-tags ghcr.io/${{ env.REPO_LOWER }}/prometheus
