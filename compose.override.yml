@@ -19,19 +19,19 @@ services:
       dockerfile: api-gateway/Dockerfile
     image: api-gateway:local
 
-  streamservice:
+  stream-service:
     build:
       context: ./server
       dockerfile: StreamService/Dockerfile
     image: stream-service:local
 
-  playlistservice:
+  playlist-service:
     build:
       context: ./server
       dockerfile: PlaylistService/Dockerfile
     image: playlist-service:local
 
-  genai:
+  genai-service:
     build:
       context: ./genai
       dockerfile: Dockerfile
