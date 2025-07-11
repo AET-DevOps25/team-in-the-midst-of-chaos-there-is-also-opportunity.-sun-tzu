@@ -15,11 +15,13 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       repo_sanitized: ${{ steps.setvar.outputs.repo_sanitized }}
+      timestamp: ${{ steps.setvar.outputs.timestamp }}
     steps:
-      - name: Set sanitized repo name
+      - name: Set shared metadata
         id: setvar
         run: |
           echo "repo_sanitized=$(echo $GITHUB_REPOSITORY | tr '[:upper:]' '[:lower:]' | tr -d '.')" >> $GITHUB_OUTPUT
+          echo "timestamp=$(date +'%Y%m%d-%H%M%S')" >> $GITHUB_OUTPUT
 
   test-client:
     name: Test Client
@@ -141,6 +143,7 @@ jobs:
         image: [client, playlist-service]
     env:
       REMOTE_IMAGE: ghcr.io/${{ needs.setup.outputs.repo_sanitized }}/${{ matrix.image }}
+      IMAGE_TIMESTAMP: ${{ needs.setup.outputs.timestamp }}
 
     steps:
       - name: Checkout Repository
@@ -155,9 +158,10 @@ jobs:
         with:
           images: ${{ env.REMOTE_IMAGE }}
           tags: |
-            type=raw,value=latest
+            type=sha
             type=raw,value=${{ github.run_id }}-${{ github.run_attempt }}
-            type=raw,value={{date 'YYYYMMDD-HHmmss'}}
+            type=raw,value=${{ env.IMAGE_TIMESTAMP }}
+            type=raw,value=latest
 
       - name: Create remote image tags
         run: |
