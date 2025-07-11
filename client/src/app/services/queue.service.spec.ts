@@ -47,4 +47,33 @@ describe('QueueService', () => {
     expect(req2.request.method).toBe('GET');
     req2.flush(mockMetadata);
   });
+
+  // --- New Tests Added Below ---
+
+  it('should have showQueue signal initially as false', () => {
+    expect(service.showQueue()).toBe(false);
+  });
+
+  it('should toggle showQueue from false to true when toggleQueue is called', () => {
+    // Initial state is false
+    expect(service.showQueue()).toBe(false);
+
+    // Call the method
+    service.toggleQueue();
+
+    // Expect the new state to be true
+    expect(service.showQueue()).toBe(true);
+  });
+
+  it('should toggle showQueue from true back to false when toggleQueue is called twice', () => {
+    // Call it once to set to true
+    service.toggleQueue();
+    expect(service.showQueue()).toBe(true);
+
+    // Call it a second time
+    service.toggleQueue();
+
+    // Expect the new state to be false again
+    expect(service.showQueue()).toBe(false);
+  });
 });
