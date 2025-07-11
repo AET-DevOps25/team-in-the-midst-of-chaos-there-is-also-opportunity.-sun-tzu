@@ -82,7 +82,7 @@ jobs:
 
   test-and-build-genai:
     needs: get-changed-files
-    if: needs.get-changed-files.outputs.genai == 'true'
+    # if: needs.get-changed-files.outputs.genai == 'true'
     name: Test and Build GenAI Service
     runs-on: ubuntu-latest
     permissions:
@@ -154,7 +154,7 @@ jobs:
 
   test-and-build-server:
     needs: get-changed-files
-    if: needs.get-changed-files.outputs.server == 'true'
+    # if: needs.get-changed-files.outputs.server == 'true'
     name: Build and Test Server
     runs-on: ubuntu-latest
     permissions:
