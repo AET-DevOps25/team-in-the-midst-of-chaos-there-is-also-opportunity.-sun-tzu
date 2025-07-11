@@ -61,9 +61,6 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install Docker Compose
-        run: sudo apt-get update && sudo apt-get install -y docker-compose
-
       - name: Install Python dependencies
         run: pip install -r genai/requirements.txt
 
@@ -77,11 +74,11 @@ jobs:
           BASIC_AUTH_USER: ${{ secrets.BASIC_AUTH_USER }}
           BASIC_AUTH_PASS: ${{ secrets.BASIC_AUTH_PASS }}
           BASIC_AUTH_URL: ${{ secrets.BASIC_AUTH_URL }}
-        run: docker-compose -f compose.yml up -d --build genai
+        run: docker compose up -d --build genai-service
 
       - name: Show container logs
         if: always()
-        run: docker-compose -f compose.yml logs genai
+        run: docker compose logs genai-service
 
       - name: Wait for GenAI service to be healthy
         run: |
@@ -94,7 +91,7 @@ jobs:
             sleep 2
           done
           echo "GenAI service did not start in time."
-          docker-compose -f compose.yml logs genai
+          docker compose logs genai-service
           exit 1
 
       - name: Run Component Test (API test)
@@ -103,7 +100,7 @@ jobs:
 
       - name: Stop services
         if: always()
-        run: docker-compose -f compose.yml down
+        run: docker compose down
 
 
   test-server:
