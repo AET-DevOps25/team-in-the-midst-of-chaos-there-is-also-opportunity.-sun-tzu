@@ -221,3 +221,63 @@ jobs:
           file: ./server/api-gateway/Dockerfile
           push: true
           tags: ghcr.io/${{ env.REPO_LOWER }}/api-gateway:latest
+
+  build-downloader:
+    needs: get-changed-files
+    name: Build Downloader
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # --- CD Steps: Publish to GitHub Packages ---
+      - name: Sanitize repository name for Docker tag
+        # if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: echo "REPO_LOWER=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]' | tr -d '.')" >> $GITHUB_ENV
+
+      - name: Log in to GitHub Container Registry
+        # if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build image
+        run: docker compose build downloader
+
+      - name: Push to registry
+        run: docker push --all-tags ghcr.io/${{ env.REPO_LOWER }}/downloader
+
+  build-prometheus:
+    needs: get-changed-files
+    name: Build Prometheus
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # --- CD Steps: Publish to GitHub Packages ---
+      - name: Sanitize repository name for Docker tag
+        # if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: echo "REPO_LOWER=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]' | tr -d '.')" >> $GITHUB_ENV
+
+      - name: Log in to GitHub Container Registry
+        # if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build image
+        run: docker compose build prometheus
+
+      - name: Push to registry
+        run: docker push --all-tags ghcr.io/${{ env.REPO_LOWER }}/prometheus
