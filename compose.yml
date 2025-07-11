@@ -18,6 +18,7 @@ services:
       - BASIC_AUTH_USER=user
       - BASIC_AUTH_PASS=${BASIC_AUTH_PASS}
       - BASIC_AUTH_URL=https://ai-fm.dotan.de/
+      - NUM_DOWNLOADS=50
     volumes:
       - audio-files:/audio
       - sql-files:/docker-entrypoint-initdb.d

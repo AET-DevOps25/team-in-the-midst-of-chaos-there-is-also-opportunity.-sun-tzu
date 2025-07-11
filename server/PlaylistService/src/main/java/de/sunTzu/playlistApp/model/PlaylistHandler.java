@@ -38,7 +38,7 @@ public class PlaylistHandler {
     public Optional<Long> getSongAtPlaylistTail(Long session) {
         Optional<Playlist> playlist = Pservice.getBySession(session);
         if (playlist.isPresent()) {
-            Long tail = playlist.get().getTail();
+            Long tail = playlist.get().getTail() - 1; // -1 since tail always points to next free element
             Optional<PlaylistQueue> tailPQ = PQservice.getPlaylistTailBySession(session, tail);
             if (tailPQ.isPresent()) {
                 return Optional.of(tailPQ.get().getAudio_id());

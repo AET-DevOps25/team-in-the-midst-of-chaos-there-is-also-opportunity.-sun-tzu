@@ -74,7 +74,7 @@ public class playlistController {
         List<Long> newSongs = List.of(getRandomSong(), getRandomSong());
         playlistAcc.addMultiToPlaylist(newSession, newSongs);
         // send request to generate announcement
-        announcementAcc.requestNewAnnouncement(newAnnouncementId, null, newSongs);
+        announcementAcc.requestNewShortAnnouncement(newAnnouncementId, null, newSongs);
         // return new session id
         response.setStatus(HttpServletResponse.SC_OK);
         return Collections.singletonMap("session", newSession);
@@ -132,12 +132,14 @@ public class playlistController {
         if (metaD.isPresent()) {
             // check if session exists
             if (playlistAcc.existsPlaylist(session)) {
+                // get previous song
+                Long prevSong = playlistAcc.getSongAtPlaylistTail(session).orElse(null);
                 // register new announcement
                 Long newAnnouncementId = announcementAcc.registerNewAnnouncement();
                 // insert in playlist along with user song
                 playlistAcc.addMultiToPlaylist(session, List.of(newAnnouncementId, song));
                 // initiate announcement generation
-                announcementAcc.requestNewUserAnnouncement(newAnnouncementId, null, List.of(song));
+                announcementAcc.requestNewUserAnnouncement(newAnnouncementId, prevSong, List.of(song));
                 // return
                 response.setStatus(HttpServletResponse.SC_OK);
                 return;
@@ -191,7 +193,7 @@ public class playlistController {
                 List<Long> newSongs = List.of(getRandomSong(), getRandomSong());
                 playlistAcc.addMultiToPlaylist(session, newSongs);
                 // initiate announcement generation
-                announcementAcc.requestNewUserAnnouncement(newAnnouncementId, prevSong, newSongs);
+                announcementAcc.requestNewAnnouncement(newAnnouncementId, prevSong, newSongs);
             }
         }
 
