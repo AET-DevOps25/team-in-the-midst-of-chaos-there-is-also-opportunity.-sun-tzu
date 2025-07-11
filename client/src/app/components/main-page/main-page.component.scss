@@ -1,55 +1,40 @@
 @use '@angular/material' as mat;
 
-
-// Customize the entire app. Change :root to your selector if you want to scope the styles.
 :host {
-    @include mat.divider-overrides((
-        color: lightgray,
-    ));
-    display: flex;
-    flex-direction: column;
+  display: flex;
+  flex-direction: column;
+  height: 100%; // This is crucial for filling the .outlet
+}
+
+app-header {
+  flex-shrink: 0; // The header should not shrink
 }
 
 .container {
-    flex: 1; /* take up remaining space */
-    overflow: auto; /* scroll if needed */
-
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    text-align: center;
-    flex-wrap: wrap;
-
-    margin-top: 50px;
+  flex: 1; // The container should grow to fill the remaining space
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  gap: 16px;
+  padding: 24px;
+  overflow: hidden; // Prevent the container itself from scrolling
 }
 
-app-song-catalogue {
-    flex-grow: 1;
-    flex-basis: 0;
-    flex-shrink: 0;
-    min-width: 0;
+// These styles ensure the three columns are flexible but have a minimum size
+app-song-catalogue,
+app-queue {
+  flex: 1 1 300px; // flex-grow, flex-shrink, flex-basis
+  min-width: 250px;
 }
-
 
 app-audio-controls {
-    flex-grow: 1.5;
-    flex-basis: 0;
-    flex-shrink: 0;
-    min-width: 0;
-    // width: 100%;
-    // min-width: 50px;
-    // max-width: 50%;
-    // height: min-content;
+  flex: 1.5 1 400px;
+  min-width: 320px;
 }
 
-app-queue {
-    flex-grow: 1;
-    flex-basis: 0;
-    flex-shrink: 0;
-    min-width: 0;
-}
-
-
+// This makes the dividers visible
 mat-divider {
-    height: 80%
+  border-left: 1px solid rgba(255, 255, 255, 0.12);
+  height: 90%;
+  align-self: center;
 }

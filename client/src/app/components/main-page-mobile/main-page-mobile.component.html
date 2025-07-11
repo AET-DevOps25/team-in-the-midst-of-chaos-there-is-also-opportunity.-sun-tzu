@@ -1,0 +1,17 @@
+<div class="mobile-layout">
+  <app-header class="mobile-header"></app-header>
+
+  <div class="mobile-content">
+    <app-song-catalogue></app-song-catalogue>
+  </div>
+
+  <div class="mobile-player-bar">
+    <app-audio-controls-mobile></app-audio-controls-mobile>
+  </div>
+
+  <div class="queue-container" [class.visible]="queueService.showQueue()">
+    <app-queue></app-queue>
+  </div>
+
+  <app-background-player />
+</div>

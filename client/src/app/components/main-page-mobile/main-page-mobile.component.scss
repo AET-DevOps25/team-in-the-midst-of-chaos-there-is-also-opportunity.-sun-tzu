@@ -1,0 +1,52 @@
+:host {
+  display: flex;
+  height: 100%;
+  width: 100%;
+}
+
+.mobile-layout {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  background-color: #121212;
+  position: relative;
+  overflow: hidden; // Prevents the whole page from scrolling
+}
+
+.mobile-header {
+  flex-shrink: 0;
+}
+
+.mobile-content {
+  flex: 1; // This makes the content area grow to fill available space
+  overflow-y: auto; // This makes ONLY the content area scrollable
+  padding: 16px;
+  min-height: 0; // Prevents flexbox from overflowing its container
+}
+
+.mobile-player-bar {
+  flex-shrink: 0;
+  height: 70px;
+  background-color: #181818;
+  border-top: 1px solid #282828;
+}
+
+.queue-container {
+  position: absolute;
+  top: 64px;
+  bottom: 70px;
+  left: 0;
+  right: 0;
+  background-color: rgba(24, 24, 24, 0.98);
+  backdrop-filter: blur(4px);
+  overflow-y: auto;
+  transform: translateX(100%);
+  transition: transform 0.3s ease-in-out;
+  z-index: 1000;
+  padding: 16px;
+}
+
+.queue-container.visible {
+  transform: translateX(0);
+}

@@ -1,14 +1,13 @@
 @use '@angular/material' as mat;
 
-// Customize the entire app. Change :root to your selector if you want to scope the styles.
 :host {
   @include mat.list-overrides((
-    // active-indicator-color: orange,
-    // list-item-two-line-container-height: 100px,
     list-item-leading-icon-end-space: 10px,
-    // list-item-trailing-icon-size: 100px,
-    // active-indicator-shape: red,
   ));
+  /* -- Add these two lines to make the component a flex container -- */
+  display: flex;
+  flex-direction: column;
+  height: 100%; /* <-- THIS IS THE FIX */
 }
 
 mat-list {
@@ -46,6 +45,7 @@ mat-form-field {
 }
 
 .song-list-viewport {
-  height: calc(100vh - 250px);
+  /* -- Replace the old height rule with this one line -- */
+  flex-grow: 1;
   width: 100%;
 }
