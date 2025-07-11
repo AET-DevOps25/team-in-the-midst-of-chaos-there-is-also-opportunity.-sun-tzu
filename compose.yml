@@ -51,7 +51,7 @@ services:
     networks:
       - app-network
 
-  streamservice:
+  stream-service:
     image: ghcr.io/aet-devops25/team-in-the-midst-of-chaos-there-is-also-opportunity-sun-tzu/stream-service:latest
     expose:
       - "8080"
@@ -68,7 +68,7 @@ services:
     networks:
       - app-network
 
-  playlistservice:
+  playlist-service:
     image: ghcr.io/aet-devops25/team-in-the-midst-of-chaos-there-is-also-opportunity-sun-tzu/playlist-service:latest
     expose:
       - "8080"
@@ -86,7 +86,7 @@ services:
     networks:
       - app-network
 
-  genai:
+  genai-service:
     image: ghcr.io/aet-devops25/team-in-the-midst-of-chaos-there-is-also-opportunity-sun-tzu/genai-service:latest
     container_name: genai_service
     ports:
@@ -96,7 +96,7 @@ services:
     networks:
       - app-network
 
-  announcementservice:
+  announcement-service:
     image: ghcr.io/aet-devops25/team-in-the-midst-of-chaos-there-is-also-opportunity-sun-tzu/announcement-service:latest
     container_name: announcement
     expose:
