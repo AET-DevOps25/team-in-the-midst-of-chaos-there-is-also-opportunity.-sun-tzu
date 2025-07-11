@@ -10,80 +10,66 @@ on:
   workflow_dispatch:
 
 jobs:
-  get-changed-files:
+  setup:
     runs-on: ubuntu-latest
     outputs:
-      client: ${{ steps.changed-files.outputs.client_any_changed }}
-      genai: ${{ steps.changed-files.outputs.genai_any_changed }}
-      server: ${{ steps.changed-files.outputs.server_any_changed }}
+      repo_sanitized: ${{ steps.setvar.outputs.repo_sanitized }}
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 2
+      - name: Set sanitized repo name
+        id: setvar
+        run: |
+          echo "repo_sanitized=$(echo $GITHUB_REPOSITORY | tr '[:upper:]' '[:lower:]' | tr -d '.')" >> $GITHUB_OUTPUT
 
-      - name: Get changed files
-        id: changed-files
-        uses: tj-actions/changed-files@v44
-        with:
-          files_yaml: |
-            client:
-              - 'client/**'
-            genai:
-              - 'genai/**'
-            server:
-              - 'server/**'
-
-  test-and-build-client:
-    needs: get-changed-files
-    # if: needs.get-changed-files.outputs.client == 'true'
+  test-client:
     name: Test and Build Client
+    needs: setup
     runs-on: ubuntu-latest
+    env:
+      REPO_SANITIZED: ${{ needs.setup.outputs.repo_sanitized }}
     permissions:
       contents: read
       packages: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+
       - name: Install dependencies
         working-directory: ./client
         run: npm install
+
       - name: Run tests
         working-directory: ./client
         # run: npm test -- --watch=false --browsers=ChromeHeadless
         run: echo "npm test temporarily disabled"
-      - name: Build the application
-        working-directory: ./client
-        run: npm run build
 
-      # --- CD Steps: Publish to GitHub Packages ---
-      - name: Sanitize repository name for Docker tag
-        # if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        run: echo "REPO_LOWER=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]' | tr -d '.')" >> $GITHUB_ENV
-      - name: Log in to GitHub Container Registry
-        # if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        uses: docker/login-action@v2
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Build and push Docker image
-        # if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        uses: docker/build-push-action@v3
-        with:
-          context: ./client
-          file: ./client/Dockerfile
-          push: true
-          tags: ghcr.io/${{ env.REPO_LOWER }}/client:latest
 
-  test-and-build-genai:
-    needs: get-changed-files
-    # if: needs.get-changed-files.outputs.genai == 'true'
+
+
+  # build-client:
+  #     - name: Log in to GitHub Container Registry
+  #       # if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+  #       uses: docker/login-action@v2
+  #       with:
+  #         registry: ghcr.io
+  #         username: ${{ github.actor }}
+  #         password: ${{ secrets.GITHUB_TOKEN }}
+  #     - name: Build and push Docker image
+  #       # if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+  #       uses: docker/build-push-action@v3
+  #       with:
+  #         context: ./client
+  #         file: ./client/Dockerfile
+  #         push: true
+  #         tags: ghcr.io/${{ env.REPO_LOWER }}/client:latest
+
+  test-genai:
     name: Test and Build GenAI Service
+    needs: setup
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -91,17 +77,22 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+
       - name: Install Docker Compose
         run: sudo apt-get update && sudo apt-get install -y docker-compose
+
       - name: Install Python dependencies
         run: pip install -r genai/requirements.txt
+
       - name: Run Unit and Integration Tests with Pytest
         working-directory: ./genai
         run: pytest --ignore=tests/test_api.py
+
       - name: Build Docker Compose services
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
@@ -109,9 +100,11 @@ jobs:
           BASIC_AUTH_PASS: ${{ secrets.BASIC_AUTH_PASS }}
           BASIC_AUTH_URL: ${{ secrets.BASIC_AUTH_URL }}
         run: docker-compose -f compose.yml up -d --build genai
+
       - name: Show container logs
         if: always()
         run: docker-compose -f compose.yml logs genai
+
       - name: Wait for GenAI service to be healthy
         run: |
           for i in {1..45}; do
@@ -125,37 +118,40 @@ jobs:
           echo "GenAI service did not start in time."
           docker-compose -f compose.yml logs genai
           exit 1
+
       - name: Run Component Test (API test)
         working-directory: ./genai
         run: python tests/test_api.py
+
       - name: Stop services
         if: always()
         run: docker-compose -f compose.yml down
 
-      # --- CD Steps: Publish to GitHub Packages ---
-      - name: Sanitize repository name for Docker tag
-        # if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        run: echo "REPO_LOWER=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]' | tr -d '.')" >> $GITHUB_ENV
-      - name: Log in to GitHub Container Registry
-        # if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        uses: docker/login-action@v2
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Build and push Docker image
-        # if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        uses: docker/build-push-action@v3
-        with:
-          context: ./genai
-          file: ./genai/Dockerfile
-          push: true
-          tags: ghcr.io/${{ env.REPO_LOWER }}/genai-service:latest
 
-  test-and-build-server:
-    needs: get-changed-files
-    # if: needs.get-changed-files.outputs.server == 'true'
+  # build-genai:
+  #     # --- CD Steps: Publish to GitHub Packages ---
+  #     - name: Sanitize repository name for Docker tag
+  #       # if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+  #       run: echo "REPO_LOWER=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]' | tr -d '.')" >> $GITHUB_ENV
+  #     - name: Log in to GitHub Container Registry
+  #       # if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+  #       uses: docker/login-action@v2
+  #       with:
+  #         registry: ghcr.io
+  #         username: ${{ github.actor }}
+  #         password: ${{ secrets.GITHUB_TOKEN }}
+  #     - name: Build and push Docker image
+  #       # if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+  #       uses: docker/build-push-action@v3
+  #       with:
+  #         context: ./genai
+  #         file: ./genai/Dockerfile
+  #         push: true
+  #         tags: ghcr.io/${{ env.REPO_LOWER }}/genai-service:latest
+
+  test-server:
     name: Build and Test Server
+    needs: setup
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -163,99 +159,91 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
+
       - name: Grant execute permission to Gradle wrapper
         run: chmod +x ./gradlew
         working-directory: server
+
       - name: Build all microservices
         run: ./gradlew build --no-daemon
         working-directory: server
+
       - name: Run unit tests for all services
         run: ./gradlew test --no-daemon
         working-directory: server
 
-      # --- CD Steps: Publish to GitHub Packages ---
-      - name: Sanitize repository name for Docker tag
-        # if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        run: echo "REPO_LOWER=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]' | tr -d '.')" >> $GITHUB_ENV
-      - name: Log in to GitHub Container Registry
-        # if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        uses: docker/login-action@v2
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Build and Push StreamService
-        # if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        uses: docker/build-push-action@v3
-        with:
-          context: ./server
-          file: ./server/StreamService/Dockerfile
-          push: true
-          tags: ghcr.io/${{ env.REPO_LOWER }}/stream-service:latest
-      - name: Build and Push PlaylistService
-        # if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        uses: docker/build-push-action@v3
-        with:
-          context: ./server
-          file: ./server/PlaylistService/Dockerfile
-          push: true
-          tags: ghcr.io/${{ env.REPO_LOWER }}/playlist-service:latest
-      - name: Build and Push AnnouncementService
-        # if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        uses: docker/build-push-action@v3
-        with:
-          context: ./server
-          file: ./server/AnnouncementService/Dockerfile
-          push: true
-          tags: ghcr.io/${{ env.REPO_LOWER }}/announcement-service:latest
-      - name: Build and Push ApiGateway
-        # if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        uses: docker/build-push-action@v3
-        with:
-          context: ./server
-          file: ./server/api-gateway/Dockerfile
-          push: true
-          tags: ghcr.io/${{ env.REPO_LOWER }}/api-gateway:latest
+  # build-server:
+  #     # --- CD Steps: Publish to GitHub Packages ---
+  #     - name: Sanitize repository name for Docker tag
+  #       # if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+  #       run: echo "REPO_LOWER=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]' | tr -d '.')" >> $GITHUB_ENV
+  #     - name: Log in to GitHub Container Registry
+  #       # if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+  #       uses: docker/login-action@v2
+  #       with:
+  #         registry: ghcr.io
+  #         username: ${{ github.actor }}
+  #         password: ${{ secrets.GITHUB_TOKEN }}
+  #     - name: Build and Push StreamService
+  #       # if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+  #       uses: docker/build-push-action@v3
+  #       with:
+  #         context: ./server
+  #         file: ./server/StreamService/Dockerfile
+  #         push: true
+  #         tags: ghcr.io/${{ env.REPO_LOWER }}/stream-service:latest
+  #     - name: Build and Push PlaylistService
+  #       # if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+  #       uses: docker/build-push-action@v3
+  #       with:
+  #         context: ./server
+  #         file: ./server/PlaylistService/Dockerfile
+  #         push: true
+  #         tags: ghcr.io/${{ env.REPO_LOWER }}/playlist-service:latest
+  #     - name: Build and Push AnnouncementService
+  #       # if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+  #       uses: docker/build-push-action@v3
+  #       with:
+  #         context: ./server
+  #         file: ./server/AnnouncementService/Dockerfile
+  #         push: true
+  #         tags: ghcr.io/${{ env.REPO_LOWER }}/announcement-service:latest
+  #     - name: Build and Push ApiGateway
+  #       # if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+  #       uses: docker/build-push-action@v3
+  #       with:
+  #         context: ./server
+  #         file: ./server/api-gateway/Dockerfile
+  #         push: true
+  #         tags: ghcr.io/${{ env.REPO_LOWER }}/api-gateway:latest
 
-  build-downloader:
-    needs: get-changed-files
-    name: Build Downloader
+
+
+
+  build:
+    needs: setup
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
+    strategy:
+      matrix:
+        image: [client, playlist-service]
+    env:
+      REPO_SANITIZED: ${{ needs.setup.outputs.repo_sanitized }}
+      REMOTE_IMAGE: ghcr.io/${{ REPO_SANITIZED }}/${{ matrix.image }}
+
     steps:
-      - name: Checkout repository
+      - name: Checkout Repository
         uses: actions/checkout@v4
 
-      # --- CD Steps: Publish to GitHub Packages ---
-      - name: Sanitize repository name for Docker tag
-        # if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        run: echo "REPO_SANITIZED=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]' | tr -d '.')" >> $GITHUB_ENV
-
-      - name: Remote image name
-        run: echo "REMOTE_IMAGE=ghcr.io/${REPO_SANITIZED}/downloader" >> $GITHUB_ENV
-
-      - name: debug
-        run: echo $REPO_SANITIZED
-
-      - name: Log in to GitHub Container Registry
-        # if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        uses: docker/login-action@v2
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Build image
-        run: docker compose build downloader
+        run: docker compose build ${{ matrix.image }}
 
-      - name: Generate timestamped tag
+      - name: Determine remote image tags
         id: meta
         uses: docker/metadata-action@v5
         with:
@@ -268,14 +256,110 @@ jobs:
         run: |
           while IFS= read -r tag; do
             echo Creating tag $tag
-            docker tag downloader:local $tag
+            docker tag ${{ matrix.image }}:local $tag
           done <<< "${{ steps.meta.outputs.tags }}"
 
-      - name: Debug 2
-        run: docker image ls -a
+      - name: Store all remote image tags
+        run: docker save ${{ env.REMOTE_IMAGE }} > /tmp/${{ matrix.image }}.tar
 
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.image }}
+          path: /tmp/${{ matrix.image }}.tar
+
+
+  push:
+    runs-on: ubuntu-latest
+    needs: [setup, build]
+    strategy:
+      matrix:
+        image: [client, playlist-service]
+    env:
+      REPO_SANITIZED: ${{ needs.setup.outputs.repo_sanitized }}
+      REMOTE_IMAGE: ghcr.io/${{ REPO_SANITIZED }}/${{ matrix.image }}
+
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ matrix.image }}
+          path: /tmp
+
+      - name: Load all remote image tags
+        run: |
+          docker load < /tmp/${{ matrix.image }}.tar
+          docker image ls -a
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      
       - name: Push to registry
         run: docker push --all-tags ${{ env.REMOTE_IMAGE }}
+
+      - name: Delete artifact
+        uses: geekyeggo/delete-artifact@v4
+        with:
+          name: ${{ matrix.image }}
+
+  # build-downloader:
+  #   needs: get-changed-files
+  #   name: Build Downloader
+  #   runs-on: ubuntu-latest
+  #   permissions:
+  #     contents: read
+  #     packages: write
+  #   steps:
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v4
+
+  #     # --- CD Steps: Publish to GitHub Packages ---
+  #     - name: Sanitize repository name for Docker tag
+  #       # if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+  #       run: echo "REPO_SANITIZED=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]' | tr -d '.')" >> $GITHUB_ENV
+
+  #     - name: Remote image name
+  #       run: echo "REMOTE_IMAGE=ghcr.io/${REPO_SANITIZED}/downloader" >> $GITHUB_ENV
+
+  #     - name: debug
+  #       run: echo $REPO_SANITIZED
+
+  #     - name: Log in to GitHub Container Registry
+  #       # if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+  #       uses: docker/login-action@v2
+  #       with:
+  #         registry: ghcr.io
+  #         username: ${{ github.actor }}
+  #         password: ${{ secrets.GITHUB_TOKEN }}
+
+  #     - name: Build image
+  #       run: docker compose build downloader
+
+  #     - name: Generate timestamped tag
+  #       id: meta
+  #       uses: docker/metadata-action@v5
+  #       with:
+  #         images: ${{ env.REMOTE_IMAGE }}
+  #         tags: |
+  #           type=raw,value=${{ github.run_id }}-${{ github.run_attempt }}
+  #           type=raw,value={{date 'YYYYMMDD-HHmmss'}}
+
+  #     - name: Create remote image tags
+  #       run: |
+  #         while IFS= read -r tag; do
+  #           echo Creating tag $tag
+  #           docker tag downloader:local $tag
+  #         done <<< "${{ steps.meta.outputs.tags }}"
+
+  #     - name: Debug 2
+  #       run: docker image ls -a
+
+  #     - name: Push to registry
+  #       run: docker push --all-tags ${{ env.REMOTE_IMAGE }}
 
   # build-prometheus:
   #   needs: get-changed-files
