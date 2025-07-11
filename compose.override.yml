@@ -23,25 +23,25 @@ services:
     build:
       context: ./server
       dockerfile: StreamService/Dockerfile
-    image: server-streamservice:local
+    image: stream-service:local
 
   playlistservice:
     build:
       context: ./server
       dockerfile: PlaylistService/Dockerfile
-    image: server-playlistservice:local
+    image: playlist-service:local
 
   genai:
     build:
       context: ./genai
       dockerfile: Dockerfile
-    image: genai-service-local
+    image: genai-service:local
 
-  announcementservice:
+  announcement-service:
     build:
       context: ./server
       dockerfile: AnnouncementService/Dockerfile
-    image: server-announcementservice:local
+    image: announcement-service:local
 
   prometheus:
     build: ./monitoring/prometheus
