@@ -1,12 +1,14 @@
 import { TestBed } from '@angular/core/testing';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { SessionService, TOKEN_NAME } from './session.service';
 import { PlaylistService } from './playlist.service';
 import { of } from 'rxjs';
+import { NewPlaylistDto } from '@app/dtos/new-playlist';
 
 describe('SessionService', () => {
   let service: SessionService;
   let playlistService: PlaylistService;
+  let httpMock: HttpTestingController;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -15,6 +17,11 @@ describe('SessionService', () => {
     });
     service = TestBed.inject(SessionService);
     playlistService = TestBed.inject(PlaylistService);
+    httpMock = TestBed.inject(HttpTestingController);
+  });
+
+  afterEach(() => {
+    httpMock.verify();
   });
 
   it('should be created', () => {
@@ -22,7 +29,8 @@ describe('SessionService', () => {
   });
 
   it('should create a session', () => {
-    spyOn(playlistService, 'newPlaylist').and.returnValue(of({ success: true, data: { session: 123 } }));
+    const mockPlaylist: NewPlaylistDto = { session: 123 };
+    spyOn(playlistService, 'newPlaylist').and.returnValue(of({ success: true, data: mockPlaylist }));
     service.createSession().subscribe(() => {
       expect(service.sessionToken).toBe('123');
       expect(service.hasSession()).toBe(true);

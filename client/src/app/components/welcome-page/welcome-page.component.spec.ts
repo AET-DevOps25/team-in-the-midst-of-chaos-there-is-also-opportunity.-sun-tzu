@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { WelcomePageComponent } from './welcome-page.component';
 
 describe('WelcomePageComponent', () => {
@@ -8,9 +8,9 @@ describe('WelcomePageComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [WelcomePageComponent]
+      imports: [WelcomePageComponent, HttpClientTestingModule]
     })
-    .compileComponents();
+      .compileComponents();
 
     fixture = TestBed.createComponent(WelcomePageComponent);
     component = fixture.componentInstance;
