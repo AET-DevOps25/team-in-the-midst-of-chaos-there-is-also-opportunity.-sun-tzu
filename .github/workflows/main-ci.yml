@@ -62,17 +62,17 @@ jobs:
 
       # --- CD Steps: Publish to GitHub Packages ---
       - name: Sanitize repository name for Docker tag
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        # if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: echo "REPO_LOWER=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]' | tr -d '.')" >> $GITHUB_ENV
       - name: Log in to GitHub Container Registry
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        # if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: docker/login-action@v2
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build and push Docker image
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        # if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: docker/build-push-action@v3
         with:
           context: ./client
@@ -134,17 +134,17 @@ jobs:
 
       # --- CD Steps: Publish to GitHub Packages ---
       - name: Sanitize repository name for Docker tag
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        # if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: echo "REPO_LOWER=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]' | tr -d '.')" >> $GITHUB_ENV
       - name: Log in to GitHub Container Registry
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        # if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: docker/login-action@v2
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build and push Docker image
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        # if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: docker/build-push-action@v3
         with:
           context: ./genai
@@ -180,17 +180,17 @@ jobs:
 
       # --- CD Steps: Publish to GitHub Packages ---
       - name: Sanitize repository name for Docker tag
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        # if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: echo "REPO_LOWER=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]' | tr -d '.')" >> $GITHUB_ENV
       - name: Log in to GitHub Container Registry
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        # if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: docker/login-action@v2
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build and Push StreamService
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        # if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: docker/build-push-action@v3
         with:
           context: ./server
@@ -198,7 +198,7 @@ jobs:
           push: true
           tags: ghcr.io/${{ env.REPO_LOWER }}/stream-service:latest
       - name: Build and Push PlaylistService
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        # if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: docker/build-push-action@v3
         with:
           context: ./server
@@ -206,7 +206,7 @@ jobs:
           push: true
           tags: ghcr.io/${{ env.REPO_LOWER }}/playlist-service:latest
       - name: Build and Push AnnouncementService
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        # if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: docker/build-push-action@v3
         with:
           context: ./server
@@ -214,7 +214,7 @@ jobs:
           push: true
           tags: ghcr.io/${{ env.REPO_LOWER }}/announcement-service:latest
       - name: Build and Push ApiGateway
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        # if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: docker/build-push-action@v3
         with:
           context: ./server
