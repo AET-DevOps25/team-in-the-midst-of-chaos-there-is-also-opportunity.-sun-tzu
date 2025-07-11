@@ -9,11 +9,6 @@
     // list-item-trailing-icon-size: 100px,
     // active-indicator-shape: red,
   ));
-  // @include mat.form-field-overrides((
-  //   container-height: 3px,
-  //   container-text-line-height: 3px,
-  //   filled-active-indicator-height: 3px
-  // ))
 }
 
 mat-list {
@@ -32,7 +27,6 @@ mat-list {
 
 .foo {
   height: 100% !important;
-  // width: 100%;
   margin-top: 0 !important;
   margin-bottom: 0 !important;
   width: min-content !important;
@@ -45,18 +39,13 @@ mat-list {
   align-items: center;
 }
 
+mat-form-field {
+  display: block;
+  min-width: 0;
+  margin: 0 20px 0 20px;
+}
 
-// .filter {
-//   display: block;
-//   width: 80%;
-
-// }
-
-
-  mat-form-field {
-    display: block;
-    min-width: 0;
-    margin: 0 20px 0 20px;
-    // margin-left: 10px;
-    // margin-right: 10px;
-  }
+.song-list-viewport {
+  height: calc(100vh - 250px);
+  width: 100%;
+}

@@ -53,8 +53,7 @@ jobs:
         run: npm install
       - name: Run tests
         working-directory: ./client
-        # run: npm test -- --watch=false --browsers=ChromeHeadless
-        run: echo "npm test temporarily disabled"
+        run: npm test -- --watch=false --browsers=ChromeHeadless
       - name: Build the application
         working-directory: ./client
         run: npm run build

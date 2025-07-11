@@ -1,16 +1,19 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { AudioControlsComponent } from './audio-controls.component';
+import { PlayService } from '../../services';
+import { QueueService } from '@app/services/queue.service';
 
-describe('PlayButtonComponent', () => {
+describe('AudioControlsComponent', () => {
   let component: AudioControlsComponent;
   let fixture: ComponentFixture<AudioControlsComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [AudioControlsComponent]
+      imports: [AudioControlsComponent, HttpClientTestingModule],
+      providers: [PlayService, QueueService]
     })
-    .compileComponents();
+      .compileComponents();
 
     fixture = TestBed.createComponent(AudioControlsComponent);
     component = fixture.componentInstance;
