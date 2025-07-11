@@ -9,11 +9,12 @@ import { QueueService } from '@app/services/queue.service';
 import { SessionService } from '@app/services/session.service';
 import { concatMap, concatWith, EMPTY, of, tap } from 'rxjs';
 import { MetadataDto } from '@app/dtos/get-metadata';
+import { ScrollingModule } from '@angular/cdk/scrolling';
 
 
 @Component({
   selector: 'app-song-catalogue',
-  imports: [MatListModule, MatIconModule, MatButtonModule, MatFormFieldModule, MatInputModule],
+  imports: [MatListModule, MatIconModule, MatButtonModule, MatFormFieldModule, MatInputModule, ScrollingModule],
   templateUrl: './song-catalogue.component.html',
   styleUrl: './song-catalogue.component.scss'
 })
