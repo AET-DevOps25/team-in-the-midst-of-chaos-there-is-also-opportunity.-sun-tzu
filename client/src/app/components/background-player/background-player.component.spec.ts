@@ -1,16 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { BackgroundPlayerComponent } from './background-player.component';
+import { PlayService } from '../../services';
 
-describe('AudioPlayerComponent', () => {
+describe('BackgroundPlayerComponent', () => {
   let component: BackgroundPlayerComponent;
   let fixture: ComponentFixture<BackgroundPlayerComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [BackgroundPlayerComponent]
+      imports: [BackgroundPlayerComponent, HttpClientTestingModule],
+      providers: [PlayService]
     })
-    .compileComponents();
+      .compileComponents();
 
     fixture = TestBed.createComponent(BackgroundPlayerComponent);
     component = fixture.componentInstance;
