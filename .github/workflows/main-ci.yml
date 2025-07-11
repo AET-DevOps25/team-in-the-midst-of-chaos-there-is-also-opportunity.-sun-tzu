@@ -239,8 +239,10 @@ jobs:
         run: echo "REPO_SANITIZED=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]' | tr -d '.')" >> $GITHUB_ENV
 
       - name: Remote image name
-        run: |
-          echo "REMOTE_IMAGE=ghcr.io/${REPO_SANITIZED}/downloader" >> $GITHUB_ENV
+        run: echo "REMOTE_IMAGE=ghcr.io/${REPO_SANITIZED}/downloader" >> $GITHUB_ENV
+
+      - name: debug
+        run: echo $REPO_SANITIZED
 
       - name: Log in to GitHub Container Registry
         # if: github.event_name == 'push' && github.ref == 'refs/heads/main'
@@ -261,6 +263,16 @@ jobs:
           tags: |
             type=raw,value=${{ github.run_id }}-${{ github.run_attempt }}
             type=raw,value={{date 'YYYYMMDD-HHmmss'}}
+
+      - name: Create remote image tags
+        run: |
+          while IFS= read -r tag; do
+            echo Creating tag $tag
+            docker tag downloader:local $tag
+          done <<< "${{ steps.meta.outputs.tags }}"
+
+      - name: Debug 2
+        run: docker image ls -a
 
       - name: Push to registry
         run: docker push --all-tags ${{ env.REMOTE_IMAGE }}
