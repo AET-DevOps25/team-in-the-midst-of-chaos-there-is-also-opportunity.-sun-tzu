@@ -5,14 +5,14 @@ scrape_configs:
   - job_name: 'stream-service'
     metrics_path: '/actuator/prometheus'
     static_configs:
-      - targets: ['streamservice:8080']
+      - targets: ['stream-service:8080']
 
   - job_name: 'playlist-service'
     metrics_path: '/actuator/prometheus'
     static_configs:
-      - targets: ['playlistservice:8080']
+      - targets: ['playlist-service:8080']
 
   - job_name: 'genai-service'
     metrics_path: '/metrics'
     static_configs:
-      - targets: ['genai_service:8000']
+      - targets: ['genai-service:8000']

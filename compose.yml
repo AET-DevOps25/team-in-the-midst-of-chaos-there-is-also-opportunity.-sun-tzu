@@ -9,7 +9,6 @@ services:
 
   downloader:
     image: ghcr.io/aet-devops25/team-in-the-midst-of-chaos-there-is-also-opportunity-sun-tzu/downloader:${VERSION:-latest}
-    restart: unless-stopped
     environment:
       - USER=user
       - PASS=${DOWNLOAD_PASS}
