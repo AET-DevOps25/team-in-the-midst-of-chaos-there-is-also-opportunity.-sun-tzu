@@ -16,12 +16,14 @@ jobs:
     outputs:
       timestamp: ${{ steps.setvar.outputs.timestamp }}
       is_main_merge: ${{ steps.setvar.outputs.is_main_merge }}
+      owner: ${{ steps.setvar.outputs.owner }}
     steps:
       - name: Set shared metadata
         id: setvar
         run: |
           echo "timestamp=$(date +'%Y%m%d-%H%M%S')" >> $GITHUB_OUTPUT
           echo "is_main_merge=$([[ "$GITHUB_EVENT_NAME" == 'push' && "$GITHUB_REF" == 'refs/heads/main' ]] && echo true || echo false)" >> $GITHUB_OUTPUT
+          echo "owner=${GITHUB_REPOSITORY_OWNER@L}" >> $GITHUB_OUTPUT
 
 
   check-changes:
@@ -165,7 +167,7 @@ jobs:
         service: [client, downloader, db, api-gateway, stream-service, playlist-service, genai-service, announcement-service, prometheus]
     env:
       LOCAL_IMAGE: aifm/${{ matrix.service }}
-      REMOTE_IMAGE: ghcr.io/${{ github.repository_owner,, }}/aifm/${{ matrix.service }}
+      REMOTE_IMAGE: ghcr.io/${{ needs.setup.outputs.owner }}/aifm/${{ matrix.service }}
       IMAGE_ARTIFACT: ${{ matrix.service }}-image
       IMAGE_TIMESTAMP: ${{ needs.setup.outputs.timestamp }}
 
@@ -212,7 +214,7 @@ jobs:
       matrix:
         service: [client, downloader, db, api-gateway, stream-service, playlist-service, genai-service, announcement-service, prometheus]
     env:
-      REMOTE_IMAGE: ghcr.io/${{ github.repository_owner,, }}/aifm/${{ matrix.service }}
+      REMOTE_IMAGE: ghcr.io/${{ needs.setup.outputs.owner }}/aifm/${{ matrix.service }}
       IMAGE_ARTIFACT: ${{ matrix.service }}-image
 
     steps:
