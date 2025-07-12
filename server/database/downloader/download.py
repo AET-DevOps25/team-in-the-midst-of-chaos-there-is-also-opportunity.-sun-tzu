@@ -1,17 +1,26 @@
 from __future__ import annotations
 import os
 import requests
+from pathlib import Path
 from requests.auth import HTTPBasicAuth
 from bs4 import BeautifulSoup
 import urllib.parse
 from urllib.parse import urljoin
 from dataclasses import dataclass
+import shutil
 from concurrent.futures import ThreadPoolExecutor, as_completed
+
+
+ENTRYPOINT_DIR = Path('/docker-entrypoint-initdb.d')
+
+SQL_FILE_1 = '01-schema.sql'
+SQL_FILE_2 = '02-data.sql'
+shutil.copy(SQL_FILE_1, ENTRYPOINT_DIR)
 
 
 # Output locations
 AUDIO_DIR = "/audio"
-DATA_SQL = "/docker-entrypoint-initdb.d/02-data.sql"
+DATA_SQL = ENTRYPOINT_DIR / SQL_FILE_2
 # Download parameter
 BASE_URL = os.environ['URL']
 user = os.environ['USER']

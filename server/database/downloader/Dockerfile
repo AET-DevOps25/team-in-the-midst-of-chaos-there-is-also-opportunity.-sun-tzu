@@ -3,6 +3,9 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
+# Copy SQL schema
+COPY 01-schema.sql .
+
 COPY greeting_announcement.mp3 /audio/
 
 COPY download.py .
