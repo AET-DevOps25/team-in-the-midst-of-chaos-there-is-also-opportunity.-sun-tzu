@@ -16,13 +16,14 @@ jobs:
     outputs:
       repo_sanitized: ${{ steps.setvar.outputs.repo_sanitized }}
       timestamp: ${{ steps.setvar.outputs.timestamp }}
+      is_main_merge: ${{ steps.setvar.outputs.is_main_merge }}
     steps:
       - name: Set shared metadata
         id: setvar
         run: |
-          echo "repo_sanitized=$(echo $GITHUB_REPOSITORY | tr '[:upper:]' '[:lower:]' | tr -d '.')" >> $GITHUB_OUTPUT
+          echo "repo_sanitized=$(echo "$GITHUB_REPOSITORY" | tr '[:upper:]' '[:lower:]' | tr -d '.')" >> $GITHUB_OUTPUT
           echo "timestamp=$(date +'%Y%m%d-%H%M%S')" >> $GITHUB_OUTPUT
-          echo "is_main_merge=$([[ '${{ github.event_name }}' == 'push' && '${{ github.ref }}' == 'refs/heads/main' ]] && echo true || echo false)" >> $GITHUB_OUTPUT
+          echo "is_main_merge=$([[ "$GITHUB_EVENT_NAME" == 'push' && "$GITHUB_REF" == 'refs/heads/main' ]] && echo true || echo false)" >> $GITHUB_OUTPUT
 
   check-changes:
     needs: setup
