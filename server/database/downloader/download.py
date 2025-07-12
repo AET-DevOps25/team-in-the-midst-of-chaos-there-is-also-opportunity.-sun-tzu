@@ -11,24 +11,28 @@ import shutil
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 
-ENTRYPOINT_DIR = Path('/docker-entrypoint-initdb.d')
+# Read environment
+for var in ['URL', 'USER', 'PASS', 'NUM_DOWNLOADS']:
+    if not os.environ.get(var):
+        raise ValueError(f"Missing environment variable: {var}")
+BASE_URL = os.environ['URL']
+USER = os.environ['USER']
+PASSWORD = os.environ['PASS']
+NUM_SONGS = int(os.environ['NUM_DOWNLOADS'])
+assert NUM_SONGS >= 0
 
+# Database initialization files
+ENTRYPOINT_DIR = Path('/docker-entrypoint-initdb.d')
 SQL_FILE_1 = '01-schema.sql'
 SQL_FILE_2 = '02-data.sql'
-shutil.copy(SQL_FILE_1, ENTRYPOINT_DIR)
-
 
 # Output locations
-AUDIO_DIR = "/audio"
-DATA_SQL = ENTRYPOINT_DIR / SQL_FILE_2
-# Download parameter
-BASE_URL = os.environ['URL']
-user = os.environ['USER']
-password = os.environ['PASS']
-AUTH = HTTPBasicAuth(user, password)
-NUM_SONGS = int(os.environ['NUM_DOWNLOADS'])
+AUDIO_DIR = Path("/audio")
+AUDIO_DIR.mkdir(exist_ok=True)
 
-os.makedirs(AUDIO_DIR, exist_ok=True)
+# Download parameter
+AUTH = HTTPBasicAuth(USER, PASSWORD)
+
 
 metadata_entries = [
     "(0, 'announcement', '', '', '', '')",
@@ -120,10 +124,10 @@ metadata_entries = [
     "(86, 'song', 'Drive By', 'Train', '2012-01-10', 'Pop rock')",
     "(87, 'song', 'So wie Du warst', 'Unheilig', '2012-03-16', 'German rock')",
     "(88, 'song', 'Schau nicht mehr zurück', 'Xavas', '2012-09-21', 'German hip hop/Soul')"    
-][:NUM_SONGS]
+][:NUM_SONGS+1]
 
 
-@dataclass
+@dataclass(frozen=True)
 class SongInfo:
     filename: str
     url: str
@@ -167,10 +171,12 @@ def fetch_song_infos() -> list[SongInfo]:
 
 
 def main():
+    shutil.copy(SQL_FILE_1, ENTRYPOINT_DIR)
+    print(f"Copied {SQL_FILE_1} to {ENTRYPOINT_DIR}")
+
     songs = fetch_song_infos()
     existing_files = set(os.listdir(AUDIO_DIR))
     audio_entries = ["('0', 'greeting_announcement.mp3')"]
-    song_id = 1
 
     to_download: list[SongInfo] = []
     for song in songs[:NUM_SONGS]:
@@ -186,16 +192,16 @@ def main():
             song = future_to_song[future]
             try:
                 future.result()  # raise exceptions
+                song_id = to_download.index(song) + 1
                 audio_entries.append(f"({song_id}, '{song.filename}')")
                 print(f"Finished download '{song.filename}'", flush=True)
-                song_id += 1
             except Exception as e:
                 print(f"Error downloading {song.url}: {e}")
 
     print("Finished all downloads")
 
     # Write data
-    with open(DATA_SQL, "w") as f:
+    with open(ENTRYPOINT_DIR / SQL_FILE_2, "w") as f:
         if audio_entries:
             f.write("INSERT INTO audio_files (id, filename)\nVALUES\n")
             f.write(",\n".join(audio_entries) + ";\n\n")
