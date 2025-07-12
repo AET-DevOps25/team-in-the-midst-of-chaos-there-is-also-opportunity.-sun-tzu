@@ -1,0 +1,64 @@
+services:
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    image: client:local
+
+  downloader:
+    build: ./server/database/downloader
+    image: downloader:local
+
+  db:
+    build: ./server/database
+    image: db:local
+
+  api-gateway:
+    build:
+      context: ./server
+      dockerfile: api-gateway/Dockerfile
+    image: api-gateway:local
+    ports:
+      - 8080:8080
+
+  stream-service:
+    build:
+      context: ./server
+      dockerfile: StreamService/Dockerfile
+    image: stream-service:local
+    ports:
+      - 8081:8080
+
+  playlist-service:
+    build:
+      context: ./server
+      dockerfile: PlaylistService/Dockerfile
+    image: playlist-service:local
+    ports:
+      - 8082:8080
+
+  genai-service:
+    build:
+      context: ./genai
+      dockerfile: Dockerfile
+    image: genai-service:local
+    ports:
+      - 8000:8000
+
+  announcement-service:
+    build:
+      context: ./server
+      dockerfile: AnnouncementService/Dockerfile
+    image: announcement-service:local
+    ports:
+      - 8083:8080
+
+  prometheus:
+    build: ./monitoring/prometheus
+    image: prometheus:local
+    ports:
+      - 9090:9090
+
+  grafana:
+    ports:
+      - 3000:3000
