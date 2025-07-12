@@ -1,17 +1,19 @@
 import os
 import requests
+from requests.auth import HTTPBasicAuth
 from bs4 import BeautifulSoup
 import urllib.parse
+
 
 # Output locations
 AUDIO_DIR = "/audio"
 DATA_SQL = "/docker-entrypoint-initdb.d/02-data.sql"
 # Download parameter
-BASE_URL = os.getenv('BASIC_AUTH_URL')
-user = os.getenv('BASIC_AUTH_USER')
-password = os.getenv('BASIC_AUTH_PASS')
-AUTH = requests.auth.HTTPBasicAuth(user, password)
-NUM_SONGS = os.getenv('NUM_DOWNLOADS')
+BASE_URL = os.environ['DOWNLOAD_URL']
+user = os.environ['DOWNLOAD_USER']
+password = os.environ['DOWNLOAD_PASS']
+AUTH = HTTPBasicAuth(user, password)
+NUM_SONGS = os.environ['NUM_DOWNLOADS']
 
 os.makedirs(AUDIO_DIR, exist_ok=True)
 
