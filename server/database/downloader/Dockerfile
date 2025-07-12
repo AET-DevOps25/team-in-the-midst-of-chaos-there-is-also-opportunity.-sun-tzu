@@ -6,7 +6,7 @@ WORKDIR /app
 # Copy SQL schema
 COPY 01-schema.sql .
 
-COPY greeting_announcement.mp3 /audio/
+COPY greeting_announcement.mp3 .
 
 COPY download.py .
 RUN pip install requests beautifulsoup4

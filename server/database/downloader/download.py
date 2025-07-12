@@ -174,7 +174,12 @@ def main():
     shutil.copy(SQL_FILE_1, ENTRYPOINT_DIR)
     print(f"Copied {SQL_FILE_1} to {ENTRYPOINT_DIR}")
 
+    shutil.copy('greeting_announcement.mp3', AUDIO_DIR)
+    print(f"Copied greeting announcement to {AUDIO_DIR}")
+
+    print("Fetching songs")
     songs = fetch_song_infos()
+    print(f"Found {len(songs)} songs")
     existing_files = set(os.listdir(AUDIO_DIR))
     audio_entries = ["('0', 'greeting_announcement.mp3')"]
 
@@ -185,6 +190,7 @@ def main():
             continue
         to_download.append(song)
 
+    print("Starting downloads")
     with ThreadPoolExecutor(max_workers=8) as executor:  # adjust max_workers as needed
         future_to_song = {executor.submit(download_song, song, AUDIO_DIR): song for song in to_download}
 
