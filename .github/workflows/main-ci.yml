@@ -23,6 +23,7 @@ jobs:
           echo "timestamp=$(date +'%Y%m%d-%H%M%S')" >> $GITHUB_OUTPUT
           echo "is_main_merge=$([[ "$GITHUB_EVENT_NAME" == 'push' && "$GITHUB_REF" == 'refs/heads/main' ]] && echo true || echo false)" >> $GITHUB_OUTPUT
 
+
   check-changes:
     needs: setup
     runs-on: ubuntu-latest
@@ -48,6 +49,7 @@ jobs:
             server:
               - 'server/**'
 
+
   test-client:
     name: Test Client
     needs: [setup, check-changes]
@@ -70,6 +72,7 @@ jobs:
         working-directory: ./client
         # run: npm test -- --watch=false --browsers=ChromeHeadless
         run: echo "npm test temporarily disabled"
+
 
   test-genai:
     name: Test GenAI Service
@@ -152,6 +155,7 @@ jobs:
         run: ./gradlew test --no-daemon
         working-directory: server
 
+
   build:
     needs: [setup, test-client, test-server, test-genai]
     if: needs.setup.outputs.is_main_merge == 'true'
@@ -160,9 +164,8 @@ jobs:
       matrix:
         service: [client, downloader, db, api-gateway, stream-service, playlist-service, genai-service, announcement-service, prometheus]
     env:
-      # REMOTE_IMAGE: ghcr.io/${{ needs.setup.outputs.repo_sanitized }}/${{ matrix.image }}
-      LOCAL_IMAGE: aifm-${{ matrix.service }}
-      REMOTE_IMAGE: ghcr.io/aet-devops25/aifm/${{ matrix.service }}
+      LOCAL_IMAGE: aifm/${{ matrix.service }}
+      REMOTE_IMAGE: ghcr.io/${{ github.repository_owner }}/aifm/${{ matrix.service }}
       IMAGE_TIMESTAMP: ${{ needs.setup.outputs.timestamp }}
 
     steps:
@@ -208,9 +211,8 @@ jobs:
       matrix:
         service: [client, downloader, db, api-gateway, stream-service, playlist-service, genai-service, announcement-service, prometheus]
     env:
-      # REMOTE_IMAGE: ghcr.io/${{ needs.setup.outputs.repo_sanitized }}/${{ matrix.image }}
-      LOCAL_IMAGE: aifm-${{ matrix.service }}
-      REMOTE_IMAGE: ghcr.io/aet-devops25/aifm/${{ matrix.service }}
+      LOCAL_IMAGE: aifm/${{ matrix.service }}
+      REMOTE_IMAGE: ghcr.io/${{ github.repository_owner }}/aifm/${{ matrix.service }}
 
     steps:
       - name: Download artifact
