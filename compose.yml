@@ -12,7 +12,7 @@ services:
     environment:
       - USER=user
       - PASS=${DOWNLOAD_PASS}
-      - URL=https://ai-fm.dotan.de/
+      - URL=https://ai-fm.dotan.de
       - NUM_DOWNLOADS=50
     volumes:
       - audio-files:/audio
@@ -68,19 +68,17 @@ services:
       SPRING_DATABASE_USERNAME: root
       SPRING_DATABASE_PASSWORD: root
       AUDIO_FILE_PATH: /audio
-      ANNOUNCEMENT_SERVICE_URL: http://announcementservice:8080/announcement
+      ANNOUNCEMENT_SERVICE_URL: http://announcement-service:8080/announcement
     volumes:
       - audio-files:/audio
 
   genai-service:
     image: ghcr.io/aet-devops25/team-in-the-midst-of-chaos-there-is-also-opportunity-sun-tzu/genai-service:${VERSION:-latest}
-    container_name: genai_service
     environment:
       - OPENAI_API_KEY=${OPENAI_API_KEY}
 
   announcement-service:
     image: ghcr.io/aet-devops25/team-in-the-midst-of-chaos-there-is-also-opportunity-sun-tzu/announcement-service:${VERSION:-latest}
-    container_name: announcement
     expose:
       - 8080
     depends_on:
@@ -91,19 +89,17 @@ services:
       SPRING_DATABASE_USERNAME: root
       SPRING_DATABASE_PASSWORD: root
       AUDIO_FILE_PATH: /audio
-      GENAI_SERVICE_URL: http://genai:8000/generate_audio_transition
+      GENAI_SERVICE_URL: http://genai-service:8000/generate_audio_transition
     volumes:
       - audio-files:/audio
 
   prometheus:
     image: ghcr.io/aet-devops25/team-in-the-midst-of-chaos-there-is-also-opportunity-sun-tzu/prometheus:${VERSION:-latest}
-    container_name: prometheus
     volumes:
       - prometheus_data:/prometheus
 
   grafana:
     image: grafana/grafana-oss
-    container_name: grafana
     volumes:
       - grafana-dashboard:/var/lib/grafana/dashboards/DevOps
       - grafana-provisioning:/etc/grafana/provisioning
