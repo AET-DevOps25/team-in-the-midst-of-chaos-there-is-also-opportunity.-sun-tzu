@@ -165,7 +165,8 @@ jobs:
         service: [client, downloader, db, api-gateway, stream-service, playlist-service, genai-service, announcement-service, prometheus]
     env:
       LOCAL_IMAGE: aifm/${{ matrix.service }}
-      REMOTE_IMAGE: ghcr.io/${{ github.repository_owner }}/aifm/${{ matrix.service }}
+      REMOTE_IMAGE: ghcr.io/${{ github.repository_owner,, }}/aifm/${{ matrix.service }}
+      IMAGE_ARTIFACT: ${{ matrix.service }}-image
       IMAGE_TIMESTAMP: ${{ needs.setup.outputs.timestamp }}
 
     steps:
@@ -194,13 +195,13 @@ jobs:
           done <<< "${{ steps.meta.outputs.tags }}"
 
       - name: Store all remote image tags
-        run: docker save ${{ env.REMOTE_IMAGE }} > /tmp/${{ env.LOCAL_IMAGE }}.tar
+        run: docker save ${{ env.REMOTE_IMAGE }} > /tmp/${{ env.IMAGE_ARTIFACT }}.tar
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.LOCAL_IMAGE }}
-          path: /tmp/${{ env.LOCAL_IMAGE }}.tar
+          name: ${{ env.IMAGE_ARTIFACT }}
+          path: /tmp/${{ env.IMAGE_ARTIFACT }}.tar
 
 
   push:
@@ -211,19 +212,19 @@ jobs:
       matrix:
         service: [client, downloader, db, api-gateway, stream-service, playlist-service, genai-service, announcement-service, prometheus]
     env:
-      LOCAL_IMAGE: aifm/${{ matrix.service }}
-      REMOTE_IMAGE: ghcr.io/${{ github.repository_owner }}/aifm/${{ matrix.service }}
+      REMOTE_IMAGE: ghcr.io/${{ github.repository_owner,, }}/aifm/${{ matrix.service }}
+      IMAGE_ARTIFACT: ${{ matrix.service }}-image
 
     steps:
       - name: Download artifact
         uses: actions/download-artifact@v4
         with:
-          name: ${{ env.LOCAL_IMAGE }}
+          name: ${{ env.IMAGE_ARTIFACT }}
           path: /tmp
 
       - name: Load all remote image tags
         run: |
-          docker load < /tmp/${{ env.LOCAL_IMAGE }}.tar
+          docker load < /tmp/${{ env.IMAGE_ARTIFACT }}.tar
           docker image ls -a
 
       - name: Login to GitHub Container Registry
@@ -239,4 +240,4 @@ jobs:
       - name: Delete artifact
         uses: geekyeggo/delete-artifact@v4
         with:
-          name: ${{ env.LOCAL_IMAGE }}
+          name: ${{ env.IMAGE_ARTIFACT }}
