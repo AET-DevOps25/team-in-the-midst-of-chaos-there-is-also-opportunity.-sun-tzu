@@ -14,14 +14,12 @@ jobs:
   setup:
     runs-on: ubuntu-latest
     outputs:
-      repo_sanitized: ${{ steps.setvar.outputs.repo_sanitized }}
       timestamp: ${{ steps.setvar.outputs.timestamp }}
       is_main_merge: ${{ steps.setvar.outputs.is_main_merge }}
     steps:
       - name: Set shared metadata
         id: setvar
         run: |
-          echo "repo_sanitized=$(echo "$GITHUB_REPOSITORY" | tr '[:upper:]' '[:lower:]' | tr -d '.')" >> $GITHUB_OUTPUT
           echo "timestamp=$(date +'%Y%m%d-%H%M%S')" >> $GITHUB_OUTPUT
           echo "is_main_merge=$([[ "$GITHUB_EVENT_NAME" == 'push' && "$GITHUB_REF" == 'refs/heads/main' ]] && echo true || echo false)" >> $GITHUB_OUTPUT
 
@@ -164,7 +162,7 @@ jobs:
     env:
       # REMOTE_IMAGE: ghcr.io/${{ needs.setup.outputs.repo_sanitized }}/${{ matrix.image }}
       LOCAL_IMAGE: aifm-${{ matrix.service }}
-      REMOTE_IMAGE: ghcr.io/aet-devops25/aifm-${{ matrix.service }}
+      REMOTE_IMAGE: ghcr.io/aet-devops25/aifm/${{ matrix.service }}
       IMAGE_TIMESTAMP: ${{ needs.setup.outputs.timestamp }}
 
     steps:
@@ -212,7 +210,7 @@ jobs:
     env:
       # REMOTE_IMAGE: ghcr.io/${{ needs.setup.outputs.repo_sanitized }}/${{ matrix.image }}
       LOCAL_IMAGE: aifm-${{ matrix.service }}
-      REMOTE_IMAGE: ghcr.io/aet-devops25/aifm-${{ matrix.service }}
+      REMOTE_IMAGE: ghcr.io/aet-devops25/aifm/${{ matrix.service }}
 
     steps:
       - name: Download artifact

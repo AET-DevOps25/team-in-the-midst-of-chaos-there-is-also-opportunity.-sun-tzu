@@ -1,6 +1,6 @@
 services:
   client:
-    image: ghcr.io/aet-devops25/aifm-client:${VERSION:-latest}
+    image: ghcr.io/aet-devops25/aifm/client:${VERSION:-latest}
     restart: unless-stopped
     ports:
       - 80:80
@@ -8,7 +8,7 @@ services:
       - api-gateway
 
   downloader:
-    image: ghcr.io/aet-devops25/aifm-downloader:${VERSION:-latest}
+    image: ghcr.io/aet-devops25/aifm/downloader:${VERSION:-latest}
     environment:
       - USER=user
       - PASS=${DOWNLOAD_PASS}
@@ -19,7 +19,7 @@ services:
       - sql-files:/docker-entrypoint-initdb.d
 
   db:
-    image: ghcr.io/aet-devops25/aifm-db:${VERSION:-latest}
+    image: ghcr.io/aet-devops25/aifm/db:${VERSION:-latest}
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: audioDB
@@ -36,13 +36,13 @@ services:
       - sql-files:/docker-entrypoint-initdb.d
 
   api-gateway:
-    image: ghcr.io/aet-devops25/aifm-api-gateway:${VERSION:-latest}
+    image: ghcr.io/aet-devops25/aifm/api-gateway:${VERSION:-latest}
     depends_on:
       - stream-service
       - playlist-service
 
   stream-service:
-    image: ghcr.io/aet-devops25/aifm-stream-service:${VERSION:-latest}
+    image: ghcr.io/aet-devops25/aifm/stream-service:${VERSION:-latest}
     expose:
       - 8080
     depends_on:
@@ -57,7 +57,7 @@ services:
       - audio-files:/audio
 
   playlist-service:
-    image: ghcr.io/aet-devops25/aifm-playlist-service:${VERSION:-latest}
+    image: ghcr.io/aet-devops25/aifm/playlist-service:${VERSION:-latest}
     expose:
       - 8080
     depends_on:
@@ -73,12 +73,12 @@ services:
       - audio-files:/audio
 
   genai-service:
-    image: ghcr.io/aet-devops25/aifm-genai-service:${VERSION:-latest}
+    image: ghcr.io/aet-devops25/aifm/genai-service:${VERSION:-latest}
     environment:
       - OPENAI_API_KEY=${OPENAI_API_KEY}
 
   announcement-service:
-    image: ghcr.io/aet-devops25/aifm-announcement-service:${VERSION:-latest}
+    image: ghcr.io/aet-devops25/aifm/announcement-service:${VERSION:-latest}
     expose:
       - 8080
     depends_on:
@@ -94,7 +94,7 @@ services:
       - audio-files:/audio
 
   prometheus:
-    image: ghcr.io/aet-devops25/aifm-prometheus:${VERSION:-latest}
+    image: ghcr.io/aet-devops25/aifm/prometheus:${VERSION:-latest}
     volumes:
       - prometheus_data:/prometheus
 
