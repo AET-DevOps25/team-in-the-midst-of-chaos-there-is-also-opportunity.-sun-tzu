@@ -27,9 +27,6 @@ jobs:
     name: Test Client
     needs: setup
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -52,9 +49,6 @@ jobs:
     name: Test GenAI Service
     needs: setup
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -74,9 +68,7 @@ jobs:
       - name: Build Docker Compose services
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          BASIC_AUTH_USER: ${{ secrets.BASIC_AUTH_USER }}
           BASIC_AUTH_PASS: ${{ secrets.BASIC_AUTH_PASS }}
-          BASIC_AUTH_URL: ${{ secrets.BASIC_AUTH_URL }}
         run: docker compose up -d --build genai-service
 
       - name: Show container logs
@@ -110,9 +102,6 @@ jobs:
     name: Test Server
     needs: setup
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -136,6 +125,7 @@ jobs:
         working-directory: server
 
   build:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     needs: [setup, test-client, test-server, test-genai]
     runs-on: ubuntu-latest
     strategy:
@@ -181,8 +171,9 @@ jobs:
 
 
   push:
-    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     needs: [setup, build]
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         image: [client, downloader, db, api-gateway, stream-service, playlist-service, genai-service, announcement-service, prometheus]
