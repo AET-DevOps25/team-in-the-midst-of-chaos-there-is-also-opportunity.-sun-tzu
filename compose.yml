@@ -106,8 +106,8 @@ services:
     image: grafana/grafana-oss
     container_name: grafana
     volumes:
-      - ./monitoring/grafana/grafana-dashboard:/var/lib/grafana/dashboards/DevOps
-      - ./monitoring/grafana/grafana-provisioning:/etc/grafana/provisioning
+      - grafana-dashboard:/var/lib/grafana/dashboards/DevOps
+      - grafana-provisioning:/etc/grafana/provisioning
     depends_on:
       - prometheus
     environment:
@@ -119,3 +119,5 @@ volumes:
   sql-files:
   audio-files:
   prometheus_data:
+  grafana-dashboard:
+  grafana-provisioning:
