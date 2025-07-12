@@ -22,10 +22,37 @@ jobs:
         run: |
           echo "repo_sanitized=$(echo $GITHUB_REPOSITORY | tr '[:upper:]' '[:lower:]' | tr -d '.')" >> $GITHUB_OUTPUT
           echo "timestamp=$(date +'%Y%m%d-%H%M%S')" >> $GITHUB_OUTPUT
+          echo "is_main_merge=$([[ '${{ github.event_name }}' == 'push' && '${{ github.ref }}' == 'refs/heads/main' ]] && echo true || echo false)" >> $GITHUB_OUTPUT
+
+  check-changes:
+    needs: setup
+    runs-on: ubuntu-latest
+    outputs:
+      client: ${{ steps.changed-files.outputs.client_any_changed }}
+      genai: ${{ steps.changed-files.outputs.genai_any_changed }}
+      server: ${{ steps.changed-files.outputs.server_any_changed }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v44
+        with:
+          files_yaml: |
+            client:
+              - 'client/**'
+            genai:
+              - 'genai/**'
+            server:
+              - 'server/**'
 
   test-client:
     name: Test Client
-    needs: setup
+    needs: [setup, check-changes]
+    if: needs.setup.outputs.is_main_merge == 'true' || needs.check-changes.outputs.client == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -47,7 +74,8 @@ jobs:
 
   test-genai:
     name: Test GenAI Service
-    needs: setup
+    needs: [setup, check-changes]
+    if: needs.setup.outputs.is_main_merge == 'true' || needs.check-changes.outputs.genai == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -100,7 +128,8 @@ jobs:
 
   test-server:
     name: Test Server
-    needs: setup
+    needs: [setup, check-changes]
+    if: needs.setup.outputs.is_main_merge == 'true' || needs.check-changes.outputs.server == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -125,8 +154,8 @@ jobs:
         working-directory: server
 
   build:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     needs: [setup, test-client, test-server, test-genai]
+    if: needs.setup.outputs.is_main_merge == 'true'
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -171,8 +200,8 @@ jobs:
 
 
   push:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     needs: [setup, build]
+    if: needs.setup.outputs.is_main_merge == 'true'
     runs-on: ubuntu-latest
     strategy:
       matrix:
