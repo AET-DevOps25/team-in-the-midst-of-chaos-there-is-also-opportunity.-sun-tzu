@@ -9,11 +9,11 @@ import urllib.parse
 AUDIO_DIR = "/audio"
 DATA_SQL = "/docker-entrypoint-initdb.d/02-data.sql"
 # Download parameter
-BASE_URL = os.environ['DOWNLOAD_URL']
-user = os.environ['DOWNLOAD_USER']
-password = os.environ['DOWNLOAD_PASS']
+BASE_URL = os.environ['URL']
+user = os.environ['USER']
+password = os.environ['PASS']
 AUTH = HTTPBasicAuth(user, password)
-NUM_SONGS = os.environ['NUM_DOWNLOADS']
+NUM_SONGS = int(os.environ['NUM_DOWNLOADS'])
 
 os.makedirs(AUDIO_DIR, exist_ok=True)
 

@@ -11,9 +11,9 @@ services:
     image: ghcr.io/aet-devops25/team-in-the-midst-of-chaos-there-is-also-opportunity-sun-tzu/downloader:${VERSION:-latest}
     restart: unless-stopped
     environment:
-      - BASIC_AUTH_USER=user
-      - BASIC_AUTH_PASS=${BASIC_AUTH_PASS}
-      - BASIC_AUTH_URL=https://ai-fm.dotan.de/
+      - USER=user
+      - PASS=${DOWNLOAD_PASS}
+      - URL=https://ai-fm.dotan.de/
       - NUM_DOWNLOADS=50
     volumes:
       - audio-files:/audio
