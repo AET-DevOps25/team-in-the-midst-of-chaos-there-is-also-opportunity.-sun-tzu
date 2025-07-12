@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f ../compose.yml
+    kompose.version: 1.36.0 (ae2a39403)
+  labels:
+    io.kompose.service: genai-service
+  name: genai-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: genai-service
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -f ../compose.yml
+        kompose.version: 1.36.0 (ae2a39403)
+      labels:
+        io.kompose.service: genai-service
+    spec:
+      containers:
+        - env:
+            - name: OPENAI_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: project-secrets
+                  key: OPENAI_API_KEY
+          image: ghcr.io/aet-devops25/aifm/genai-service:latest
+          imagePullPolicy: Always
+          name: genai-service
+          ports:
+            - containerPort: 8000
+              protocol: TCP
+      restartPolicy: Always

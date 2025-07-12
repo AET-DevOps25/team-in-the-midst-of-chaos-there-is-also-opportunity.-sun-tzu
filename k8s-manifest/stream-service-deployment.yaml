@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f ../compose.yml
+    kompose.version: 1.36.0 (ae2a39403)
+  labels:
+    io.kompose.service: stream-service
+  name: stream-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: stream-service
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -f ../compose.yml
+        kompose.version: 1.36.0 (ae2a39403)
+      labels:
+        io.kompose.service: stream-service
+    spec:
+      containers:
+        - env:
+            - name: AUDIO_FILE_PATH
+              value: /audio
+            - name: SPRING_DATABASE_PASSWORD
+              value: root
+            - name: SPRING_DATABASE_URL
+              value: jdbc:mysql://db:3306/audioDB
+            - name: SPRING_DATABASE_USERNAME
+              value: root
+          image: ghcr.io/aet-devops25/aifm/stream-service:latest
+          imagePullPolicy: Always
+          name: stream-service
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /audio
+              name: audio-files
+      restartPolicy: Always
+      volumes:
+        - name: audio-files
+          persistentVolumeClaim:
+            claimName: audio-files
