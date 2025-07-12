@@ -160,9 +160,10 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        image: [client, downloader, db, api-gateway, stream-service, playlist-service, genai-service, announcement-service, prometheus]
+        image: [aifm-client, aifm-downloader, aifm-db, aifm-api-gateway, aifm-stream-service, aifm-playlist-service, aifm-genai-service, aifm-announcement-service, aifm-prometheus]
     env:
-      REMOTE_IMAGE: ghcr.io/${{ needs.setup.outputs.repo_sanitized }}/${{ matrix.image }}
+      # REMOTE_IMAGE: ghcr.io/${{ needs.setup.outputs.repo_sanitized }}/${{ matrix.image }}
+      REMOTE_IMAGE: ghcr.io/aet-devops25/${{ matrix.image }}
       IMAGE_TIMESTAMP: ${{ needs.setup.outputs.timestamp }}
 
     steps:
@@ -206,9 +207,10 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        image: [client, downloader, db, api-gateway, stream-service, playlist-service, genai-service, announcement-service, prometheus]
+        image: [aifm-client, aifm-downloader, aifm-db, aifm-api-gateway, aifm-stream-service, aifm-playlist-service, aifm-genai-service, aifm-announcement-service, aifm-prometheus]
     env:
-      REMOTE_IMAGE: ghcr.io/${{ needs.setup.outputs.repo_sanitized }}/${{ matrix.image }}
+      # REMOTE_IMAGE: ghcr.io/${{ needs.setup.outputs.repo_sanitized }}/${{ matrix.image }}
+      REMOTE_IMAGE: ghcr.io/aet-devops25/${{ matrix.image }}
 
     steps:
       - name: Download artifact

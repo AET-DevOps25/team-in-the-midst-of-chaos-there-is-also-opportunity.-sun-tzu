@@ -3,21 +3,21 @@ services:
     build:
       context: ./client
       dockerfile: Dockerfile
-    image: client:local
+    image: aifm-client:local
 
   downloader:
     build: ./server/database/downloader
-    image: downloader:local
+    image: aifm-downloader:local
 
   db:
     build: ./server/database
-    image: db:local
+    image: aifm-db:local
 
   api-gateway:
     build:
       context: ./server
       dockerfile: api-gateway/Dockerfile
-    image: api-gateway:local
+    image: aifm-api-gateway:local
     ports:
       - 8080:8080
 
@@ -25,7 +25,7 @@ services:
     build:
       context: ./server
       dockerfile: StreamService/Dockerfile
-    image: stream-service:local
+    image: aifm-stream-service:local
     ports:
       - 8081:8080
 
@@ -33,7 +33,7 @@ services:
     build:
       context: ./server
       dockerfile: PlaylistService/Dockerfile
-    image: playlist-service:local
+    image: aifm-playlist-service:local
     ports:
       - 8082:8080
 
@@ -41,7 +41,7 @@ services:
     build:
       context: ./genai
       dockerfile: Dockerfile
-    image: genai-service:local
+    image: aifm-genai-service:local
     ports:
       - 8000:8000
 
@@ -49,13 +49,13 @@ services:
     build:
       context: ./server
       dockerfile: AnnouncementService/Dockerfile
-    image: announcement-service:local
+    image: aifm-announcement-service:local
     ports:
       - 8083:8080
 
   prometheus:
     build: ./monitoring/prometheus
-    image: prometheus:local
+    image: aifm-prometheus:local
     ports:
       - 9090:9090
 
