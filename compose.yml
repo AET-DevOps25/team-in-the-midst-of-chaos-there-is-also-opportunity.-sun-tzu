@@ -3,14 +3,15 @@ services:
     image: ghcr.io/aet-devops25/team-in-the-midst-of-chaos-there-is-also-opportunity-sun-tzu/client:${VERSION:-latest}
     restart: unless-stopped
     ports:
-      - "80:80"
+      - 80:80
     networks:
-      - app-network
+      - default
     depends_on:
       - api-gateway
 
   downloader:
     image: ghcr.io/aet-devops25/team-in-the-midst-of-chaos-there-is-also-opportunity-sun-tzu/downloader:${VERSION:-latest}
+    restart: unless-stopped
     environment:
       - BASIC_AUTH_USER=user
       - BASIC_AUTH_PASS=${BASIC_AUTH_PASS}
@@ -20,7 +21,7 @@ services:
       - audio-files:/audio
       - sql-files:/docker-entrypoint-initdb.d
     networks:
-      - app-network
+      - default
 
   db:
     image: ghcr.io/aet-devops25/team-in-the-midst-of-chaos-there-is-also-opportunity-sun-tzu/db:${VERSION:-latest}
@@ -39,22 +40,22 @@ services:
       - mysql_data:/var/lib/mysql
       - sql-files:/docker-entrypoint-initdb.d
     networks:
-      - app-network
+      - default
 
   api-gateway:
     image: ghcr.io/aet-devops25/team-in-the-midst-of-chaos-there-is-also-opportunity-sun-tzu/api-gateway:${VERSION:-latest}
     ports:
-      - "8080:8080"
+      - 8080:8080
     depends_on:
       - stream-service
       - playlist-service
     networks:
-      - app-network
+      - default
 
   stream-service:
     image: ghcr.io/aet-devops25/team-in-the-midst-of-chaos-there-is-also-opportunity-sun-tzu/stream-service:${VERSION:-latest}
     expose:
-      - "8080"
+      - 8080
     depends_on:
       db:
         condition: service_healthy
@@ -66,12 +67,12 @@ services:
     volumes:
       - audio-files:/audio
     networks:
-      - app-network
+      - default
 
   playlist-service:
     image: ghcr.io/aet-devops25/team-in-the-midst-of-chaos-there-is-also-opportunity-sun-tzu/playlist-service:${VERSION:-latest}
     expose:
-      - "8080"
+      - 8080
     depends_on:
       db:
         condition: service_healthy
@@ -84,23 +85,23 @@ services:
     volumes:
       - audio-files:/audio
     networks:
-      - app-network
+      - default
 
   genai-service:
     image: ghcr.io/aet-devops25/team-in-the-midst-of-chaos-there-is-also-opportunity-sun-tzu/genai-service:${VERSION:-latest}
     container_name: genai_service
     ports:
-      - "8000:8000"
+      - 8000:8000
     environment:
       - OPENAI_API_KEY=${OPENAI_API_KEY}
     networks:
-      - app-network
+      - default
 
   announcement-service:
     image: ghcr.io/aet-devops25/team-in-the-midst-of-chaos-there-is-also-opportunity-sun-tzu/announcement-service:${VERSION:-latest}
     container_name: announcement
     expose:
-      - "8080"
+      - 8080
     depends_on:
       db:
         condition: service_healthy
@@ -113,23 +114,23 @@ services:
     volumes:
       - audio-files:/audio
     networks:
-      - app-network
+      - default
 
   prometheus:
     image: ghcr.io/aet-devops25/team-in-the-midst-of-chaos-there-is-also-opportunity-sun-tzu/prometheus:${VERSION:-latest}
     container_name: prometheus
     ports:
-      - "9090:9090"
+      - 9090:9090
     volumes:
       - prometheus_data:/prometheus
     networks:
-      - app-network
+      - default
 
   grafana:
     image: grafana/grafana-oss
     container_name: grafana
     ports:
-      - "3000:3000"
+      - 3000:3000
     volumes:
       - ./monitoring/grafana/grafana-dashboard:/var/lib/grafana/dashboards/DevOps
       - ./monitoring/grafana/grafana-provisioning:/etc/grafana/provisioning
@@ -139,13 +140,10 @@ services:
       - GF_LOG_LEVEL=warn
       - GF_USERS_DEFAULT_THEME=light
     networks:
-      - app-network
+      - default
 
 volumes:
   mysql_data:
   sql-files:
   audio-files:
   prometheus_data:
-
-networks:
-  app-network:
