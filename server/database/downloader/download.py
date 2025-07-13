@@ -135,6 +135,7 @@ class SongInfo:
 
 def get_all_hrefs(url) -> list[str]:
     response = requests.get(url, auth=AUTH)
+    response.raise_for_status()
     soup = BeautifulSoup(response.text, 'html.parser')
     ul = soup.find('ul')
     links = ul.find_all('a')
@@ -150,15 +151,17 @@ def fetch_mp3_urls(url = BASE_URL) -> list[str]:
         mp3_urls += songs
     return mp3_urls
 
-def download_song(song: SongInfo, dest_dir) -> None:
-    path = os.path.join(dest_dir, song.filename)
-    r = requests.get(song.url, stream=True, auth=AUTH)
-    if r.status_code == 200:
-        with open(path, "wb") as f:
-            for chunk in r.iter_content(8192):
-                f.write(chunk)
-        return
-    print(f"Error during download: {song.url}")
+def download_song(song: SongInfo, dest_dir: Path | str, *, session: requests.Session) -> None:
+    path = Path(dest_dir) / song.filename
+    try:
+        with session.get(song.url, stream=True) as r:
+            r.raise_for_status()
+            with open(path, "wb") as f:
+                for chunk in r.iter_content(chunk_size=8192):
+                    if chunk:
+                        f.write(chunk)
+    except Exception as e:
+        print(f"Failed to download {song.url}: {e}")
 
 
 def fetch_song_infos() -> list[SongInfo]:
@@ -191,18 +194,23 @@ def main():
         to_download.append(song)
 
     print("Starting downloads")
-    with ThreadPoolExecutor(max_workers=8) as executor:  # adjust max_workers as needed
-        future_to_song = {executor.submit(download_song, song, AUDIO_DIR): song for song in to_download}
+    with requests.Session() as session:
+        session.auth = AUTH
+        with ThreadPoolExecutor(max_workers=8) as executor:  # adjust max_workers as needed
+            future_to_song = {
+                executor.submit(download_song, song, AUDIO_DIR, session=session): song
+                for song in to_download
+            }
 
-        for future in as_completed(future_to_song):
-            song = future_to_song[future]
-            try:
-                future.result()  # raise exceptions
-                song_id = to_download.index(song) + 1
-                audio_entries.append(f"({song_id}, '{song.filename}')")
-                print(f"Finished download '{song.filename}'", flush=True)
-            except Exception as e:
-                print(f"Error downloading {song.url}: {e}")
+            for future in as_completed(future_to_song):
+                song = future_to_song[future]
+                try:
+                    future.result()  # raise exceptions
+                    song_id = to_download.index(song) + 1
+                    audio_entries.append(f"({song_id}, '{song.filename}')")
+                    print(f"Finished download '{song.filename}'", flush=True)
+                except Exception as e:
+                    print(f"Error downloading {song.url}: {e}")
 
     print("Finished all downloads")
 
