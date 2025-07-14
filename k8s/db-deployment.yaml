@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: db
+  labels:
+    io.kompose.service: db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: db
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        io.kompose.service: db
+    spec:
+      initContainers:
+        - name: wait-for-downloader
+          image: busybox
+          command:
+            - /bin/sh
+            - -c
+            - |
+              echo "Waiting for downloader to complete..."
+              while [ ! -f /docker-entrypoint-initdb.d/.downloader-ready ]; do
+                echo "Still waiting..."
+                sleep 5
+              done
+              echo "Downloader is done!"
+      containers:
+        - name: db
+          image: ghcr.io/aet-devops25/aifm/db:latest
+          imagePullPolicy: Always
+          env:
+            - name: MYSQL_DATABASE
+              value: audioDB
+            - name: MYSQL_ROOT_PASSWORD
+              value: root
+          ports:
+            - containerPort: 3306
+              protocol: TCP
+          livenessProbe:
+            exec:
+              command:
+                - mysqladmin
+                - ping
+                - -h
+                - localhost
+                - -uroot
+                - -proot
+            failureThreshold: 5
+            periodSeconds: 10
+            timeoutSeconds: 5
+          volumeMounts:
+            - mountPath: /var/lib/mysql
+              name: mysql-data
+            - mountPath: /docker-entrypoint-initdb.d
+              name: sql-files
+      restartPolicy: Always
+      volumes:
+        - name: mysql-data
+          persistentVolumeClaim:
+            claimName: mysql-data
+        - name: sql-files
+          persistentVolumeClaim:
+            claimName: sql-files

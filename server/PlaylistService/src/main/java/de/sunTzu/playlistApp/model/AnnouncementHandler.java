@@ -29,6 +29,10 @@ public class AnnouncementHandler {
         return newAnnouncementId;
     }
 
+    public void requestNewShortAnnouncement(Long id, Long prevId, List<Long> songIds) {
+        APservice.sendAsynAnnouncementPost(id, prevId, songIds, shortAnnouncementType);
+    }
+
     public void requestNewAnnouncement(Long id, Long prevId, List<Long> songIds) {
         // Select from short or long type randomly
         APservice.sendAsynAnnouncementPost(id, prevId, songIds, getRandomAnnouncementType());

@@ -16,26 +16,26 @@ spring:
             - SetStatus=403
 
         - id: streamservice
-          uri: http://streamservice:8080
+          uri: http://stream-service:8080
           predicates:
             - Path=/api/stream/**
           filters:
             - RewritePath=/api/stream/(?<segment>.*), /${segment}
         - id: stream-docs
-          uri: http://streamservice:8080
+          uri: http://stream-service:8080
           predicates:
             - Path=/api/stream/v3/api-docs
           filters:
             - RewritePath=/api/stream/v3/api-docs, /v3/api-docs
 
         - id: playlistservice
-          uri: http://playlistservice:8080
+          uri: http://playlist-service:8080
           predicates:
             - Path=/api/playlist/**
           filters:
             - RewritePath=/api/playlist/(?<segment>.*), /${segment}
         - id: playlist-docs
-          uri: http://playlistservice:8080
+          uri: http://playlist-service:8080
           predicates:
             - Path=/api/playlist/v3/api-docs
           filters:

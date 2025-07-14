@@ -1,19 +1,39 @@
+from __future__ import annotations
 import os
 import requests
+from pathlib import Path
+from requests.auth import HTTPBasicAuth
 from bs4 import BeautifulSoup
 import urllib.parse
+from urllib.parse import urljoin
+from dataclasses import dataclass
+import shutil
+from concurrent.futures import ThreadPoolExecutor, as_completed
+
+
+# Read environment
+for var in ['URL', 'USER', 'PASS', 'NUM_DOWNLOADS']:
+    if not os.environ.get(var):
+        raise ValueError(f"Missing environment variable: {var}")
+BASE_URL = os.environ['URL']
+USER = os.environ['USER']
+PASSWORD = os.environ['PASS']
+NUM_SONGS = int(os.environ['NUM_DOWNLOADS'])
+assert NUM_SONGS >= 0
+
+# Database initialization files
+ENTRYPOINT_DIR = Path('/docker-entrypoint-initdb.d')
+SQL_FILE_1 = '01-schema.sql'
+SQL_FILE_2 = '02-data.sql'
+SIGNAL_DONE_FILE = '.downloader-ready'
 
 # Output locations
-AUDIO_DIR = "/audio"
-DATA_SQL = "/docker-entrypoint-initdb.d/02-data.sql"
-# Download parameter
-BASE_URL = os.getenv('BASIC_AUTH_URL')
-user = os.getenv('BASIC_AUTH_USER')
-password = os.getenv('BASIC_AUTH_PASS')
-AUTH = requests.auth.HTTPBasicAuth(user, password)
-NUM_SONGS = 100
+AUDIO_DIR = Path("/audio")
+AUDIO_DIR.mkdir(exist_ok=True)
 
-os.makedirs(AUDIO_DIR, exist_ok=True)
+# Download parameter
+AUTH = HTTPBasicAuth(USER, PASSWORD)
+
 
 metadata_entries = [
     "(0, 'announcement', '', '', '', '')",
@@ -105,71 +125,109 @@ metadata_entries = [
     "(86, 'song', 'Drive By', 'Train', '2012-01-10', 'Pop rock')",
     "(87, 'song', 'So wie Du warst', 'Unheilig', '2012-03-16', 'German rock')",
     "(88, 'song', 'Schau nicht mehr zurück', 'Xavas', '2012-09-21', 'German hip hop/Soul')"    
-][:NUM_SONGS]
+][:NUM_SONGS+1]
 
 
-def get_all_hrefs(url):
+@dataclass(frozen=True)
+class SongInfo:
+    filename: str
+    url: str
+
+
+def get_all_hrefs(url) -> list[str]:
     response = requests.get(url, auth=AUTH)
+    response.raise_for_status()
     soup = BeautifulSoup(response.text, 'html.parser')
     ul = soup.find('ul')
     links = ul.find_all('a')
     return [link.get('href') for link in links if link.get('href')]
 
-def fetch_mp3_urls(url = BASE_URL):
+def fetch_mp3_urls(url = BASE_URL) -> list[str]:
     # get collections
-    collections = list(map(lambda s: url + s, get_all_hrefs(url)))
+    collections = [urljoin(url, s) for s in get_all_hrefs(url)]
     # get mp3 urls per collection
     mp3_urls = []
     for collection in collections:
-        songs = list(map(lambda s: collection + s, get_all_hrefs(collection)))
-        mp3_urls = mp3_urls + songs
-    
+        songs = [urljoin(collection, s) for s in get_all_hrefs(collection)]
+        mp3_urls += songs
     return mp3_urls
 
-def download_file(url, dest_dir):
-    filename = urllib.parse.unquote(url.split('/')[-1]).replace("'", "''")
+def download_song(song: SongInfo, dest_dir: Path | str, *, session: requests.Session) -> None:
+    path = Path(dest_dir) / song.filename
+    try:
+        with session.get(song.url, stream=True) as r:
+            r.raise_for_status()
+            with open(path, "wb") as f:
+                for chunk in r.iter_content(chunk_size=8192):
+                    if chunk:
+                        f.write(chunk)
+    except Exception as e:
+        print(f"Failed to download {song.url}: {e}")
 
-    path = os.path.join(dest_dir, filename)
-    r = requests.get(url, stream=True, auth=AUTH)
-    if r.status_code == 200:
-        with open(path, "wb") as f:
-            for chunk in r.iter_content(8192):
-                f.write(chunk)
-        return filename
-    print(f"Error during download: {url}")
-    return None
+
+def fetch_song_infos() -> list[SongInfo]:
+    songs = []
+    urls = fetch_mp3_urls()
+    for url in urls:
+        filename = urllib.parse.unquote(url.split('/')[-1]).replace("'", "''")
+        songs.append(SongInfo(filename=filename, url=url))
+    return songs
+
 
 def main():
-    urls = fetch_mp3_urls()
+    shutil.copy(SQL_FILE_1, ENTRYPOINT_DIR)
+    print(f"Copied {SQL_FILE_1} to {ENTRYPOINT_DIR}")
+
+    shutil.copy('greeting_announcement.mp3', AUDIO_DIR)
+    print(f"Copied greeting announcement to {AUDIO_DIR}")
+
+    print("Fetching songs")
+    songs = fetch_song_infos()
+    print(f"Found {len(songs)} songs")
     existing_files = set(os.listdir(AUDIO_DIR))
     audio_entries = ["('0', 'greeting_announcement.mp3')"]
-    song_id = 1
-    
-    for url in urls[:NUM_SONGS]:
-        try:
-            filename = urllib.parse.unquote(url.split('/')[-1]).replace("'", "''")
-            if filename in existing_files:
-                print(f"Skipping \"{filename}\" (already present)", flush=True)
-                continue            
-            # download song
-            download_file(url, AUDIO_DIR)
-            audio_entries.append(f"({song_id}, '{filename}')")
-            song_id += 1
-            print(f"Finished download \"{filename}\"", flush=True)
-        except Exception as e:
-            print(f"Error processing {url}: {e}")
+
+    to_download: list[SongInfo] = []
+    for song in songs[:NUM_SONGS]:
+        if song.filename in existing_files:
+            print(f"Skipping '{song.filename}' (already present)", flush=True)
+            continue
+        to_download.append(song)
+
+    print("Starting downloads")
+    with requests.Session() as session:
+        session.auth = AUTH
+        with ThreadPoolExecutor(max_workers=8) as executor:  # adjust max_workers as needed
+            future_to_song = {
+                executor.submit(download_song, song, AUDIO_DIR, session=session): song
+                for song in to_download
+            }
+
+            for future in as_completed(future_to_song):
+                song = future_to_song[future]
+                try:
+                    future.result()  # raise exceptions
+                    song_id = to_download.index(song) + 1
+                    audio_entries.append(f"({song_id}, '{song.filename}')")
+                    print(f"Finished download '{song.filename}'", flush=True)
+                except Exception as e:
+                    print(f"Error downloading {song.url}: {e}")
 
     print("Finished all downloads")
 
     # Write data
-    with open(DATA_SQL, "w") as f:
+    with open(ENTRYPOINT_DIR / SQL_FILE_2, "w") as f:
         if audio_entries:
             f.write("INSERT INTO audio_files (id, filename)\nVALUES\n")
             f.write(",\n".join(audio_entries) + ";\n\n")
         if metadata_entries:
-            f.write("SET SESSION sql_mode = \'NO_AUTO_VALUE_ON_ZERO\';\n")
+            f.write("SET SESSION sql_mode = 'NO_AUTO_VALUE_ON_ZERO';\n")
             f.write("INSERT IGNORE INTO meta_data (id, type, title, artist, release_date, genre)\nVALUES\n")
             f.write(",\n".join(metadata_entries) + ";\n")
+
+    # Create file to signal that container is done
+    open(ENTRYPOINT_DIR / SIGNAL_DONE_FILE, "w").close()
+
 
 if __name__ == "__main__":
     main()

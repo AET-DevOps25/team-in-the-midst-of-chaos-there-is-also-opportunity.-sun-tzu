@@ -1,0 +1,48 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: downloader
+  labels:
+    io.kompose.service: downloader
+spec:
+  template:
+    metadata:
+      labels:
+        io.kompose.service: downloader
+    spec:
+      affinity:
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchLabels:
+                  io.kompose.service: db
+              topologyKey: "kubernetes.io/hostname"
+      containers:
+        - name: downloader
+          image: ghcr.io/aet-devops25/aifm/downloader:latest
+          imagePullPolicy: Always
+          env:
+            - name: NUM_DOWNLOADS
+              value: "50"
+            - name: PASS
+              valueFrom:
+                secretKeyRef:
+                  name: project-secrets
+                  key: DOWNLOAD_PASS
+            - name: URL
+              value: https://ai-fm.dotan.de
+            - name: USER
+              value: user
+          volumeMounts:
+            - mountPath: /audio
+              name: audio-files
+            - mountPath: /docker-entrypoint-initdb.d
+              name: sql-files
+      restartPolicy: OnFailure
+      volumes:
+        - name: audio-files
+          persistentVolumeClaim:
+            claimName: audio-files
+        - name: sql-files
+          persistentVolumeClaim:
+            claimName: sql-files
