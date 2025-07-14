@@ -40,7 +40,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  overflow: hidden;
+  overflow: hidden; // This is important to hide the overflowing text
 }
 
 .song-icon {
@@ -50,16 +50,39 @@
 }
 
 .song-details {
-  display: flex;
-  flex-direction: column;
+  // This container will clip the text
   white-space: nowrap;
   overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .song-title {
   font-size: 0.9rem;
   font-weight: 500;
+  display: inline-block; // Important for the animation
+
+  // Initially, just cut off the text with an ellipsis
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  width: 100%;
+
+  // --- THIS IS THE FIX ---
+  // When the user hovers over the song details, the animation will play
+  .song-details:hover & {
+    animation: marquee 7s linear infinite alternate;
+  }
+}
+
+// The animation that creates the billboard/marquee effect
+@keyframes marquee {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    // Move the text left by the amount it has overflowed
+    // A large value ensures it scrolls all the way for very long titles
+    transform: translateX(-50%);
+  }
 }
 
 .control-buttons {

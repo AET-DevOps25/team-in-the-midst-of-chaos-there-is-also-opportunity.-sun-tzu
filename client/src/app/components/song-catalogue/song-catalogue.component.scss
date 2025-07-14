@@ -4,10 +4,9 @@
   @include mat.list-overrides((
     list-item-leading-icon-end-space: 10px,
   ));
-  /* -- Add these two lines to make the component a flex container -- */
   display: flex;
   flex-direction: column;
-  height: 100%; /* <-- THIS IS THE FIX */
+  height: 100%;
 }
 
 mat-list {
@@ -45,7 +44,23 @@ mat-form-field {
 }
 
 .song-list-viewport {
-  /* -- Replace the old height rule with this one line -- */
   flex-grow: 1;
   width: 100%;
+}
+
+/* --- THIS IS THE FIX --- */
+/* This targets the internal container for the text lines. */
+/* It allows the container to shrink, which lets the ellipsis appear. */
+::ng-deep .mat-mdc-list-item .mdc-list-item__content {
+  overflow: hidden;
+  min-width: 0;
+}
+
+/* This applies the ellipsis effect once the container can shrink. */
+[matListItemTitle],
+[matListItemLine] {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
 }
