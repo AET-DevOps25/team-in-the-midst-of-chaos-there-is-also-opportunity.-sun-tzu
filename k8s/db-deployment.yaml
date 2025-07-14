@@ -26,9 +26,12 @@ spec:
               echo "Waiting for downloader to complete..."
               while [ ! -f /docker-entrypoint-initdb.d/.downloader-ready ]; do
                 echo "Still waiting..."
-                sleep 5
+                sleep 1
               done
               echo "Downloader is done!"
+          volumeMounts:
+            - mountPath: /docker-entrypoint-initdb.d
+              name: sql-files
       containers:
         - name: db
           image: ghcr.io/aet-devops25/aifm/db:latest

@@ -22,6 +22,15 @@ spec:
       labels:
         io.kompose.service: prometheus
     spec:
+      initContainers:
+        - name: fix-perms
+          image: busybox
+          command: ["sh", "-c", "chown -R 65534:65534 /prometheus || true"]
+          volumeMounts:
+            - name: prometheus-data
+              mountPath: /prometheus
+          securityContext:
+            runAsUser: 0
       containers:
         - image: ghcr.io/aet-devops25/aifm/prometheus:latest
           imagePullPolicy: Always
@@ -37,3 +46,8 @@ spec:
         - name: prometheus-data
           persistentVolumeClaim:
             claimName: prometheus-data
+      securityContext:
+        runAsUser: 65534
+        runAsGroup: 65534
+        fsGroup: 65534
+
