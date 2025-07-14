@@ -1,19 +1,47 @@
-import { Component, computed, inject, OnInit } from '@angular/core';
-import { MatButton, MatButtonModule } from '@angular/material/button';
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
-import {MatListModule} from '@angular/material/list';
-import { QueueService } from '@app/services/queue.service';
+import { MatButtonModule } from '@angular/material/button';
+import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
+import { Observable } from 'rxjs';
+import { map, shareReplay } from 'rxjs/operators';
+import { QueueService } from '@app/services';
 
 @Component({
   selector: 'app-queue',
-  imports: [MatListModule, MatIconModule, MatButtonModule],
+  standalone: true,
+  imports: [
+    CommonModule,
+    MatListModule,
+    MatIconModule,
+    MatButtonModule
+  ],
   templateUrl: './queue.component.html',
-  styleUrl: './queue.component.scss'
+  styleUrls: ['./queue.component.scss'],
 })
 export class QueueComponent implements OnInit {
-  queueService = inject(QueueService)
+
+  // Declare the observable property here
+  isHandset$: Observable<boolean>;
+
+  constructor(
+    public queueService: QueueService,
+    private breakpointObserver: BreakpointObserver
+  ) {
+    // Initialize the property inside the constructor
+    this.isHandset$ = this.breakpointObserver.observe(Breakpoints.Handset)
+      .pipe(
+        map(result => result.matches),
+        shareReplay()
+      );
+  }
 
   ngOnInit(): void {
-    const sub = this.queueService.updateNextAudios().subscribe()
+    this.queueService.updateNextAudios().subscribe();
+  }
+
+  closeQueue(): void {
+    this.queueService.hideQueue();
   }
 }

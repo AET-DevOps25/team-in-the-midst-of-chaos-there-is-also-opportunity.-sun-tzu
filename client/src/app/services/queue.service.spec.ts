@@ -48,32 +48,34 @@ describe('QueueService', () => {
     req2.flush(mockMetadata);
   });
 
-  // --- New Tests Added Below ---
+  // --- New and Updated Tests ---
 
   it('should have showQueue signal initially as false', () => {
     expect(service.showQueue()).toBe(false);
   });
 
   it('should toggle showQueue from false to true when toggleQueue is called', () => {
-    // Initial state is false
     expect(service.showQueue()).toBe(false);
-
-    // Call the method
     service.toggleQueue();
-
-    // Expect the new state to be true
     expect(service.showQueue()).toBe(true);
   });
 
   it('should toggle showQueue from true back to false when toggleQueue is called twice', () => {
-    // Call it once to set to true
-    service.toggleQueue();
+    service.toggleQueue(); // -> true
+    service.toggleQueue(); // -> false
+    expect(service.showQueue()).toBe(false);
+  });
+
+  // --- Test for hideQueue() method ---
+  it('should set showQueue to false when hideQueue is called', () => {
+    // First, set it to true
+    service.showQueue.set(true);
     expect(service.showQueue()).toBe(true);
 
-    // Call it a second time
-    service.toggleQueue();
+    // Now, call hideQueue
+    service.hideQueue();
 
-    // Expect the new state to be false again
+    // Expect the state to be false
     expect(service.showQueue()).toBe(false);
   });
 });

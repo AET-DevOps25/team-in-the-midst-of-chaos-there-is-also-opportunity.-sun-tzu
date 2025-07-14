@@ -1,19 +1,33 @@
-<div class="mobile-player">
-  <mat-progress-bar class="progress-bar" [mode]="mode()" [value]="progressPercent()"></mat-progress-bar>
+<div class="player-bar">
+  <mat-progress-bar [mode]="mode()" [value]="progressPercent()"></mat-progress-bar>
 
-  <div class="controls-content">
+  <div class="player-content">
     <div class="song-info">
-      <mat-icon class="song-icon">music_note</mat-icon>
+      <div class="album-art-icon-container">
+        @switch (playService.currentMetadata()?.type) {
+          @case ('song') {
+            <mat-icon>music_note</mat-icon>
+          }
+          @case ('announcement') {
+            <mat-icon>person</mat-icon>
+          }
+          @default {
+            <mat-icon>album</mat-icon>
+          }
+        }
+      </div>
+
       <div class="song-details">
-        <div class="song-title">{{ currentMessage() }}</div>
+        <div class="song-title">{{ currentTitle() }}</div>
+        <div class="song-artist">{{ currentArtist() }}</div>
       </div>
     </div>
 
     <div class="control-buttons">
-      <button mat-icon-button (click)="togglePlay()" aria-label="Toggle play/pause">
+      <button mat-icon-button (click)="togglePlay()" aria-label="Toggle Play">
         <mat-icon>{{ icon() }}</mat-icon>
       </button>
-      <button mat-icon-button (click)="toggleQueue()" aria-label="Toggle upcoming queue">
+      <button mat-icon-button (click)="toggleQueue()" aria-label="Open Queue">
         <mat-icon>queue_music</mat-icon>
       </button>
     </div>

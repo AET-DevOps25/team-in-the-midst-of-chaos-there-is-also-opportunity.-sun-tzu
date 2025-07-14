@@ -1,0 +1,78 @@
+@use '@angular/material' as mat;
+
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  padding: 32px; // Ample padding around the edges
+  color: white;
+  box-sizing: border-box;
+}
+
+.queue-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.queue-header {
+  // Use flexbox to position title and button
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  padding-top: env(safe-area-inset-top);
+  // Add more space between the header and the list
+  margin-bottom: 32px;
+  flex-shrink: 0;
+
+  h2 {
+    margin: 0;
+    font-size: 1.8rem;
+    font-weight: 700;
+  }
+
+  button {
+    width: 48px;
+    height: 48px;
+
+    mat-icon {
+      color: #b3b3b3;
+      font-size: 28px;
+      width: 28px;
+      height: 28px;
+    }
+  }
+}
+
+.queue-content {
+  flex: 1;
+  overflow-y: auto;
+}
+
+// Style overrides for a clean list
+::ng-deep .mat-mdc-list-item {
+  height: auto !important;
+  padding: 12px 0 !important;
+}
+
+[matListItemTitle] {
+  font-size: 1rem;
+  font-weight: 500;
+  color: white;
+}
+
+[matListItemLine] {
+  font-size: 0.9rem;
+  color: #b3b3b3;
+}
+//asd
+.empty-queue-message {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  color: #b3b3b3;
+}
