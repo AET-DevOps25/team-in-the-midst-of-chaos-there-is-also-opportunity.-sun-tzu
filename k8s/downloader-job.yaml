@@ -10,6 +10,13 @@ spec:
       labels:
         io.kompose.service: downloader
     spec:
+      affinity:
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchLabels:
+                  io.kompose.service: db
+              topologyKey: "kubernetes.io/hostname"
       containers:
         - name: downloader
           image: ghcr.io/aet-devops25/aifm/downloader:latest

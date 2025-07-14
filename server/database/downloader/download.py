@@ -25,6 +25,7 @@ assert NUM_SONGS >= 0
 ENTRYPOINT_DIR = Path('/docker-entrypoint-initdb.d')
 SQL_FILE_1 = '01-schema.sql'
 SQL_FILE_2 = '02-data.sql'
+SIGNAL_DONE_FILE = '.downloader-ready'
 
 # Output locations
 AUDIO_DIR = Path("/audio")
@@ -223,6 +224,9 @@ def main():
             f.write("SET SESSION sql_mode = 'NO_AUTO_VALUE_ON_ZERO';\n")
             f.write("INSERT IGNORE INTO meta_data (id, type, title, artist, release_date, genre)\nVALUES\n")
             f.write(",\n".join(metadata_entries) + ";\n")
+
+    # Create file to signal that container is done
+    open(ENTRYPOINT_DIR / SIGNAL_DONE_FILE, "w").close()
 
 
 if __name__ == "__main__":

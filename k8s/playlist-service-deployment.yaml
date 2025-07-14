@@ -22,6 +22,13 @@ spec:
       labels:
         io.kompose.service: playlist-service
     spec:
+      affinity:
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchLabels:
+                  io.kompose.service: db
+              topologyKey: "kubernetes.io/hostname"
       containers:
         - env:
             - name: ANNOUNCEMENT_SERVICE_URL
