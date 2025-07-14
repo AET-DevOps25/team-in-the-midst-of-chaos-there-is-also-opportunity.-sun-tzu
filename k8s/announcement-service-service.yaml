@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f ../compose.yml
+    kompose.version: 1.36.0 (ae2a39403)
+  labels:
+    io.kompose.service: announcement-service
+  name: announcement-service
+spec:
+  ports:
+    - port: 8080
+      targetPort: 8080
+  selector:
+    io.kompose.service: announcement-service
