@@ -1,12 +1,22 @@
 :host {
-  // allow outlet to expand to full height
+  /* Make the root component a flex container that fills the screen */
   display: flex;
   flex-direction: column;
+  height: 100vh;
+}
 
-  min-height: 100vh;
+.outlet {
+  /* This makes the router outlet area grow to fill all available space */
+  flex: 1;
 
-  // stretch router outlet
-  .outlet {
-    flex-grow: 1;
-  }
+  /* These ensure the component inside the outlet also fills the space */
+  display: flex;
+  flex-direction: column;
+  min-height: 0; /* Prevents flexbox overflow issues */
+}
+
+/* This is a fallback to ensure the loaded component has height */
+router-outlet + * {
+  flex: 1;
+  min-height: 0;
 }

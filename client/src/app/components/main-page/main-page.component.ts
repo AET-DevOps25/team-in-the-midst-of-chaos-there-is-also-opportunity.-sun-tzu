@@ -16,7 +16,6 @@ import { QueueService } from '@app/services/queue.service';
 @Component({
   selector: 'app-main-page',
   imports: [
-    RouterOutlet,
     MatDividerModule,
     HeaderComponent,
     AudioControlsComponent,

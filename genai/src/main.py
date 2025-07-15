@@ -4,9 +4,9 @@ import os
 import logging
 from typing import Optional
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Body
 from fastapi.responses import Response
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from dotenv import load_dotenv
 from prometheus_fastapi_instrumentator import Instrumentator
 
@@ -31,7 +31,7 @@ except ConfigError as e:
 # --- API Definition ---
 app = FastAPI(
     title="GenAI Radio Transition Service",
-    description="Generates audio transitions between songs.",
+    description="This service generates dynamic radio moderation scripts and converts them into spoken audio transitions using a Text-to-Speech (TTS) model. It is designed as a modular microservice that communicates via a REST-API with the main backend of the AI radio.",
     version="1.1.0"
 )
 
@@ -40,20 +40,53 @@ Instrumentator().instrument(app).expose(app)
 
 # --- Pydantic Models for API ---
 class Song(BaseModel):
-    title: str
-    artist: Optional[str] = None
+    title: str = Field(..., example="Stairway to Heaven")
+    artist: Optional[str] = Field(None, example="Led Zeppelin")
 
 
 class SongTransitionInfo(BaseModel):
-    message_type: int
+    message_type: int = Field(..., description="An integer representing the type of message to be generated (e.g., 1 for quick transition, 2 for a longer transition, 3 for a user-requested song).")
     previous_song: Optional[Song] = None
     next_song: Optional[Song] = None
     after_next_song: Optional[Song] = None
 
-
 # --- API Endpoints ---
-@app.post("/generate_audio_transition")
-async def generate_audio_transition_endpoint(song_info: SongTransitionInfo):
+@app.post("/generate_audio_transition",
+          summary="Generate Audio Transition",
+          description="Receives song information and a message type, then generates and returns a spoken audio transition as an MP3 file.",
+          responses={
+              200: {
+                  "description": "The generated audio transition in MP3 format.",
+                  "content": {
+                      "audio/mpeg": {}
+                  }
+              },
+              500: {
+                  "description": "An internal server error occurred, either due to a configuration issue, script generation failure, or TTS conversion failure where a fallback was also unavailable."
+              }
+          })
+async def generate_audio_transition_endpoint(song_info: SongTransitionInfo = Body(
+    ...,
+    examples={
+        "quick_transition": {
+            "summary": "Quick Transition",
+            "description": "A brief transition between two songs.",
+            "value": {
+                "message_type": 1,
+                "previous_song": {"title": "Yesterday", "artist": "The Beatles"},
+                "next_song": {"title": "Bohemian Rhapsody", "artist": "Queen"}
+            }
+        },
+        "user_request": {
+            "summary": "User Requested Song",
+            "description": "An announcement for a song requested by a user.",
+            "value": {
+                "message_type": 3,
+                "next_song": {"title": "Here Comes The Sun", "artist": "The Beatles"}
+            }
+        }
+    }
+)):
     openai_api_key = os.getenv("OPENAI_API_KEY")
     if not openai_api_key:
         logger.error("OPENAI_API_KEY environment variable not set.")
@@ -99,6 +132,9 @@ async def generate_audio_transition_endpoint(song_info: SongTransitionInfo):
     return Response(content=audio_bytes, media_type="audio/mpeg", headers=headers)
 
 
-@app.get("/health")
+@app.get("/health", summary="Health Check")
 def health_check():
+    """
+    A simple health check endpoint that returns the status of the service and confirms if the application configuration has been loaded.
+    """
     return {"status": "ok", "config_loaded": bool(APP_CONFIG)}

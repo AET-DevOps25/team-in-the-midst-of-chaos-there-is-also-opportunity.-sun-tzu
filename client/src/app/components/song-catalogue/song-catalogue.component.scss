@@ -1,19 +1,12 @@
 @use '@angular/material' as mat;
 
-// Customize the entire app. Change :root to your selector if you want to scope the styles.
 :host {
   @include mat.list-overrides((
-    // active-indicator-color: orange,
-    // list-item-two-line-container-height: 100px,
     list-item-leading-icon-end-space: 10px,
-    // list-item-trailing-icon-size: 100px,
-    // active-indicator-shape: red,
   ));
-  // @include mat.form-field-overrides((
-  //   container-height: 3px,
-  //   container-text-line-height: 3px,
-  //   filled-active-indicator-height: 3px
-  // ))
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
 mat-list {
@@ -32,7 +25,6 @@ mat-list {
 
 .foo {
   height: 100% !important;
-  // width: 100%;
   margin-top: 0 !important;
   margin-bottom: 0 !important;
   width: min-content !important;
@@ -45,18 +37,33 @@ mat-list {
   align-items: center;
 }
 
+mat-form-field {
+  display: block;
+  min-width: 0;
+  margin: 0 20px 0 20px;
+}
 
-// .filter {
-//   display: block;
-//   width: 80%;
+.song-list-viewport {
+  flex-grow: 1;
+  width: 100%;
+}
 
-// }
 
+::ng-deep .mat-mdc-list-item .mdc-list-item__content {
+  overflow: hidden;
+  min-width: 0;
+}
 
-  mat-form-field {
-    display: block;
-    min-width: 0;
-    margin: 0 20px 0 20px;
-    // margin-left: 10px;
-    // margin-right: 10px;
-  }
+/* This applies the ellipsis effect once the container can shrink. */
+[matListItemTitle],
+[matListItemLine] {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+}
+
+//Bugfix: Add this to make sure the wrapper is not too wide
+::ng-deep .cdk-virtual-scroll-content-wrapper {
+  max-width: 100%;
+}

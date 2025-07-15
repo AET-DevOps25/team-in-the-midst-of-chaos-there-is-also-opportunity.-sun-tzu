@@ -72,8 +72,7 @@ jobs:
 
       - name: Run tests
         working-directory: ./client
-        # run: npm test -- --watch=false --browsers=ChromeHeadless
-        run: echo "npm test temporarily disabled"
+        run: npm test -- --watch=false --browsers=ChromeHeadless
 
 
   test-genai:
@@ -235,7 +234,7 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      
+
       - name: Push to registry
         run: docker push --all-tags ${{ env.REMOTE_IMAGE }}
 

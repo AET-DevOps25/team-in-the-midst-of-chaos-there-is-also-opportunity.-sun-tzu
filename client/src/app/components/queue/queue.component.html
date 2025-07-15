@@ -1,10 +1,25 @@
+<div class="queue-container">
+  <div class="queue-header">
+    <h2>Up Next</h2>
+    @if (isHandset$ | async) {
+      <button mat-icon-button (click)="closeQueue()" aria-label="Close queue">
+        <mat-icon>close</mat-icon>
+      </button>
+    }
+  </div>
 
-<h2>Upcoming</h2>
-<mat-list>
-  @for (song of queueService.nextSongs(); track $index) {
-    <mat-list-item>
-      <span matListItemTitle>{{song.title}}</span>
-      <span matListItemLine>{{song.artist}}</span>
-    </mat-list-item>
-  }
-</mat-list>
+  <mat-list class="queue-content">
+    @for (song of queueService.nextAudios(); track song.id) {
+      @if (song.type === 'song') {
+        <mat-list-item>
+          <span matListItemTitle>{{song.title}}</span>
+          <span matListItemLine>{{song.artist}}</span>
+        </mat-list-item>
+      }
+    } @empty {
+      <div class="empty-queue-message">
+        <p>Your queue is empty.</p>
+      </div>
+    }
+  </mat-list>
+</div>

@@ -1,29 +1,29 @@
 <h2>Available Songs</h2>
 
-<!-- <div class="filter"> -->
 <mat-form-field>
   <mat-label>Filter</mat-label>
   <input matInput (keyup)="applyFilter($event)" #input>
 </mat-form-field>
-<!-- </div> -->
 
-<mat-list>
-  @for (song of availableSongs(); track $index) {
-    <mat-list-item>
-      <div matListItemIcon class="foo front-icon">
-        <div class="meta">
-          <mat-icon>library_music</mat-icon>
+<cdk-virtual-scroll-viewport itemSize="50" class="song-list-viewport">
+  <mat-list>
+    @for (song of availableSongs(); track $index) {
+      <mat-list-item>
+        <div matListItemIcon class="foo front-icon">
+          <div class="meta">
+            <mat-icon>library_music</mat-icon>
+          </div>
         </div>
-      </div>
-      <div matListItemTitle>{{ song.title }}</div>
-      <div matListItemLine>{{ song.artist }}</div>
-      <div matListItemMeta class="foo">
-        <div class="meta">
-        <button matIconButton (click)="addToQueue(song.id)">
-          <mat-icon>playlist_add</mat-icon>
-        </button>
+        <div matListItemTitle>{{ song.title }}</div>
+        <div matListItemLine>{{ song.artist }}</div>
+        <div matListItemMeta class="foo">
+          <div class="meta">
+            <button matIconButton (click)="addToQueue(song.id)">
+              <mat-icon>playlist_add</mat-icon>
+            </button>
+          </div>
         </div>
-      </div>
-    </mat-list-item>
-  }
-</mat-list>
+      </mat-list-item>
+    }
+  </mat-list>
+</cdk-virtual-scroll-viewport>

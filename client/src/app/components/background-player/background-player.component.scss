@@ -1,3 +1,5 @@
 :host {
+  /* This removes the component from the layout flow, so it cannot interfere with other elements. */
+  position: absolute;
   display: none;
 }

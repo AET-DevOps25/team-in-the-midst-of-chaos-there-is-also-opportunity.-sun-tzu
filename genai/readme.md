@@ -9,7 +9,6 @@ It is designed as a modular microservice that communicates via a REST-API with t
 * Generation of transition and introduction scripts based on song data.
 * Conversion of the generated scripts into audio files (MP3) via a Text-to-Speech (TTS) model (OpenAI TTS).
 * A REST-API to receive song information and return the generated audio data.
-* (Future) Integration of thematically appropriate "Fun Facts" into the scripts using Retrieval Augmented Generation (RAG).
 
 ## Directory Structure and Components
 
@@ -124,20 +123,3 @@ To run the tests:
     ```bash
     pytest
     ```
-
-## Main Todos / Next Steps
-
-The core functionality is now complete. The main remaining task is an optional feature enhancement.
-
-1.  **~~Implement LangChain Script Generation Chain~~ (Done)**
-2.  **~~Integrate Text-to-Speech (TTS) Conversion~~ (Done)**
-3.  **~~Refine Configuration and Environment Variables~~ (Done)**
-4.  **~~Complete and Test Dockerization~~ (Dockerfile is present, ready for testing)**
-5.  **(Optional) Implement RAG for "Fun Facts" (`rag_utils/retriever.py`):**
-    * If the "fun facts" integration is pursued:
-        * Prepare the knowledge base for RAG.
-        * Set up a vector database (e.g., FAISS, Weaviate).
-        * Implement the retrieval logic in `rag_utils/retriever.py`.
-        * Integrate this RAG step into the LangChain script generation chain.
-6.  **~~Comprehensive Testing~~ (Done)**
-7.  **~~API Documentation~~ (Done via FastAPI)**

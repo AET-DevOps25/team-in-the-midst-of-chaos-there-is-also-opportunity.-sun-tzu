@@ -1,0 +1,93 @@
+@use '@angular/material' as mat;
+
+:host {
+  display: block;
+  padding: 0 8px 8px;
+}
+
+.player-bar {
+  display: flex;
+  flex-direction: column;
+  height: 64px;
+  background-color: #2a2a2a;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.3);
+  position: relative;
+}
+
+mat-progress-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px !important;
+  --mdc-linear-progress-active-indicator-color: #ffffff;
+  --mdc-linear-progress-track-color: rgba(255, 255, 255, 0.3);
+}
+
+.player-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  height: 100%;
+}
+
+.song-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+// New styles for the icon container
+.album-art-icon-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 4px;
+  background-color: #404040; // A slightly lighter grey for contrast
+  flex-shrink: 0;
+
+  mat-icon {
+    font-size: 28px;
+    width: 28px;
+    height: 28px;
+    color: #b3b3b3;
+  }
+}
+
+.song-details {
+  display: flex;
+  flex-direction: column;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.song-title {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #ffffff;
+}
+
+.song-artist {
+  font-size: 0.8rem;
+  color: #b3b3b3;
+}
+
+.control-buttons {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+
+  button mat-icon {
+    font-size: 28px;
+    width: 28px;
+    height: 28px;
+    color: #ffffff;
+  }
+}
