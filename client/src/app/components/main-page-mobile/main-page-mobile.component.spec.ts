@@ -2,8 +2,8 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { QueueService } from '@app/services';
 
-// This path is now correct, assuming the file is in the right folder.
 import { MainPageMobileComponent } from './main-page-mobile.component';
 
 describe('MainPageMobileComponent', () => {
@@ -16,6 +16,7 @@ describe('MainPageMobileComponent', () => {
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),
+        QueueService
       ]
     })
       .compileComponents();
@@ -27,5 +28,9 @@ describe('MainPageMobileComponent', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('should inject QueueService', () => {
+    expect(component.queueService).toBeTruthy();
   });
 });

@@ -19,10 +19,22 @@ describe('BackgroundPlayerComponent', () => {
 
     fixture = TestBed.createComponent(BackgroundPlayerComponent);
     component = fixture.componentInstance;
-    fixture.detectChanges();
   });
 
-  it('should create', () => {
+  // This test now simply ensures the component can be created without errors.
+  // It's a simpler, more stable check that avoids timing issues.
+  it('should create successfully', () => {
+    fixture.detectChanges(); // Trigger ngOnInit and other lifecycle hooks
     expect(component).toBeTruthy();
+  });
+
+  it('should add event listeners in ngAfterViewInit', () => {
+    fixture.detectChanges();
+    const addEventListenerSpy = spyOn(component['audioRef'].nativeElement, 'addEventListener');
+    component.ngAfterViewInit();
+    expect(addEventListenerSpy).toHaveBeenCalledWith('timeupdate', jasmine.any(Function));
+    expect(addEventListenerSpy).toHaveBeenCalledWith('durationchange', jasmine.any(Function));
+    expect(addEventListenerSpy).toHaveBeenCalledWith('ended', jasmine.any(Function));
+    expect(addEventListenerSpy).toHaveBeenCalledWith('canplay', jasmine.any(Function));
   });
 });
