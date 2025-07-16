@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, NgStyle } from '@angular/common';
 import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -15,21 +15,23 @@ import { QueueService } from '@app/services';
     CommonModule,
     MatListModule,
     MatIconModule,
-    MatButtonModule
+    MatButtonModule,
+    NgStyle
   ],
   templateUrl: './queue.component.html',
   styleUrls: ['./queue.component.scss'],
 })
 export class QueueComponent implements OnInit {
 
-  // Declare the observable property here
+  // Re-using the same color palettes for consistency
+  private bgColorPalette: string[] = ['#e0e7ff', '#f3e8ff', '#fce7f3'];
+  private textColorPalette: string[] = ['#4338ca', '#9333ea', '#db2777'];
   isHandset$: Observable<boolean>;
 
   constructor(
     public queueService: QueueService,
     private breakpointObserver: BreakpointObserver
   ) {
-    // Initialize the property inside the constructor
     this.isHandset$ = this.breakpointObserver.observe(Breakpoints.Handset)
       .pipe(
         map(result => result.matches),
@@ -39,6 +41,18 @@ export class QueueComponent implements OnInit {
 
   ngOnInit(): void {
     this.queueService.updateNextAudios().subscribe();
+  }
+
+  getSongLogo(title: string): { initials: string, bgColor: string, color: string } {
+    if (!title) {
+      return { initials: '?', bgColor: '#e5e7eb', color: '#4b5563' };
+    }
+    const initials = title.substring(0, 2).toUpperCase();
+    const lastCharCode = title.charCodeAt(title.length - 1);
+    const colorIndex = lastCharCode % this.bgColorPalette.length;
+    const bgColor = this.bgColorPalette[colorIndex];
+    const color = this.textColorPalette[colorIndex];
+    return { initials, bgColor, color };
   }
 
   closeQueue(): void {

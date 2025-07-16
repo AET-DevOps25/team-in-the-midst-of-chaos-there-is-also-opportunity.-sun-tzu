@@ -12,13 +12,18 @@
     @for (song of queueService.nextAudios(); track song.id) {
       @if (song.type === 'song') {
         <mat-list-item>
+          <div matListItemIcon class="song-logo" [ngStyle]="getSongLogo(song.title)">
+            <span>{{ getSongLogo(song.title).initials }}</span>
+          </div>
           <span matListItemTitle>{{song.title}}</span>
           <span matListItemLine>{{song.artist}}</span>
         </mat-list-item>
       }
     } @empty {
       <div class="empty-queue-message">
+        <mat-icon>upcoming</mat-icon>
         <p>Your queue is empty.</p>
+        <span>Add a song from the catalogue to get started!</span>
       </div>
     }
   </mat-list>

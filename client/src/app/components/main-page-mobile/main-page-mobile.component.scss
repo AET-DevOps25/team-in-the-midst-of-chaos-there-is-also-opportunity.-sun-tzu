@@ -9,7 +9,7 @@
   flex-direction: column;
   height: 100%;
   width: 100%;
-  background-color: #121212;
+  background-color: #f9fafb; // Use a light background color
   position: relative;
   overflow: hidden;
 }
@@ -21,6 +21,7 @@
 .mobile-content {
   flex: 1;
   overflow-y: auto;
+  // This was changed to padding in the previous turn, but the original file had it. I'll keep padding.
   padding: 16px;
   min-height: 0;
   // Added padding at the bottom to ensure all songs are visible
@@ -43,11 +44,11 @@
   &::before {
     content: '';
     position: absolute;
-    top: -60px; // Position the gradient above the player bar
+    bottom: 64px; // Position the gradient above the player bar
     left: 0;
     right: 0;
     height: 60px;
-    background: linear-gradient(to top, rgba(18, 18, 18, 1) 10%, transparent);
+    background: linear-gradient(to top, rgba(249, 250, 251, 1) 20%, transparent);
     pointer-events: none; // Allows clicks to go through the gradient
   }
 }
@@ -59,7 +60,7 @@
   bottom: 0;
   left: 0;
   right: 0;
-  background-color: rgba(18, 18, 18, 0.98);
+  background-color: rgba(249, 250, 251, 0.9); // Use a light, semi-transparent background
   backdrop-filter: blur(10px);
   overflow-y: auto;
   transform: translateX(100%);

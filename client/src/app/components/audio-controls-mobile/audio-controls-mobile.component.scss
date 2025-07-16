@@ -2,17 +2,17 @@
 
 :host {
   display: block;
-  padding: 0 8px 8px;
 }
 
 .player-bar {
   display: flex;
   flex-direction: column;
   height: 64px;
-  background-color: #2a2a2a;
-  border-radius: 8px;
+  background-color: #ffffff; // White background for a clean look
+  border-radius: 12px; // Slightly larger border-radius for a softer feel
   overflow: hidden;
-  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.3);
+  // A more subtle shadow that matches the new theme
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
   position: relative;
 }
 
@@ -21,16 +21,16 @@ mat-progress-bar {
   top: 0;
   left: 0;
   width: 100%;
-  height: 2px !important;
-  --mdc-linear-progress-active-indicator-color: #ffffff;
-  --mdc-linear-progress-track-color: rgba(255, 255, 255, 0.3);
+  height: 3px !important; // A bit thicker for better visibility
+  --mdc-linear-progress-active-indicator-color: #4f46e5; // Use the primary gradient color
+  --mdc-linear-progress-track-color: rgba(0, 0, 0, 0.1);
 }
 
 .player-content {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 16px;
+  padding: 0 12px;
   height: 100%;
 }
 
@@ -41,23 +41,19 @@ mat-progress-bar {
   min-width: 0;
 }
 
-// New styles for the icon container
-.album-art-icon-container {
+// Re-use the song-logo class from the catalogue for consistency
+.song-logo {
+  height: 48px !important;
+  width: 48px !important;
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 48px;
-  height: 48px;
-  border-radius: 4px;
-  background-color: #404040; // A slightly lighter grey for contrast
+  font-weight: 700;
+  font-size: 1rem;
+  font-family: 'Inter', sans-serif;
+  text-transform: uppercase;
   flex-shrink: 0;
-
-  mat-icon {
-    font-size: 28px;
-    width: 28px;
-    height: 28px;
-    color: #b3b3b3;
-  }
 }
 
 .song-details {
@@ -66,17 +62,20 @@ mat-progress-bar {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  // Align text to the left for a cleaner look
+  text-align: left;
 }
 
 .song-title {
   font-size: 0.9rem;
   font-weight: 500;
-  color: #ffffff;
+  // Use a dark color for better readability on a white background
+  color: #1f2937;
 }
 
 .song-artist {
   font-size: 0.8rem;
-  color: #b3b3b3;
+  color: #6b7280; // Secondary text color
 }
 
 .control-buttons {
@@ -88,6 +87,7 @@ mat-progress-bar {
     font-size: 28px;
     width: 28px;
     height: 28px;
-    color: #ffffff;
+    // Use the global icon color variable for consistency
+    color: #6b7280;
   }
 }
