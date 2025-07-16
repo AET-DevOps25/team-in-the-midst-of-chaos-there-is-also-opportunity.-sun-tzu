@@ -5,20 +5,21 @@ metadata:
     kompose.cmd: kompose convert -f ../compose.yml
     kompose.version: 1.36.0 (ae2a39403)
   labels:
-    io.kompose.service: client
+    app: client
   name: client
+  namespace: aifm
 spec:
   replicas: 1
   selector:
     matchLabels:
-      io.kompose.service: client
+      app: client
   template:
     metadata:
       annotations:
         kompose.cmd: kompose convert -f ../compose.yml
         kompose.version: 1.36.0 (ae2a39403)
       labels:
-        io.kompose.service: client
+        app: client
     spec:
       containers:
         - image: ghcr.io/aet-devops25/aifm/client:latest

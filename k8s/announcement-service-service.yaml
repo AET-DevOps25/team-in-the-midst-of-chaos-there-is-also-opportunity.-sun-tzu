@@ -5,11 +5,12 @@ metadata:
     kompose.cmd: kompose convert -f ../compose.yml
     kompose.version: 1.36.0 (ae2a39403)
   labels:
-    io.kompose.service: announcement-service
+    app: announcement-service
   name: announcement-service
+  namespace: aifm
 spec:
   ports:
     - port: 8080
       targetPort: 8080
   selector:
-    io.kompose.service: announcement-service
+    app: announcement-service
