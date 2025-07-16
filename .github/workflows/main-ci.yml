@@ -283,6 +283,16 @@ jobs:
         with:
           sparse-checkout: compose.yml
 
+      - name: Activate HTTPS Reverse Proxy
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ vars.AWS_EC2_PUBLIC_IP }}
+          username: ${{ vars.AWS_EC2_USER }}
+          key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
+          script: |
+            cd nginx-proxy-manager
+            docker compose up -d
+
       - name: Copy compose.yml
         uses: appleboy/scp-action@v1
         with:
@@ -290,7 +300,7 @@ jobs:
           username: ${{ vars.AWS_EC2_USER }}
           key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
           source: "./compose.yml"
-          target: /home/${{ vars.AWS_EC2_USER }}
+          target: aifm
 
       - name: Create .env
         uses: appleboy/ssh-action@v1
@@ -299,8 +309,8 @@ jobs:
           username: ${{ vars.AWS_EC2_USER }}
           key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
           script: |
-            rm .env
-            touch .env
+            cd aifm
+            : > .env
             echo "DOWNLOAD_PASS=${{ secrets.DOWNLOAD_PASS }}" >> .env
             echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" >> .env
 
@@ -310,4 +320,6 @@ jobs:
           host: ${{ vars.AWS_EC2_PUBLIC_IP }}
           username: ${{ vars.AWS_EC2_USER }}
           key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
-          script: docker compose up -d --pull always
+          script: |
+            cd aifm
+            docker compose up -d --pull always
