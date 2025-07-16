@@ -4,6 +4,7 @@ metadata:
   labels:
     app: mysql-data
   name: mysql-data
+  namespace: aifm
 spec:
   accessModes:
     - ReadWriteOnce

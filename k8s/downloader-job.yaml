@@ -2,6 +2,7 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: downloader
+  namespace: aifm
   labels:
     app: downloader
 spec:

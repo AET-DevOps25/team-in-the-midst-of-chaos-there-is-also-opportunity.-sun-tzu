@@ -4,6 +4,7 @@ metadata:
   labels:
     app: prometheus-data
   name: prometheus-data
+  namespace: aifm
 spec:
   accessModes:
     - ReadWriteOnce

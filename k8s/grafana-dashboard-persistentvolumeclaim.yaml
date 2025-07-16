@@ -4,6 +4,7 @@ metadata:
   labels:
     app: grafana-dashboard
   name: grafana-dashboard
+  namespace: aifm
 spec:
   accessModes:
     - ReadWriteOnce

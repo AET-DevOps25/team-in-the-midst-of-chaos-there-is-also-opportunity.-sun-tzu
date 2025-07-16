@@ -4,6 +4,7 @@ metadata:
   labels:
     app: grafana-provisioning
   name: grafana-provisioning
+  namespace: aifm
 spec:
   accessModes:
     - ReadWriteOnce

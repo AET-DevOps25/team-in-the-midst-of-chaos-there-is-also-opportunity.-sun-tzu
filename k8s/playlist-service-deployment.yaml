@@ -7,6 +7,7 @@ metadata:
   labels:
     app: playlist-service
   name: playlist-service
+  namespace: aifm
 spec:
   replicas: 1
   selector:

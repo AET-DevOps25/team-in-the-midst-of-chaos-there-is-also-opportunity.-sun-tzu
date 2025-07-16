@@ -4,6 +4,7 @@ metadata:
   labels:
     app: audio-files
   name: audio-files
+  namespace: aifm
 spec:
   accessModes:
     - ReadWriteOnce
