@@ -2,7 +2,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   labels:
-    io.kompose.service: sql-files
+    app: sql-files
   name: sql-files
 spec:
   accessModes:

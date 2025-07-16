@@ -3,19 +3,19 @@ kind: Job
 metadata:
   name: downloader
   labels:
-    io.kompose.service: downloader
+    app: downloader
 spec:
   template:
     metadata:
       labels:
-        io.kompose.service: downloader
+        app: downloader
     spec:
       affinity:
         podAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
             - labelSelector:
                 matchLabels:
-                  io.kompose.service: db
+                  app: db
               topologyKey: "kubernetes.io/hostname"
       containers:
         - name: downloader

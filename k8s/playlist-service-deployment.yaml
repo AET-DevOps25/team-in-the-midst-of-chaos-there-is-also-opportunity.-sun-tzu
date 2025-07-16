@@ -5,13 +5,13 @@ metadata:
     kompose.cmd: kompose convert -f ../compose.yml
     kompose.version: 1.36.0 (ae2a39403)
   labels:
-    io.kompose.service: playlist-service
+    app: playlist-service
   name: playlist-service
 spec:
   replicas: 1
   selector:
     matchLabels:
-      io.kompose.service: playlist-service
+      app: playlist-service
   strategy:
     type: Recreate
   template:
@@ -20,14 +20,14 @@ spec:
         kompose.cmd: kompose convert -f ../compose.yml
         kompose.version: 1.36.0 (ae2a39403)
       labels:
-        io.kompose.service: playlist-service
+        app: playlist-service
     spec:
       affinity:
         podAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
             - labelSelector:
                 matchLabels:
-                  io.kompose.service: db
+                  app: db
               topologyKey: "kubernetes.io/hostname"
       containers:
         - env:

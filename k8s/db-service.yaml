@@ -3,10 +3,10 @@ kind: Service
 metadata:
   name: db
   labels:
-    io.kompose.service: db  # <- Optional, but useful for grouping
+    app: db  # <- Optional, but useful for grouping
 spec:
   selector:
-    io.kompose.service: db  # <- Required for routing
+    app: db  # <- Required for routing
   ports:
     - port: 3306
       targetPort: 3306

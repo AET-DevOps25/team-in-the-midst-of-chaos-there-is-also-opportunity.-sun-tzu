@@ -3,10 +3,10 @@ kind: Service
 metadata:
   name: grafana
   labels:
-    io.kompose.service: grafana
+    app: grafana
 spec:
   selector:
-    io.kompose.service: grafana
+    app: grafana
   ports:
     - port: 3000
       targetPort: 3000

@@ -5,27 +5,27 @@ metadata:
     kompose.cmd: kompose convert -f ../compose.yml
     kompose.version: 1.36.0 (ae2a39403)
   labels:
-    io.kompose.service: api-gateway
+    app: api-gateway
   name: api-gateway
 spec:
   replicas: 1
   selector:
     matchLabels:
-      io.kompose.service: api-gateway
+      app: api-gateway
   template:
     metadata:
       annotations:
         kompose.cmd: kompose convert -f ../compose.yml
         kompose.version: 1.36.0 (ae2a39403)
       labels:
-        io.kompose.service: api-gateway
+        app: api-gateway
     spec:
       affinity:
         podAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
             - labelSelector:
                 matchLabels:
-                  io.kompose.service: db
+                  app: db
               topologyKey: "kubernetes.io/hostname"
       containers:
         - image: ghcr.io/aet-devops25/aifm/api-gateway:latest

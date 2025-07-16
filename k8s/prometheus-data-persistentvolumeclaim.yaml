@@ -2,7 +2,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   labels:
-    io.kompose.service: prometheus-data
+    app: prometheus-data
   name: prometheus-data
 spec:
   accessModes:

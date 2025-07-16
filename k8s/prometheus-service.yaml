@@ -3,10 +3,10 @@ kind: Service
 metadata:
   name: prometheus
   labels:
-    io.kompose.service: prometheus
+    app: prometheus
 spec:
   selector:
-    io.kompose.service: prometheus
+    app: prometheus
   ports:
     - port: 9090
       targetPort: 9090

@@ -2,7 +2,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   labels:
-    io.kompose.service: mysql-data
+    app: mysql-data
   name: mysql-data
 spec:
   accessModes:

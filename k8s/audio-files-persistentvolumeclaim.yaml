@@ -2,7 +2,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   labels:
-    io.kompose.service: audio-files
+    app: audio-files
   name: audio-files
 spec:
   accessModes:
