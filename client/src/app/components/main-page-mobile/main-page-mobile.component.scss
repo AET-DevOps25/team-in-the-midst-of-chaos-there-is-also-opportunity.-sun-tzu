@@ -12,6 +12,8 @@
   background-color: #f9fafb;
   position: relative;
   overflow: hidden;
+
+  // The gradient has been removed from here and moved back to the player bar container.
 }
 
 .mobile-header {
@@ -22,30 +24,34 @@
   flex: 1;
   overflow-y: auto;
   min-height: 0;
-  // Use padding to prevent content from being hidden behind the player bar
+  // Padding ensures the last song can scroll up past the gradient and player bar
   padding: 16px 16px 100px 16px;
 }
 
 
 .mobile-player-bar {
   position: fixed;
-  bottom: 0; // Dock to the bottom
+  bottom: 0;
   left: 0;
   right: 0;
   z-index: 10;
-  // Add padding to create space around the inner component
   padding: 0 8px 16px 8px;
-  background-color: transparent;
 
-  // This gradient creates the fade-out effect for the scrollable content above the player
+  // ADDED: This creates the constant, semi-transparent shade behind the player bar.
+  background-color: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px); // For Safari support
+
+  // ADDED: This gradient creates the fade-out effect for the scrollable content just ABOVE the player bar.
   &::before {
     content: '';
     position: absolute;
-    bottom: 80px; // Position the gradient just above the player bar
+    // Positioned to start where the player component begins (16px padding + 64px component height)
+    bottom: 80px;
     left: 0;
     right: 0;
     height: 60px;
-    background: linear-gradient(to top, rgba(249, 250, 251, 1) 30%, transparent);
+    background: linear-gradient(to top, #f9fafb, transparent);
     pointer-events: none;
   }
 }

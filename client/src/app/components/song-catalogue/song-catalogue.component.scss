@@ -4,14 +4,21 @@
 }
 
 h2 {
-  margin: 16px 16px 0;
+  margin: 0 16px 0; // Adjusted margin for better alignment
   font-weight: 500;
   color: #1f2937;
+  padding-top: 16px; // Add padding for mobile view where it's at the top
 }
 
-mat-form-field {
+// Style the filter field to look more polished
+.filter-field {
   margin: 16px;
   width: auto;
+
+  // Change the color of the search icon
+  .mat-icon {
+    color: #9ca3af;
+  }
 }
 
 mat-list {
@@ -31,6 +38,9 @@ mat-list {
   font-size: 1rem;
   font-family: 'Inter', sans-serif;
   text-transform: uppercase;
+  flex-shrink: 0;
 }
 
-// The old rule has been removed from here to prevent conflicts.
+.song-add-button mat-icon {
+  color: #6b7280;
+}
