@@ -3,7 +3,7 @@ services:
     image: ghcr.io/aet-devops25/aifm/client:${VERSION:-latest}
     restart: unless-stopped
     ports:
-      - 80:80
+      - 8080:80
     depends_on:
       - api-gateway
 
@@ -12,7 +12,7 @@ services:
     environment:
       - USER=user
       - PASS=${DOWNLOAD_PASS}
-      - URL=https://ai-fm.dotan.de
+      - URL=https://aifm-music.dotan.de
       - NUM_DOWNLOADS=50
     volumes:
       - audio-files:/audio
