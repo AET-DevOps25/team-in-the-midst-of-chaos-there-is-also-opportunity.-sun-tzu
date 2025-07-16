@@ -1,29 +1,23 @@
 <h2>Available Songs</h2>
 
-<mat-form-field>
+<mat-form-field appearance="outline">
   <mat-label>Filter</mat-label>
   <input matInput (keyup)="applyFilter($event)" #input>
 </mat-form-field>
 
-<cdk-virtual-scroll-viewport itemSize="50" class="song-list-viewport">
-  <mat-list>
-    @for (song of availableSongs(); track $index) {
-      <mat-list-item>
-        <div matListItemIcon class="foo front-icon">
-          <div class="meta">
-            <mat-icon>library_music</mat-icon>
-          </div>
-        </div>
-        <div matListItemTitle>{{ song.title }}</div>
-        <div matListItemLine>{{ song.artist }}</div>
-        <div matListItemMeta class="foo">
-          <div class="meta">
-            <button matIconButton (click)="addToQueue(song.id)">
-              <mat-icon>playlist_add</mat-icon>
-            </button>
-          </div>
-        </div>
-      </mat-list-item>
-    }
-  </mat-list>
-</cdk-virtual-scroll-viewport>
+<mat-list>
+  @for (song of availableSongs(); track $index) {
+    <mat-list-item>
+      <div matListItemIcon class="song-logo" [ngStyle]="{'background-color': getSongLogo(song.title).bgColor, 'color': getSongLogo(song.title).color}">
+        <span>{{ getSongLogo(song.title).initials }}</span>
+      </div>
+      <div matListItemTitle>{{ song.title }}</div>
+      <div matListItemLine>{{ song.artist }}</div>
+      <div matListItemMeta>
+        <button mat-icon-button class="song-add-button" (click)="addToQueue(song.id)">
+          <mat-icon>playlist_add</mat-icon>
+        </button>
+      </div>
+    </mat-list-item>
+  }
+</mat-list>

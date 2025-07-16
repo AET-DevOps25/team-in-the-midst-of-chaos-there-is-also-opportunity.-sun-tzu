@@ -1,23 +1,28 @@
-/* See https://material.angular.dev/guide/theming */
-
+// Import the Material theming system.
 @use '@angular/material' as mat;
 
+// Define the color palettes using the correct M2 functions.
+$cyan-palette: mat.m2-define-palette(mat.$m2-cyan-palette);
+$orange-palette: mat.m2-define-palette(mat.$m2-orange-palette);
+// Define a new dark grey palette for our buttons
+$grey-palette: mat.m2-define-palette(mat.$m2-grey-palette, 700, 500, 800);
 
-html {
-  color-scheme: dark;
-  @include mat.theme((
-    // color: mat.$orange-palette,
-    color: (
-        theme-type: color-scheme,
-        primary: mat.$cyan-palette,
-        tertiary: mat.$orange-palette
-    ),
-    typography: Roboto,
-    density: 0
-  ));
-}
+// Define your application's light theme using the new M2 functions.
+$my-light-theme: mat.m2-define-light-theme((
+  color: (
+    primary: $cyan-palette,
+    tertiary: $orange-palette,
+    accent: $orange-palette,
+  ),
+  typography: mat.m2-define-typography-config(),
+  density: 0,
+));
 
-body {
-  background: var(--mat-sys-surface);
-  color: var(--mat-sys-on-surface);
+// --- Define CSS variables for your own components to use ---
+:root {
+  --primary-color: #{mat.get-theme-color($my-light-theme, primary, 500)};
+  --tertiary-color: #{mat.get-theme-color($my-light-theme, primary, 500)};
+  --tertiary-color-light: #{mat.get-theme-color($my-light-theme, primary, 400)};
+  --mat-sys-surface: #{mat.get-theme-color($my-light-theme, background, card)};
+  --mat-sys-on-surface: #{mat.get-theme-color($my-light-theme, foreground, text)};
 }

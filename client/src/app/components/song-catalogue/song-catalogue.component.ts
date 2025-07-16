@@ -9,12 +9,12 @@ import { QueueService } from '@app/services/queue.service';
 import { SessionService } from '@app/services/session.service';
 import { concatMap, concatWith, EMPTY, of, tap } from 'rxjs';
 import { MetadataDto } from '@app/dtos/get-metadata';
-import { ScrollingModule } from '@angular/cdk/scrolling';
+import { NgStyle } from '@angular/common';
 
 
 @Component({
   selector: 'app-song-catalogue',
-  imports: [MatListModule, MatIconModule, MatButtonModule, MatFormFieldModule, MatInputModule, ScrollingModule],
+  imports: [MatListModule, MatIconModule, MatButtonModule, MatFormFieldModule, MatInputModule, NgStyle],
   templateUrl: './song-catalogue.component.html',
   styleUrl: './song-catalogue.component.scss'
 })
@@ -28,12 +28,29 @@ export class SongCatalogueComponent implements OnInit {
     return this.availableAudios().filter(item => item.type == "song")
   })
 
+  // New focused pastel color palettes, inspired by the reference
+  private bgColorPalette: string[] = ['#e0e7ff', '#f3e8ff', '#fce7f3']; // indigo-100, purple-100, pink-100
+  private textColorPalette: string[] = ['#4338ca', '#9333ea', '#db2777']; // indigo-700, purple-600, pink-600
+
+
   ngOnInit(): void {
-    const sub = this.updateAvailableSongs("").subscribe()
+    this.updateAvailableSongs("").subscribe()
+  }
+
+  getSongLogo(title: string): { initials: string, bgColor: string, color: string } {
+    if (!title) {
+      return { initials: '?', bgColor: '#e5e7eb', color: '#4b5563' };
+    }
+    const initials = title.substring(0, 2).toUpperCase();
+    const lastCharCode = title.charCodeAt(title.length - 1);
+    const colorIndex = lastCharCode % this.bgColorPalette.length;
+    const bgColor = this.bgColorPalette[colorIndex];
+    const color = this.textColorPalette[colorIndex];
+    return { initials, bgColor, color };
   }
 
   addToQueue(songId: number) {
-    const sub = this.playlistService.addSong(
+    this.playlistService.addSong(
       this.sessionService.sessionToken!, songId
     ).pipe(
       concatWith(this.queueService.updateNextAudios())
@@ -44,10 +61,9 @@ export class SongCatalogueComponent implements OnInit {
     return this.playlistService.findSong(filter).pipe(
       concatMap(r => {
         if (!r.success) throw r.error
-        const audioIds = r.data.IDs
-        console.log(r.data.IDs)
-        if (audioIds.length == 0) return of(null)
-        return this.playlistService.getMetadataMulti(r.data.IDs)
+        const audioIds = r.data.IDs;
+        if (audioIds.length == 0) return of(null);
+        return this.playlistService.getMetadataMulti(r.data.IDs);
       }),
       tap(r => {
         if (r == null) {
@@ -62,6 +78,6 @@ export class SongCatalogueComponent implements OnInit {
 
   applyFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value;
-    const sub = this.updateAvailableSongs(filterValue).subscribe()
+    this.updateAvailableSongs(filterValue).subscribe()
   }
 }

@@ -1,12 +1,9 @@
-import { Component, computed, effect, ElementRef, signal, Signal, ViewChild } from '@angular/core';
+import { Component, computed, Signal } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
-import {MatButtonModule} from '@angular/material/button';
+import { MatButtonModule } from '@angular/material/button';
 import { PlayService } from '../../services/play.service';
 import { inject } from '@angular/core';
-import { ApiService } from '../../services/api.service';
-import {MatProgressBar, MatProgressBarModule, ProgressAnimationEnd, ProgressBarMode} from '@angular/material/progress-bar';
-import { TrackType } from '../../interfaces/track';
-
+import { MatProgressBarModule, ProgressBarMode } from '@angular/material/progress-bar';
 
 @Component({
   selector: 'app-audio-controls',
@@ -15,47 +12,42 @@ import { TrackType } from '../../interfaces/track';
   styleUrl: './audio-controls.component.scss'
 })
 export class AudioControlsComponent {
-  playService = inject(PlayService)
-  apiService = inject(ApiService)
+  playService = inject(PlayService);
 
-  bars = computed(() => {
-    const s = this.playService.isPlaying()
-    return Array.from({ length: 10 }, (_, i) => ({
-      delay: Math.random() * 1 // Random delay to desync animation
-    }));
-  })
-
-  currentMessage = computed(() => {
-    const metadata = this.playService.currentMetadata()
-    if (metadata == null) return "(No song selected)"
-
-    switch (metadata.type) {
-      case "song":
-        return `${metadata.artist} - ${metadata.title} (${metadata.release_date})`
-      case "announcement":
-        return "(Announcement)"
+  currentTrackTitle = computed(() => {
+    const metadata = this.playService.currentMetadata();
+    if (metadata?.type === 'song') {
+      return metadata.title;
     }
-  })
+    if (metadata?.type === 'announcement') {
+      return 'Announcement';
+    }
+    return ' '; // Use a non-breaking space as a placeholder
+  });
+
+  currentTrackArtist = computed(() => {
+    const metadata = this.playService.currentMetadata();
+    if (metadata?.type === 'song') {
+      return metadata.artist;
+    }
+    return ' '; // Use a non-breaking space as a placeholder
+  });
+
 
   mode: Signal<ProgressBarMode> = computed(() => {
-    if (!this.playService.canPlay())
-      return "buffer"
-    return "determinate"
-  })
+    return this.playService.canPlay() ? 'determinate' : 'buffer';
+  });
 
   progressPercent = computed(() => {
     const percent = (this.playService.currentTime() / this.playService.duration()) * 100;
-    return Math.min(percent, 100)
-  })
+    return Math.min(percent, 100);
+  });
 
   icon: Signal<string> = computed(() => {
-    if (this.playService.isPlaying())
-      return "pause"
-    return "play_arrow"
-  })
+    return this.playService.isPlaying() ? 'pause' : 'play_arrow';
+  });
 
   togglePlay() {
-    this.playService.togglePlayPause()
+    this.playService.togglePlayPause();
   }
-
 }

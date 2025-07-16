@@ -32,9 +32,9 @@ app-audio-controls {
   min-width: 320px;
 }
 
-// This makes the dividers visible
+// Update divider color for light theme
 mat-divider {
-  border-left: 1px solid rgba(255, 255, 255, 0.12);
+  border-left-color: rgba(0, 0, 0, 0.12);
   height: 90%;
   align-self: center;
 }

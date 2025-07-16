@@ -1,19 +1,23 @@
+<div class="player-container">
+  <div class="playback-controls">
+    <button mat-icon-button aria-label="Previous track" class="control-button">
+      <mat-icon>skip_previous</mat-icon>
+    </button>
 
+    <button mat-fab class="play-button" (click)="togglePlay()">
+      <mat-icon>{{ icon() }}</mat-icon>
+    </button>
 
-<div class="content">
-
-  <div class="equalizer" [class.playing]="playService.isPlaying()">
-    @for (bar of bars(); track $index) {
-      <div class="bar" [style.animation-delay]="bar.delay + 's'"></div>
-    }
+    <button mat-icon-button aria-label="Next track" class="control-button">
+      <mat-icon>skip_next</mat-icon>
+    </button>
   </div>
 
-  <p>{{ this.currentMessage() }}</p>
-
-  <mat-progress-bar  #progressBar [mode]="mode()" [value]="progressPercent()"></mat-progress-bar>
-  <!-- <p>{{ playService. }} / {{ duration }} seconds</p> -->
-
-  <button mat-fab (click)="togglePlay()">
-    <mat-icon [class.playing]="playService.isPlaying()">{{ icon() }}</mat-icon>
-  </button>
+  <div class="progress-and-info">
+    <div class="song-info">
+      <p class="song-title">{{ currentTrackTitle() }}</p>
+      <p class="song-artist">{{ currentTrackArtist() }}</p>
+    </div>
+    <mat-progress-bar [mode]="mode()" [value]="progressPercent()"></mat-progress-bar>
+  </div>
 </div>

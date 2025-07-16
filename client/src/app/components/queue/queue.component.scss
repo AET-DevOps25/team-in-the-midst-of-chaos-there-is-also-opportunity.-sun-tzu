@@ -1,78 +1,69 @@
 @use '@angular/material' as mat;
 
-:host {
+.content {
+  height: fit-content;
+  margin: 30px;
   display: flex;
   flex-direction: column;
-  height: 100%;
-  width: 100%;
-  padding: 32px; // Ample padding around the edges
-  color: white;
-  box-sizing: border-box;
-}
-
-.queue-container {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-}
-
-.queue-header {
-  // Use flexbox to position title and button
-  display: flex;
   justify-content: space-between;
   align-items: center;
-
-  padding-top: env(safe-area-inset-top);
-  // Add more space between the header and the list
-  margin-bottom: 32px;
-  flex-shrink: 0;
-
-  h2 {
-    margin: 0;
-    font-size: 1.8rem;
-    font-weight: 700;
-  }
-
-  button {
-    width: 48px;
-    height: 48px;
-
-    mat-icon {
-      color: #b3b3b3;
-      font-size: 28px;
-      width: 28px;
-      height: 28px;
-    }
-  }
+  gap: 20px;
 }
 
-.queue-content {
-  flex: 1;
-  overflow-y: auto;
-}
-
-// Style overrides for a clean list
-::ng-deep .mat-mdc-list-item {
-  height: auto !important;
-  padding: 12px 0 !important;
-}
-
-[matListItemTitle] {
-  font-size: 1rem;
-  font-weight: 500;
-  color: white;
-}
-
-[matListItemLine] {
-  font-size: 0.9rem;
-  color: #b3b3b3;
-}
-//asd
-.empty-queue-message {
+.equalizer {
   display: flex;
-  flex-direction: column;
+  gap: 6px;
+  height: 60px;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.bar {
+  width: 10px;
+  height: 15%;
+  // Use the main app gradient for a uniform look
+  background: linear-gradient(to right, #4f46e5, #ec4899);
+  border-radius: 3px;
+  box-shadow: 0 0 15px 0px rgba(79, 70, 229, 0.4);
+}
+
+.equalizer.playing .bar {
+  animation: bounce 0.8s infinite ease-in-out;
+}
+
+@keyframes bounce {
+  0%, 100% { height: 15%; }
+  50% { height: 100%; }
+}
+
+button {
+  @include mat.fab-overrides((
+    container-shape: 100px,
+  ));
+
+  width: 100px;
+  height: 100px;
+  display: flex;
   justify-content: center;
   align-items: center;
-  height: 100%;
-  color: #b3b3b3;
+  // Use the requested purple color
+  background-color: #9333ea;
+  box-shadow: 0 10px 20px -5px rgba(147, 51, 234, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+
+  mat-icon {
+    $size: 70px;
+    font-size: $size;
+    line-height: 1;
+    width: $size;
+    height: $size;
+    color: white;
+  }
+}
+
+mat-progress-bar {
+  @include mat.progress-bar-overrides((
+    active-indicator-height: 12px,
+    track-height: 10px,
+    active-indicator-color: #8b5cf6,
+  ));
 }

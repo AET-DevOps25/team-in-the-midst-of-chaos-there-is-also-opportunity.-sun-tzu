@@ -5,11 +5,10 @@
 
     <button mat-raised-button class="enter-button" [disabled]="isLoading()" (click)="onClick()">
       @if (isLoading()) {
-        <mat-spinner color="accent" diameter="25"/>
+        <mat-spinner diameter="25"/>
       } @else {
         ENTER
       }
     </button>
-
   </div>
 </div>

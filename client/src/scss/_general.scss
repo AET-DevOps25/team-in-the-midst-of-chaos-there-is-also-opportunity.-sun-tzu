@@ -22,3 +22,14 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
     display: none;
   }
 }
+// Global override for all standard mat-buttons to be dark grey.
+// This excludes icon buttons and FABs to avoid overriding their specific styles.
+.mat-mdc-button:not([class*='mat-mdc-icon-button']):not([class*='mat-mdc-fab']) {
+  background-color: #4b5563; // A dark, slate gray
+  color: white;
+
+  // Add a hover effect for better UX
+  &:hover {
+    background-color: #374151;
+  }
+}

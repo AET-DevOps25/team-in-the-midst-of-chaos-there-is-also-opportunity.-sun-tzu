@@ -1,21 +1,40 @@
 @use '@angular/material' as mat;
 
-
 :host {
   @include mat.toolbar-overrides((
-    container-background-color: var(--mat-sys-surface-container-high),
-    container-text-color: var(--mat-sys-on-surface-container-high),
+    container-background-color: var(--mat-sys-surface),
+    container-text-color: var(--mat-sys-on-surface),
   ));
 }
 
 mat-toolbar {
-  box-shadow: var(--mat-sys-level2);
+  box-shadow: 0 2px 4px -1px rgba(0,0,0,.1), 0 4px 5px 0 rgba(0,0,0,.08);
+  display: flex;
+  align-items: center;
 }
 
-.title {
-  padding-left: 20px;
+.logo-icon {
+  height: 32px;
+  width: 32px;
+  margin-right: 8px;
+}
+
+.logo-text {
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+  font-size: 1.5rem;
+  background: linear-gradient(to right, #4f46e5, #ec4899);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-fill-color: transparent;
 }
 
 .spacer {
   flex: 1 1 auto;
+}
+
+// New, highly specific rule for the header's icon buttons.
+mat-toolbar button[mat-icon-button] mat-icon {
+  color: #6b7280;
 }
