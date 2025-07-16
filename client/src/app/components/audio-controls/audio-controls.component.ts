@@ -14,6 +14,13 @@ import { MatProgressBarModule, ProgressBarMode } from '@angular/material/progres
 export class AudioControlsComponent {
   playService = inject(PlayService);
 
+  // Restore the bars signal for the equalizer
+  bars = computed(() => {
+    return Array.from({ length: 12 }, () => ({
+      delay: Math.random() * 0.7
+    }));
+  });
+
   currentTrackTitle = computed(() => {
     const metadata = this.playService.currentMetadata();
     if (metadata?.type === 'song') {

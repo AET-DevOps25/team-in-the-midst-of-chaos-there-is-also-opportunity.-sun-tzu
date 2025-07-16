@@ -5,7 +5,7 @@
     </button>
 
     <button mat-fab class="play-button" (click)="togglePlay()">
-      <mat-icon>{{ icon() }}</mat-icon>
+      <mat-icon [class.playing]="playService.isPlaying()">{{ icon() }}</mat-icon>
     </button>
 
     <button mat-icon-button aria-label="Next track" class="control-button">
@@ -18,6 +18,13 @@
       <p class="song-title">{{ currentTrackTitle() }}</p>
       <p class="song-artist">{{ currentTrackArtist() }}</p>
     </div>
+
+    <div class="equalizer" [class.playing]="playService.isPlaying()">
+      @for (bar of bars(); track $index) {
+        <div class="bar" [style.animation-delay]="bar.delay + 's'"></div>
+      }
+    </div>
+
     <mat-progress-bar [mode]="mode()" [value]="progressPercent()"></mat-progress-bar>
   </div>
 </div>

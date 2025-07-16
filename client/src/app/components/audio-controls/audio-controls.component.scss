@@ -1,11 +1,11 @@
 @use '@angular/material' as mat;
 
 // Define a clean, minimal color palette
-$primary-color: #7c3aed;      // A rich purple for interactive elements
-$light-purple-bg: #f5f3ff;  // A very light, almost white purple for the button
-$track-color: #e5e7eb;      // Light grey for the progress bar track
-$text-primary: #1f2937;      // Dark text for titles
-$text-secondary: #6b7280;   // Lighter text for subtitles
+$primary-color: #7c3aed;
+$light-purple-bg: #f5f3ff;
+$track-color: #e5e7eb;
+$text-primary: #1f2937;
+$text-secondary: #6b7280;
 
 :host {
   display: flex;
@@ -16,7 +16,7 @@ $text-secondary: #6b7280;   // Lighter text for subtitles
 .player-container {
   display: flex;
   flex-direction: column;
-  justify-content: flex-end; // This anchors everything to the bottom
+  justify-content: flex-end;
   width: 100%;
   padding: 24px;
   box-sizing: border-box;
@@ -45,13 +45,18 @@ $text-secondary: #6b7280;   // Lighter text for subtitles
     height: 36px !important;
     width: 36px !important;
     color: $primary-color !important;
+    transition: transform 0.3s ease-in-out; // Smooth transition for rotation
+
+    &.playing {
+      transform: rotate(180deg); // Rotate the pause icon
+    }
   }
 }
 
 .progress-and-info {
   width: 100%;
   max-width: 400px;
-  margin: 0 auto; // Center the container
+  margin: 0 auto;
 }
 
 .song-info {
@@ -78,8 +83,39 @@ $text-secondary: #6b7280;   // Lighter text for subtitles
   }
 }
 
+// Styles for the restored equalizer
+.equalizer {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 4px;
+  height: 24px;
+  margin-bottom: 12px;
+  opacity: 0; // Hidden by default
+  transition: opacity 0.3s ease;
+
+  .bar {
+    width: 3px;
+    height: 10%;
+    border-radius: 2px;
+    background-color: $primary-color;
+  }
+
+  &.playing {
+    opacity: 1; // Fade in when playing
+    .bar {
+      animation: bounce 1.2s infinite ease-in-out;
+    }
+  }
+}
+
+@keyframes bounce {
+  0%, 100% { height: 10%; }
+  50% { height: 100%; }
+}
+
 mat-progress-bar {
-  width: 100%; // Progress bar takes full width of its container
+  width: 100%;
   --mdc-linear-progress-track-color: #{$track-color};
   --mdc-linear-progress-active-indicator-color: #{$primary-color};
   --mdc-linear-progress-track-height: 6px;
