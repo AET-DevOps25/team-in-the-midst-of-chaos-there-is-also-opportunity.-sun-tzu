@@ -5,6 +5,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { PlayService } from '@app/services';
 import { QueueService } from '@app/services';
+import { TrackLogo, TrackLogoService } from '@app/services/track-logo.service';
 
 @Component({
   selector: 'app-audio-controls-mobile',
@@ -22,10 +23,7 @@ import { QueueService } from '@app/services';
 export class AudioControlsMobileComponent {
   playService = inject(PlayService);
   queueService = inject(QueueService);
-
-  // Define the same color palettes as the song catalogue
-  private bgColorPalette: string[] = ['#e0e7ff', '#f3e8ff', '#fce7f3'];
-  private textColorPalette: string[] = ['#4338ca', '#9333ea', '#db2777'];
+  trackLogoService = inject(TrackLogoService);
 
   // --- SIGNALS ---
 
@@ -41,26 +39,11 @@ export class AudioControlsMobileComponent {
     return metadata?.type === 'song' ? metadata.artist : '...';
   });
 
-  getTrackLogo = computed(() => {
+  trackLogo: Signal<TrackLogo> = computed(() => {
     const metadata = this.playService.currentMetadata();
     const title = metadata?.title || '';
-    if (!title || !metadata) {
-      return { initials: '?', bgColor: '#e5e7eb', color: '#4b5563' };
-    }
-
-    if (metadata.type === 'announcement') {
-      return { initials: 'AI', bgColor: '#dbeafe', color: '#1d4ed8' };
-    }
-
-    const initials = title.substring(0, 2).toUpperCase();
-    const lastCharCode = title.charCodeAt(title.length - 1);
-    const colorIndex = lastCharCode % this.bgColorPalette.length;
-
-    return {
-      initials,
-      bgColor: this.bgColorPalette[colorIndex],
-      color: this.textColorPalette[colorIndex]
-    };
+    const type = metadata?.type || 'song';
+    return this.trackLogoService.getLogo(title, type);
   });
 
   mode: Signal<ProgressBarMode> = computed(() => {

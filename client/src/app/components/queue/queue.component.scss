@@ -10,6 +10,7 @@
   flex-direction: column;
   height: 100%;
   padding: 24px;
+  box-sizing: border-box;
 }
 
 .queue-header {
@@ -34,6 +35,21 @@
 .queue-content {
   flex-grow: 1;
   overflow: auto;
+  // remove default padding from mat-list
+  padding-top: 0;
+}
+
+// Styling for each list item
+mat-list-item {
+  // Use the new theming variables for hover/focus states
+  --mat-list-list-item-hover-state-layer-color: #f3f4f6;
+  --mat-list-list-item-focus-state-layer-color: #f3f4f6;
+  border-radius: 8px;
+
+  // Make the entire list item taller for better touch targets
+  ::ng-deep .mdc-list-item__content {
+    height: 64px !important;
+  }
 }
 
 .song-logo {
@@ -47,6 +63,13 @@
   font-size: 1rem;
   font-family: 'Inter', sans-serif;
   text-transform: uppercase;
+  flex-shrink: 0;
+
+  mat-icon {
+    font-size: 28px;
+    width: 28px;
+    height: 28px;
+  }
 }
 
 .empty-queue-message {
@@ -55,7 +78,7 @@
   align-items: center;
   justify-content: center;
   height: 100%;
-  color: #9ca3af; // Lighter text for the empty message
+  color: #9ca3af;
   text-align: center;
   padding: 24px;
 
@@ -70,7 +93,7 @@
     font-size: 1.125rem;
     font-weight: 500;
     margin: 0;
-    color: #4b5563; // Darker text for the main message
+    color: #4b5563;
   }
 
   span {

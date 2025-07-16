@@ -9,7 +9,7 @@
   flex-direction: column;
   height: 100%;
   width: 100%;
-  background-color: #f9fafb; // Use a light background color
+  background-color: #f9fafb;
   position: relative;
   overflow: hidden;
 }
@@ -21,46 +21,42 @@
 .mobile-content {
   flex: 1;
   overflow-y: auto;
-  // This was changed to padding in the previous turn, but the original file had it. I'll keep padding.
-  padding: 16px;
   min-height: 0;
-  // Added padding at the bottom to ensure all songs are visible
-  // when scrolled to the end.
-  padding-bottom: 90px;
+  // Use padding to prevent content from being hidden behind the player bar
+  padding: 16px 16px 100px 16px;
 }
 
 
 .mobile-player-bar {
-  // Take the player out of the normal flow and fix it to the bottom
   position: fixed;
-  bottom: 0;
+  bottom: 0; // Dock to the bottom
   left: 0;
   right: 0;
   z-index: 10;
-  padding: 0 8px 8px; // Padding to contain the inner component
-  background-color: transparent; // The bar itself is a container, the component inside has the color
+  // Add padding to create space around the inner component
+  padding: 0 8px 16px 8px;
+  background-color: transparent;
 
-  // Add the gradient shadow that fades into the song list
+  // This gradient creates the fade-out effect for the scrollable content above the player
   &::before {
     content: '';
     position: absolute;
-    bottom: 64px; // Position the gradient above the player bar
+    bottom: 80px; // Position the gradient just above the player bar
     left: 0;
     right: 0;
     height: 60px;
-    background: linear-gradient(to top, rgba(249, 250, 251, 1) 20%, transparent);
-    pointer-events: none; // Allows clicks to go through the gradient
+    background: linear-gradient(to top, rgba(249, 250, 251, 1) 30%, transparent);
+    pointer-events: none;
   }
 }
 
-
 .queue-container {
   position: absolute;
-  top: 0; // Let the queue take the full screen
+  top: 0;
   bottom: 0;
   left: 0;
   right: 0;
-  background-color: rgba(249, 250, 251, 0.9); // Use a light, semi-transparent background
+  background-color: rgba(249, 250, 251, 0.9);
   backdrop-filter: blur(10px);
   overflow-y: auto;
   transform: translateX(100%);

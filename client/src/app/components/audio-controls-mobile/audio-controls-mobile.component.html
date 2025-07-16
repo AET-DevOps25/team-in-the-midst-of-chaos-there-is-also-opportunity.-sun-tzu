@@ -3,8 +3,12 @@
 
   <div class="player-content">
     <div class="song-info">
-      <div matListItemIcon class="song-logo" [ngStyle]="getTrackLogo()">
-        <span>{{ getTrackLogo().initials }}</span>
+      <div matListItemIcon class="song-logo" [style.background-color]="trackLogo().bgColor" [style.color]="trackLogo().color">
+        @if (trackLogo().isIcon) {
+          <mat-icon>{{ trackLogo().icon }}</mat-icon>
+        } @else {
+          <span>{{ trackLogo().initials }}</span>
+        }
       </div>
 
       <div class="song-details">
