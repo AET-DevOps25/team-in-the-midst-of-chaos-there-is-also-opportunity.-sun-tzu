@@ -20,13 +20,6 @@ spec:
       labels:
         app: genai-service
     spec:
-      affinity:
-        podAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            - labelSelector:
-                matchLabels:
-                  app: db
-              topologyKey: "kubernetes.io/hostname"
       containers:
         - env:
             - name: OPENAI_API_KEY

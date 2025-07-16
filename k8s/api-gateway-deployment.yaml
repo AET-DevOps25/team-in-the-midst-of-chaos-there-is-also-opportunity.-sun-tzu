@@ -20,13 +20,6 @@ spec:
       labels:
         app: api-gateway
     spec:
-      affinity:
-        podAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            - labelSelector:
-                matchLabels:
-                  app: db
-              topologyKey: "kubernetes.io/hostname"
       containers:
         - image: ghcr.io/aet-devops25/aifm/api-gateway:latest
           imagePullPolicy: Always
