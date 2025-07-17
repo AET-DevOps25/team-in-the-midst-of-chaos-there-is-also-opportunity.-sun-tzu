@@ -22,7 +22,7 @@ export class PlayService {
   currentTime = signal(0)
   duration = signal(0)
   canPlay = signal(false)
-  
+
   private _audioId = signal<number | null>(null);
   readonly audioId = this._audioId.asReadonly();
 
@@ -73,7 +73,6 @@ export class PlayService {
   }
 
   trackFinished() {
-    console.log("The track has finished")
     this.setAudioId(null)
 
     const sessionToken = this.sessionService.sessionToken!

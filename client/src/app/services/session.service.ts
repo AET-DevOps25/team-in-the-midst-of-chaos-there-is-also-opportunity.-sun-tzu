@@ -24,7 +24,6 @@ export class SessionService {
   createSession(): Observable<void> {
     return this.playlistService.newPlaylist().pipe(
       tap((r) => {
-        console.log("HERE")
         if (!r.success) throw r.error
         this.sessionToken = r.data.session.toString()
         this._hasSession.set(true)
@@ -34,7 +33,7 @@ export class SessionService {
   }
 
   /**
-   * Tries to log back in with existing token. 
+   * Tries to log back in with existing token.
    */
   restoreSession(): Observable<void> {
     if (this.sessionToken == null) {
