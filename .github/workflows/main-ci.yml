@@ -244,20 +244,23 @@ jobs:
           name: ${{ env.IMAGE_ARTIFACT }}
 
 
-  deploy-ase-cit:
-    name: Deploy to ASE CIT Kubernetes cluster (Rancher)
+  deploy-aet-cit:
+    name: Deploy to AET CIT Kubernetes cluster (Rancher)
     needs: push
     runs-on: ubuntu-latest
     if: needs.setup.outputs.is_main_merge == 'true'
     environment:
-      name: ASE CIT
+      name: AET CIT
       url: 'https://aifm.student.k8s.aet.cit.tum.de'
 
     steps:
       - name: Set up Kubeconfig
         run: |
           mkdir -p $HOME/.kube
-          echo "${{ secrets.ASE_CIT_KUBECONFIG_BASE64 }}" | base64 -d > $HOME/.kube/config
+          echo "${{ secrets.AET_CIT_KUBECONFIG_BASE64 }}" | base64 -d > $HOME/.kube/config
+
+      - name: Set namespace
+        run: kubectl config set-context --current --namespace=aifm
 
       - name: Checkout manifests
         uses: actions/checkout@v4
@@ -266,6 +269,13 @@ jobs:
 
       - name: Apply manifest changes to cluster
         run: kubectl apply -f k8s
+
+      - name: Apply secrets to cluster
+        run: |
+          kubectl create secret generic project-secrets \
+            --from-literal=DOWNLOAD_PASS=${{ secrets.DOWNLOAD_PASS }} \
+            --from-literal=OPENAI_API_KEY="${{ secrets.OPENAI_API_KEY }}" \
+            --dry-run=client -o yaml | kubectl apply -f -
 
       - name: Restart deployments to trigger image refetch
         run: kubectl rollout restart deployment
