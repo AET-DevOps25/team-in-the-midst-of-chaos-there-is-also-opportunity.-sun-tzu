@@ -13,7 +13,7 @@ services:
       - USER=user
       - PASS=${DOWNLOAD_PASS}
       - URL=https://aifm-music.dotan.de
-      - NUM_DOWNLOADS=50
+      - NUM_DOWNLOADS=88
     volumes:
       - audio-files:/audio
       - sql-files:/docker-entrypoint-initdb.d
