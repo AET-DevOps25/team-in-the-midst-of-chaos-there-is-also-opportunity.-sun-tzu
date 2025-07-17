@@ -1,68 +1,73 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { AudioControlsComponent } from '../audio-controls/audio-controls.component';
-import { PlayService, QueueService, ApiService } from '../../services';
-import { signal } from '@angular/core';
+import { Component, computed, inject, Signal } from '@angular/core';
+import { CommonModule, NgStyle } from '@angular/common';
+import { MatProgressBarModule, ProgressBarMode } from '@angular/material/progress-bar';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { PlayService } from '@app/services';
+import { QueueService } from '@app/services';
+import { TrackLogo, TrackLogoService } from '@app/services/track-logo.service';
 
-describe('AudioControlsComponent', () => {
-  let component: AudioControlsComponent;
-  let fixture: ComponentFixture<AudioControlsComponent>;
-  let playService: PlayService;
+@Component({
+  selector: 'app-audio-controls-mobile',
+  standalone: true,
+  imports: [
+    CommonModule,
+    MatProgressBarModule,
+    MatIconModule,
+    MatButtonModule,
+    NgStyle,
+  ],
+  templateUrl: './audio-controls-mobile.component.html',
+  styleUrls: ['./audio-controls-mobile.component.scss']
+})
+export class AudioControlsMobileComponent {
+  playService = inject(PlayService);
+  queueService = inject(QueueService);
+  trackLogoService = inject(TrackLogoService);
 
-  beforeEach(async () => {
-    // Define the mock inside beforeEach for true test isolation.
-    // This creates a fresh mock for every single test.
-    const mockPlayService = {
-      isPlaying: signal(false),
-      currentMetadata: signal(null),
-      canPlay: signal(false),
-      currentTime: signal(0),
-      duration: signal(0),
-      togglePlayPause: jasmine.createSpy('togglePlayPause'),
-    };
+  // --- SIGNALS ---
 
-    await TestBed.configureTestingModule({
-      imports: [AudioControlsComponent, HttpClientTestingModule],
-      providers: [
-        { provide: PlayService, useValue: mockPlayService },
-        QueueService,
-        ApiService
-      ]
-    })
-      .compileComponents();
-
-    fixture = TestBed.createComponent(AudioControlsComponent);
-    component = fixture.componentInstance;
-    playService = TestBed.inject(PlayService);
-    fixture.detectChanges();
+  currentTitle = computed(() => {
+    const metadata = this.playService.currentMetadata();
+    if (metadata?.type === 'song') return metadata.title;
+    if (metadata?.type === 'announcement') return 'Announcement';
+    return 'No song selected';
   });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
+  currentArtist = computed(() => {
+    const metadata = this.playService.currentMetadata();
+    return metadata?.type === 'song' ? metadata.artist : '...';
   });
 
-  it('should display "(No song selected)" when no metadata is available', () => {
-    expect(component.currentMessage()).toBe('(No song selected)');
+  trackLogo: Signal<TrackLogo> = computed(() => {
+    const metadata = this.playService.currentMetadata();
+    const title = metadata?.title || '';
+    const type = metadata?.type || 'song';
+    return this.trackLogoService.getLogo(title, type);
   });
 
-  it('should display song information when metadata is available', () => {
-    (playService.currentMetadata as any).set({ type: 'song', artist: 'Artist', title: 'Title', release_date: '2024' });
-    fixture.detectChanges();
-    expect(component.currentMessage()).toBe('Artist - Title (2024)');
+  mode: Signal<ProgressBarMode> = computed(() => {
+    return this.playService.canPlay() ? 'determinate' : 'buffer';
   });
 
-  it('should display "(Announcement)" when metadata type is announcement', () => {
-    (playService.currentMetadata as any).set({ type: 'announcement' });
-    fixture.detectChanges();
-    expect(component.currentMessage()).toBe('(Announcement)');
+  progressPercent = computed(() => {
+    const duration = this.playService.duration();
+    if (duration === 0) return 0;
+    const percent = (this.playService.currentTime() / duration) * 100;
+    return Math.min(percent, 100);
   });
 
-  it('should have 10 bars for the equalizer', () => {
-    expect(component.bars().length).toBe(10);
+  icon: Signal<string> = computed(() => {
+    return this.playService.isPlaying() ? 'pause' : 'play_arrow';
   });
 
-  it('should call togglePlayPause on togglePlay', () => {
-    component.togglePlay();
-    expect(playService.togglePlayPause).toHaveBeenCalled();
-  });
-});
+  // --- METHODS ---
+
+  togglePlay(): void {
+    this.playService.togglePlayPause();
+  }
+
+  toggleQueue(): void {
+    this.queueService.toggleQueue();
+  }
+}

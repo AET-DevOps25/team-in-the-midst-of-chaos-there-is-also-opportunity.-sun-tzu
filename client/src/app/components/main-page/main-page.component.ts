@@ -1,32 +1,28 @@
 import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
 import { MatDividerModule } from '@angular/material/divider';
-
-import {
-  HeaderComponent,
-  BackgroundPlayerComponent,
-  AudioControlsComponent,
-  QueueComponent,
-  SongCatalogueComponent
-} from '@app/components';
-import { PlayService } from '@app/services';
+import { HeaderComponent } from '../header/header.component';
+import { BackgroundPlayerComponent } from '../background-player/background-player.component';
+import { AudioControlsComponent } from '../audio-controls/audio-controls.component';
+import { QueueComponent } from '../queue/queue.component';
+import { SongCatalogueComponent } from '../song-catalogue/song-catalogue.component';
+import { EqualizerComponent } from '../equalizer/equalizer.component';
+import { PlayService } from '@app/services/play.service';
 import { QueueService } from '@app/services/queue.service';
-
 
 @Component({
   selector: 'app-main-page',
+  standalone: true,                 // ← added
   imports: [
     MatDividerModule,
     HeaderComponent,
-    AudioControlsComponent,
     BackgroundPlayerComponent,
+    AudioControlsComponent,
     QueueComponent,
-    SongCatalogueComponent
+    SongCatalogueComponent,
+    EqualizerComponent
   ],
   providers: [PlayService, QueueService],
   templateUrl: './main-page.component.html',
-  styleUrl: './main-page.component.scss'
+  styleUrls: ['./main-page.component.scss']  // ← fixed
 })
-export class MainPageComponent {
-
-}
+export class MainPageComponent { }

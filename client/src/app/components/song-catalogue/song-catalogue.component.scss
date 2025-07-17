@@ -1,69 +1,46 @@
-@use '@angular/material' as mat;
-
 :host {
-  @include mat.list-overrides((
-    list-item-leading-icon-end-space: 10px,
-  ));
   display: flex;
   flex-direction: column;
-  height: 100%;
+}
+
+h2 {
+  margin: 0 16px 0; // Adjusted margin for better alignment
+  font-weight: 500;
+  color: #1f2937;
+  padding-top: 16px; // Add padding for mobile view where it's at the top
+}
+
+// Style the filter field to look more polished
+.filter-field {
+  margin: 16px;
+  width: auto;
+
+  // Change the color of the search icon
+  .mat-icon {
+    color: #9ca3af;
+  }
 }
 
 mat-list {
-  display: flex;
-  flex-direction: column;
+  flex-grow: 1;
+  overflow: auto;
   text-align: left;
 }
 
-
-.front-icon mat-icon {
-  font-size: 40px;
-  width: min-content;
-  height: min-content;
-}
-
-
-.foo {
-  height: 100% !important;
-  margin-top: 0 !important;
-  margin-bottom: 0 !important;
-  width: min-content !important;
-}
-.meta {
-  height: 100%;
-  display: inline-flex;
-  flex-direction: column;
-  justify-content: center;
+.song-logo {
+  height: 48px !important;
+  width: 48px !important;
+  border-radius: 8px;
+  display: flex;
   align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1rem;
+  font-family: 'Inter', sans-serif;
+  text-transform: uppercase;
+  flex-shrink: 0;
 }
 
-mat-form-field {
-  display: block;
-  min-width: 0;
-  margin: 0 20px 0 20px;
-}
-
-.song-list-viewport {
-  flex-grow: 1;
-  width: 100%;
-}
-
-
-::ng-deep .mat-mdc-list-item .mdc-list-item__content {
-  overflow: hidden;
-  min-width: 0;
-}
-
-/* This applies the ellipsis effect once the container can shrink. */
-[matListItemTitle],
-[matListItemLine] {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: block;
-}
-
-//Bugfix: Add this to make sure the wrapper is not too wide
-::ng-deep .cdk-virtual-scroll-content-wrapper {
-  max-width: 100%;
+.song-add-button mat-icon {
+  color: #6b7280;
 }

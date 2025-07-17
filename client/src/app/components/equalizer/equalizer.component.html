@@ -1,0 +1,8 @@
+<div class="equalizer-container" [class.playing]="isActive()">
+  <div
+    *ngFor="let bar of bars()"
+    class="bar"
+    [style.height]="bar.height + '%'"
+    [style.background-color]="bar.color"
+  ></div>
+</div>

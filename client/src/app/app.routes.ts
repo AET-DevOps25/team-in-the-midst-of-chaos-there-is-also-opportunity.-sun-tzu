@@ -13,24 +13,26 @@ export const routes: Routes = [
       {
         path: '',
         canActivate: [welcomeRedirectGuard],
-        loadComponent: () => import('@app/components').then(m => m.WelcomePageComponent)
+        loadComponent: () =>
+          import('@app/components').then(m => m.WelcomePageComponent)
       },
       {
         path: 'player',
         canActivate: [playerAccessGuard, mobileRedirectGuard],
-        loadComponent: () => import('@app/components').then(m => m.MainPageComponent)
+        loadComponent: () =>
+          import('@app/components').then(m => m.MainPageComponent)
       },
       {
         path: 'player-mobile',
         canActivate: [playerAccessGuard, desktopRedirectGuard],
-        // --- THIS IS THE FIX ---
-        // It now correctly loads MainPageMobileComponent
-        loadComponent: () => import('@app/components').then(m => m.MainPageMobileComponent)
+        loadComponent: () =>
+          import('@app/components').then(m => m.MainPageMobileComponent)
       }
     ]
   },
   {
     path: '**',
-    loadComponent: () => import('@app/components').then(m => m.PageNotFoundComponent)
+    loadComponent: () =>
+      import('@app/components').then(m => m.PageNotFoundComponent)
   }
 ];

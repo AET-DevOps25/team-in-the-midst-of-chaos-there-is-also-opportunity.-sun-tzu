@@ -1,0 +1,19 @@
+.equalizer-container {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  width: 100%;
+  height: 220px;
+  padding: 0 16px;
+  background: transparent;
+}
+
+.equalizer-container .bar {
+  flex: 1;
+  margin: 0 4px;
+  border-radius: 4px 4px 0 0;
+  transform-origin: bottom;
+
+  /* purely smooth height transitions */
+  transition: height 0.1s ease-out;
+}

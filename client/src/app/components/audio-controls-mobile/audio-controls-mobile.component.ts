@@ -1,10 +1,11 @@
 import { Component, computed, inject, Signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, NgStyle } from '@angular/common';
 import { MatProgressBarModule, ProgressBarMode } from '@angular/material/progress-bar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { PlayService } from '@app/services';
 import { QueueService } from '@app/services';
+import { TrackLogo, TrackLogoService } from '@app/services/track-logo.service';
 
 @Component({
   selector: 'app-audio-controls-mobile',
@@ -14,62 +15,59 @@ import { QueueService } from '@app/services';
     MatProgressBarModule,
     MatIconModule,
     MatButtonModule,
+    NgStyle,
   ],
   templateUrl: './audio-controls-mobile.component.html',
   styleUrls: ['./audio-controls-mobile.component.scss']
 })
 export class AudioControlsMobileComponent {
-  // Use inject() to get service instances, as in the original code
   playService = inject(PlayService);
   queueService = inject(QueueService);
+  trackLogoService = inject(TrackLogoService);
 
-  // --- SIGNALS based on the original working code ---
+  // --- SIGNALS ---
 
-  // Separate signals for title and artist to match the new template
   currentTitle = computed(() => {
     const metadata = this.playService.currentMetadata();
-    if (metadata?.type === 'song') {
-      return metadata.title;
-    }
-    if (metadata?.type === 'announcement') {
-      return '(Announcement)';
-    }
+    if (metadata?.type === 'song') return metadata.title;
+    if (metadata?.type === 'announcement') return 'Announcement';
     return 'No song selected';
   });
 
   currentArtist = computed(() => {
     const metadata = this.playService.currentMetadata();
-    if (metadata?.type === 'song') {
-      return metadata.artist;
-    }
-    return '...';
+    return metadata?.type === 'song' ? metadata.artist : '...';
   });
 
-  // Signal for the progress bar mode
+  trackLogo: Signal<TrackLogo> = computed(() => {
+    const metadata = this.playService.currentMetadata();
+    const title = metadata?.title || '';
+    const type = metadata?.type || 'song';
+    return this.trackLogoService.getLogo(title, type);
+  });
+
   mode: Signal<ProgressBarMode> = computed(() => {
     return this.playService.canPlay() ? 'determinate' : 'buffer';
   });
 
-  // Signal for the progress bar percentage
   progressPercent = computed(() => {
     const duration = this.playService.duration();
-    if (duration === 0) return 0; // Avoid division by zero
+    if (duration === 0) return 0;
     const percent = (this.playService.currentTime() / duration) * 100;
     return Math.min(percent, 100);
   });
 
-  // Signal for the play/pause icon
   icon: Signal<string> = computed(() => {
     return this.playService.isPlaying() ? 'pause' : 'play_arrow';
   });
 
-  // --- METHODS based on the original working code ---
+  // --- METHODS ---
 
-  togglePlay() {
+  togglePlay(): void {
     this.playService.togglePlayPause();
   }
 
-  toggleQueue() {
+  toggleQueue(): void {
     this.queueService.toggleQueue();
   }
 }

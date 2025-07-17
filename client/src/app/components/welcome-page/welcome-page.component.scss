@@ -1,13 +1,11 @@
-@use '@angular/material' as mat;
-
 .welcome-container {
   height: 100svh;
   width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(to bottom right, #111, #333);
-  color: white;
+  background-color: #f9fafb;
+  color: #374151;
   font-family: 'Inter', sans-serif;
 }
 
@@ -16,20 +14,34 @@
 }
 
 .title {
-  font-size: 4rem;
-  font-family: 'Orbitron', sans-serif;
+  font-size: 5rem;
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
   margin: 0;
-  letter-spacing: 2px;
+  letter-spacing: -0.05em;
+  background: linear-gradient(to right, #4f46e5, #ec4899);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-fill-color: transparent;
 }
 
 .subtitle {
   font-size: 1.5rem;
-  font-weight: 300;
+  font-weight: 400;
   margin: 1rem 0 3rem;
+  color: #4b5563;
 }
 
+// Scoped styles for only the Enter button
 .enter-button {
   padding: 1rem 3rem;
   font-size: 1.25rem;
   border-radius: 8px;
+  background-color: #4b5563; // Dark slate gray
+  color: white;
+
+  &:hover {
+    background-color: #dfdfdf; // A slightly darker gray for hover
+  }
 }

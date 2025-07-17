@@ -1,19 +1,28 @@
+<div class="player-bar">
+  <mat-progress-bar [mode]="mode()" [value]="progressPercent()"></mat-progress-bar>
 
+  <div class="player-content">
+    <div class="song-info">
+      <div matListItemIcon class="song-logo" [style.background-color]="trackLogo().bgColor" [style.color]="trackLogo().color">
+        @if (trackLogo().isIcon) {
+          <mat-icon>{{ trackLogo().icon }}</mat-icon>
+        } @else {
+          <span>{{ trackLogo().initials }}</span>
+        }
+      </div>
 
-<div class="content">
+      <div class="song-details">
+        <div class="song-title">{{ currentTitle() }}</div>
+        <div class="song-artist">{{ currentArtist() }}</div>
+      </div>
+    </div>
 
-  <div class="equalizer" [class.playing]="playService.isPlaying()">
-    @for (bar of bars(); track $index) {
-      <div class="bar" [style.animation-delay]="bar.delay + 's'"></div>
-    }
+    <div class="control-buttons">
+
+      <button mat-fab class="play-button" (click)="togglePlay()">
+        <mat-icon [class.playing]="playService.isPlaying()">{{ icon() }}</mat-icon>
+      </button>
+
+    </div>
   </div>
-
-  <p>{{ this.currentMessage() }}</p>
-
-  <mat-progress-bar  #progressBar [mode]="mode()" [value]="progressPercent()"></mat-progress-bar>
-  <!-- <p>{{ playService. }} / {{ duration }} seconds</p> -->
-
-  <button mat-fab (click)="togglePlay()">
-    <mat-icon [class.playing]="playService.isPlaying()">{{ icon() }}</mat-icon>
-  </button>
 </div>

@@ -4,6 +4,7 @@
   display: flex;
   flex-direction: column;
   height: 100%; // This is crucial for filling the .outlet
+  position: relative; // Needed for absolutely positioned audio-controls
 }
 
 app-header {
@@ -17,6 +18,8 @@ app-header {
   justify-content: center;
   gap: 16px;
   padding: 24px;
+  // Adjust padding-bottom to leave space for the absolutely positioned audio-controls
+  padding-bottom: 24px; // Height of audio-controls (64px) + bottom padding (16px) + some extra for breathing room
   overflow: hidden; // Prevent the container itself from scrolling
 }
 
@@ -27,14 +30,18 @@ app-queue {
   min-width: 250px;
 }
 
-app-audio-controls {
+app-equalizer { // New style for equalizer
   flex: 1.5 1 400px;
   min-width: 320px;
+  display: flex; // Ensure flex properties apply within the equalizer component
+  justify-content: center;
+  align-items: center;
 }
 
-// This makes the dividers visible
+
+// Update divider color for light theme
 mat-divider {
-  border-left: 1px solid rgba(255, 255, 255, 0.12);
+  border-left-color: rgba(0, 0, 0, 0.12);
   height: 90%;
   align-self: center;
 }

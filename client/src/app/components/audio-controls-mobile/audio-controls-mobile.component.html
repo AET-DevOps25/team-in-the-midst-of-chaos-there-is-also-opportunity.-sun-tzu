@@ -3,17 +3,11 @@
 
   <div class="player-content">
     <div class="song-info">
-      <div class="album-art-icon-container">
-        @switch (playService.currentMetadata()?.type) {
-          @case ('song') {
-            <mat-icon>music_note</mat-icon>
-          }
-          @case ('announcement') {
-            <mat-icon>person</mat-icon>
-          }
-          @default {
-            <mat-icon>album</mat-icon>
-          }
+      <div matListItemIcon class="song-logo" [style.background-color]="trackLogo().bgColor" [style.color]="trackLogo().color">
+        @if (trackLogo().isIcon) {
+          <mat-icon>{{ trackLogo().icon }}</mat-icon>
+        } @else {
+          <span>{{ trackLogo().initials }}</span>
         }
       </div>
 

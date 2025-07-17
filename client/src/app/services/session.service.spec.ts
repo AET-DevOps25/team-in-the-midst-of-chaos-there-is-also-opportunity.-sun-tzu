@@ -37,11 +37,12 @@ describe('SessionService', () => {
     });
   });
 
-  it('should destroy a session', () => {
+  it('should destroy a session', (done) => { // Added 'done' parameter
     service.sessionToken = '123';
     service.destroySession().subscribe(() => {
       expect(service.sessionToken).toBeNull();
       expect(service.hasSession()).toBe(false);
+      done(); // Call done() to signal completion
     });
   });
 });
