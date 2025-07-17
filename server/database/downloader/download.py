@@ -216,7 +216,8 @@ def main():
     print("Finished all downloads")
 
     # Write data
-    with open(ENTRYPOINT_DIR / SQL_FILE_2, "w") as f:
+    with open(ENTRYPOINT_DIR / SQL_FILE_2, "w", encoding="utf-8") as f:
+        f.write("SET NAMES utf8mb4;\n")
         if audio_entries:
             f.write("INSERT INTO audio_files (id, filename)\nVALUES\n")
             f.write(",\n".join(audio_entries) + ";\n\n")
