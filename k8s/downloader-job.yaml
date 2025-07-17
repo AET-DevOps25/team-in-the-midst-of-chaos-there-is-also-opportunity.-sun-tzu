@@ -24,7 +24,7 @@ spec:
           imagePullPolicy: Always
           env:
             - name: NUM_DOWNLOADS
-              value: "88"
+              value: 88
             - name: PASS
               valueFrom:
                 secretKeyRef:

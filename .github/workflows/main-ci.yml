@@ -326,6 +326,7 @@ jobs:
             : > .env
             echo "DOWNLOAD_PASS=${{ secrets.DOWNLOAD_PASS }}" >> .env
             echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" >> .env
+            echo "URL=https://aifm.dotan.de" >> .env
 
       - name: Start docker compose
         uses: appleboy/ssh-action@v1
