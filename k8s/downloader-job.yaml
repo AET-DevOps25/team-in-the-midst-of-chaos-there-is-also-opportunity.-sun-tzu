@@ -31,7 +31,7 @@ spec:
                   name: project-secrets
                   key: DOWNLOAD_PASS
             - name: URL
-              value: https://ai-fm.dotan.de
+              value: https://aifm-music.dotan.de
             - name: USER
               value: user
           volumeMounts:
