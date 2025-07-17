@@ -14,8 +14,10 @@ It reroutes the requests accordingly.
 
 ## Database
 
-The database holds all information regarding both metadata of songs announcements (for the latter there is only the title set to "announcement"; distinguished internally by type) 
-and file names of the respective audio files for songs and announcements.
+The database holds all information regarding both metadata of songs and announcements (for the latter there is only the title set to "announcement"; distinguished internally by type) 
+as well as file names of the respective audio files for songs and announcements.
+
+The tables used for managing different playlists of potentially multiple users implement a queue-like data structure where _playlists_ holds the basic information per playlist (session, head position and next free tail) and _playlist_q_ contains all playlist elements at certain queue positions per session.
 
 ### Schema
 
