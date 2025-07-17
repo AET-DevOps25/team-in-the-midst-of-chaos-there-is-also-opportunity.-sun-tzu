@@ -1,4 +1,3 @@
-// client/src/app/components/equalizer/equalizer.component.spec.ts
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { CommonModule } from '@angular/common';
 import { EqualizerComponent } from './equalizer.component';
@@ -14,6 +13,10 @@ describe('EqualizerComponent', () => {
     // Mock PlayService with necessary signals
     const mockPlayService = {
       isPlaying: signal(false),
+      currentMetadata: signal(null), // Add currentMetadata as a signal
+      canPlay: signal(false), // Add canPlay as a signal if used
+      currentTime: signal(0), // Add currentTime as a signal if used
+      duration: signal(0), // Add duration as a signal if used
     };
 
     await TestBed.configureTestingModule({
@@ -40,17 +43,28 @@ describe('EqualizerComponent', () => {
 
   it('equalizer should have "playing" class when playService.isPlaying is true', () => {
     (playService.isPlaying as any).set(true); // Set the signal value
+    (playService.currentMetadata as any).set({ type: 'song' }); // Set metadata to simulate a song playing
     fixture.detectChanges(); // Detect changes
     const compiled = fixture.nativeElement as HTMLElement;
-    const equalizerDiv = compiled.querySelector('.equalizer');
+    const equalizerDiv = compiled.querySelector('.equalizer-container'); // Corrected selector
     expect(equalizerDiv?.classList.contains('playing')).toBe(true);
   });
 
   it('equalizer should NOT have "playing" class when playService.isPlaying is false', () => {
     (playService.isPlaying as any).set(false); // Set the signal value
+    (playService.currentMetadata as any).set({ type: 'song' }); // Still a song, but not playing
     fixture.detectChanges(); // Detect changes
     const compiled = fixture.nativeElement as HTMLElement;
-    const equalizerDiv = compiled.querySelector('.equalizer');
+    const equalizerDiv = compiled.querySelector('.equalizer-container'); // Corrected selector
+    expect(equalizerDiv?.classList.contains('playing')).toBe(false);
+  });
+
+  it('equalizer should NOT have "playing" class when currentMetadata.type is not song', () => {
+    (playService.isPlaying as any).set(true); // Is playing, but not a song
+    (playService.currentMetadata as any).set({ type: 'announcement' });
+    fixture.detectChanges();
+    const compiled = fixture.nativeElement as HTMLElement;
+    const equalizerDiv = compiled.querySelector('.equalizer-container');
     expect(equalizerDiv?.classList.contains('playing')).toBe(false);
   });
 });
