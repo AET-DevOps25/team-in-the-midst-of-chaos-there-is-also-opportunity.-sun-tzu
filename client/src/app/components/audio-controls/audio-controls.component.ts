@@ -1,58 +1,45 @@
-import { Component, computed, Signal } from '@angular/core';
+import { Component, computed, inject, Signal } from '@angular/core';
+import { CommonModule, NgStyle } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-import { PlayService } from '../../services/play.service';
-import { inject } from '@angular/core';
 import { MatProgressBarModule, ProgressBarMode } from '@angular/material/progress-bar';
+import { PlayService } from '../../services/play.service';
+import { TrackLogo, TrackLogoService } from '@app/services/track-logo.service';
 
 @Component({
   selector: 'app-audio-controls',
-  imports: [MatIconModule, MatButtonModule, MatProgressBarModule],
+  standalone: true,
+  imports: [CommonModule, NgStyle, MatIconModule, MatButtonModule, MatProgressBarModule],
   templateUrl: './audio-controls.component.html',
-  styleUrl: './audio-controls.component.scss'
+  styleUrls: ['./audio-controls.component.scss']  // ← fixed
 })
 export class AudioControlsComponent {
   playService = inject(PlayService);
+  trackLogoService = inject(TrackLogoService);
 
-  // Restore the bars signal for the equalizer
-  bars = computed(() => {
-    return Array.from({ length: 12 }, () => ({
-      delay: Math.random() * 0.7
-    }));
+  currentTitle = computed(() => {
+    const m = this.playService.currentMetadata();
+    if (m?.type === 'song') return m.title;
+    if (m?.type === 'announcement') return 'Announcement';
+    return 'No song selected';
   });
 
-  currentTrackTitle = computed(() => {
-    const metadata = this.playService.currentMetadata();
-    if (metadata?.type === 'song') {
-      return metadata.title;
-    }
-    if (metadata?.type === 'announcement') {
-      return 'Announcement';
-    }
-    return ' '; // Use a non-breaking space as a placeholder
+  currentArtist = computed(() => {
+    const m = this.playService.currentMetadata();
+    return m?.type === 'song' ? m.artist : '...';
   });
 
-  currentTrackArtist = computed(() => {
-    const metadata = this.playService.currentMetadata();
-    if (metadata?.type === 'song') {
-      return metadata.artist;
-    }
-    return ' '; // Use a non-breaking space as a placeholder
+  trackLogo: Signal<TrackLogo> = computed(() => {
+    const m = this.playService.currentMetadata();
+    return this.trackLogoService.getLogo(m?.title || '', m?.type || 'song');
   });
 
-
-  mode: Signal<ProgressBarMode> = computed(() => {
-    return this.playService.canPlay() ? 'determinate' : 'buffer';
-  });
-
+  mode: Signal<ProgressBarMode> = computed(() => this.playService.canPlay() ? 'determinate' : 'buffer');
   progressPercent = computed(() => {
-    const percent = (this.playService.currentTime() / this.playService.duration()) * 100;
-    return Math.min(percent, 100);
+    const d = this.playService.duration();
+    return d > 0 ? Math.min((this.playService.currentTime() / d) * 100, 100) : 0;
   });
-
-  icon: Signal<string> = computed(() => {
-    return this.playService.isPlaying() ? 'pause' : 'play_arrow';
-  });
+  icon: Signal<string> = computed(() => this.playService.isPlaying() ? 'pause' : 'play_arrow');
 
   togglePlay() {
     this.playService.togglePlayPause();

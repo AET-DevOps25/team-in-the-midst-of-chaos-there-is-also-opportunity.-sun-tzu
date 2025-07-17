@@ -1,125 +1,123 @@
 @use '@angular/material' as mat;
 
-// Define a clean, minimal color palette
-$primary-color: #7c3aed;
-$light-purple-bg: #f5f3ff;
-$track-color: #e5e7eb;
-$text-primary: #1f2937;
-$text-secondary: #6b7280;
-
 :host {
-  display: flex;
-  width: 100%;
-  height: 100%;
+  display: block; // Ensures the host element is treated as a block for positioning
+  position: absolute; // Allows precise positioning relative to its parent
+  bottom: 0; // Stick to the bottom
+  left: 50%; // Center horizontally
+  transform: translateX(-50%); // Adjust for true centering based on element's width
+  width: 38%; // Occupy roughly the middle third of the screen
+  max-width: 600px; // Cap the maximum width for larger screens
+  z-index: 10; // Ensure it's above other content
+  padding: 0 8px 16px 8px; // Padding for the bottom
 }
 
-.player-container {
+.player-bar {
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
-  width: 100%;
-  padding: 24px;
-  box-sizing: border-box;
-}
-
-.playback-controls {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 16px;
-  margin-bottom: 24px;
-}
-
-.control-button {
-  color: $text-secondary;
-}
-
-.play-button {
-  width: 64px !important;
-  height: 64px !important;
-  background-color: $light-purple-bg !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
-
-  .mat-icon {
-    font-size: 36px !important;
-    height: 36px !important;
-    width: 36px !important;
-    color: $primary-color !important;
-    transition: transform 0.3s ease-in-out; // Smooth transition for rotation
-
-    &.playing {
-      transform: rotate(180deg); // Rotate the pause icon
-    }
-  }
-}
-
-.progress-and-info {
-  width: 100%;
-  max-width: 400px;
-  margin: 0 auto;
-}
-
-.song-info {
-  text-align: center;
-  margin-bottom: 12px;
-  white-space: nowrap;
+  height: 64px;
+  background-color: #ffffff;
+  border-radius: 12px;
   overflow: hidden;
-  text-overflow: ellipsis;
-
-  p {
-    margin: 0;
-    line-height: 1.4;
-  }
-
-  .song-title {
-    font-size: 1rem;
-    font-weight: 500;
-    color: $text-primary;
-  }
-
-  .song-artist {
-    font-size: 0.875rem;
-    color: $text-secondary;
-  }
-}
-
-// Styles for the restored equalizer
-.equalizer {
-  display: flex;
-  justify-content: center;
-  align-items: flex-end;
-  gap: 4px;
-  height: 24px;
-  margin-bottom: 12px;
-  opacity: 0; // Hidden by default
-  transition: opacity 0.3s ease;
-
-  .bar {
-    width: 3px;
-    height: 10%;
-    border-radius: 2px;
-    background-color: $primary-color;
-  }
-
-  &.playing {
-    opacity: 1; // Fade in when playing
-    .bar {
-      animation: bounce 1.2s infinite ease-in-out;
-    }
-  }
-}
-
-@keyframes bounce {
-  0%, 100% { height: 10%; }
-  50% { height: 100%; }
+  position: relative;
+  box-shadow: 0 8px 25px rgba(107, 114, 128, 0.2);
 }
 
 mat-progress-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
-  --mdc-linear-progress-track-color: #{$track-color};
-  --mdc-linear-progress-active-indicator-color: #{$primary-color};
-  --mdc-linear-progress-track-height: 6px;
-  --mdc-linear-progress-active-indicator-height: 6px;
-  border-radius: 3px;
+  height: 3px !important;
+  --mdc-linear-progress-active-indicator-color: #4f46e5;
+  --mdc-linear-progress-track-color: rgba(0, 0, 0, 0.1);
+}
+
+.player-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 12px;
+  height: 100%;
+}
+
+.song-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.song-logo {
+  height: 48px !important;
+  width: 48px !important;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1rem;
+  font-family: 'Inter', sans-serif;
+  text-transform: uppercase;
+  flex-shrink: 0;
+
+  mat-icon {
+    font-size: 28px;
+    width: 28px;
+    height: 28px;
+  }
+}
+
+.song-details {
+  display: flex;
+  flex-direction: column;
+  white-space: nowrap;
   overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: left;
+}
+
+.song-title {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #1f2937;
+}
+
+.song-artist {
+  font-size: 0.8rem;
+  color: #6b7280;
+}
+
+.control-buttons {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  gap: 8px; // Add some gap between the buttons
+
+  button {
+    // Make the regular icon buttons smaller and less prominent than the play button
+    width: 40px !important;
+    height: 40px !important;
+
+    mat-icon {
+      font-size: 24px; // Slightly smaller icons
+      width: 24px;
+      height: 24px;
+      color: #6b7280;
+    }
+  }
+
+  .play-button {
+    width: 56px !important; // Slightly smaller than desktop FAB, but larger than others
+    height: 56px !important;
+    background-color: #f5f3ff !important; // Light purple background
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important; // Soft shadow
+
+    mat-icon {
+      font-size: 32px !important; // Larger icon for play/pause
+      width: 32px !important;
+      height: 32px !important;
+      color: #7c3aed !important; // Primary purple color
+    }
+  }
 }

@@ -1,11 +1,12 @@
-<app-background-player/>
-
-<app-header/>
+<app-background-player></app-background-player>
+<app-header></app-header>
 
 <div class="container">
-  <app-song-catalogue/>
+  <app-song-catalogue></app-song-catalogue>
   <mat-divider [vertical]="true"></mat-divider>
-  <app-audio-controls/>
+  <app-equalizer></app-equalizer>    <!-- ← now properly closed -->
   <mat-divider [vertical]="true"></mat-divider>
-  <app-queue/>
+  <app-queue></app-queue>
 </div>
+
+<app-audio-controls></app-audio-controls>
