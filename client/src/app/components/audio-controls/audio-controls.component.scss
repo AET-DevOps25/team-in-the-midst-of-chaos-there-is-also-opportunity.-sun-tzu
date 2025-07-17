@@ -15,7 +15,7 @@
 .player-bar {
   display: flex;
   flex-direction: column;
-  height: 64px;
+  height: 100px;
   background-color: #ffffff;
   border-radius: 12px;
   overflow: hidden;
@@ -28,7 +28,7 @@ mat-progress-bar {
   top: 0;
   left: 0;
   width: 100%;
-  height: 3px !important;
+  height: 8px !important;
   --mdc-linear-progress-active-indicator-color: #4f46e5;
   --mdc-linear-progress-track-color: rgba(0, 0, 0, 0.1);
 }
@@ -49,8 +49,8 @@ mat-progress-bar {
 }
 
 .song-logo {
-  height: 48px !important;
-  width: 48px !important;
+  height: 68px !important;
+  width: 68px !important;
   border-radius: 8px;
   display: flex;
   align-items: center;
@@ -78,13 +78,13 @@ mat-progress-bar {
 }
 
 .song-title {
-  font-size: 0.9rem;
+  font-size: 1.2rem;
   font-weight: 500;
   color: #1f2937;
 }
 
 .song-artist {
-  font-size: 0.8rem;
+  font-size: 1rem;
   color: #6b7280;
 }
 
