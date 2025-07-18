@@ -99,7 +99,7 @@ services:
       - prometheus_data:/prometheus
 
   grafana:
-    image: grafana/grafana-oss
+    image: ghcr.io/aet-devops25/aifm/grafana:${VERSION:-latest}
     volumes:
       - grafana-dashboard:/var/lib/grafana/dashboards/DevOps
       - grafana-provisioning:/etc/grafana/provisioning

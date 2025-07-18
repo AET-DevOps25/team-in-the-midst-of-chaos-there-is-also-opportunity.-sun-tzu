@@ -163,7 +163,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        service: [client, downloader, db, api-gateway, stream-service, playlist-service, genai-service, announcement-service, prometheus]
+        service: [client, downloader, db, api-gateway, stream-service, playlist-service, genai-service, announcement-service, prometheus, grafana]
     env:
       LOCAL_IMAGE: aifm/${{ matrix.service }}
       REMOTE_IMAGE: ghcr.io/${{ needs.setup.outputs.owner }}/aifm/${{ matrix.service }}
@@ -211,7 +211,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        service: [client, downloader, db, api-gateway, stream-service, playlist-service, genai-service, announcement-service, prometheus]
+        service: [client, downloader, db, api-gateway, stream-service, playlist-service, genai-service, announcement-service, prometheus, grafana]
     env:
       REMOTE_IMAGE: ghcr.io/${{ needs.setup.outputs.owner }}/aifm/${{ matrix.service }}
       IMAGE_ARTIFACT: ${{ matrix.service }}-image
