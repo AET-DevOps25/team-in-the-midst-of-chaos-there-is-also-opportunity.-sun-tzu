@@ -29,6 +29,8 @@ spec:
               value: warn
             - name: GF_USERS_DEFAULT_THEME
               value: light
+            - name: GF_SERVER_ROOT_URL
+              value: https://aifm.student.k8s.aet.cit.tum.de/grafana/
           image: grafana/grafana-oss
           imagePullPolicy: Always
           name: grafana

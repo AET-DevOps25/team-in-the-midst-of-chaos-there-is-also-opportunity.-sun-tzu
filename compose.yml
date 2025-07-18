@@ -11,7 +11,7 @@ services:
     image: ghcr.io/aet-devops25/aifm/downloader:${VERSION:-latest}
     environment:
       - USER=user
-      - PASS=${DOWNLOAD_PASS}
+      - PASS=${DOWNLOAD_PASS:?}
       - URL=https://aifm-music.dotan.de
       - NUM_DOWNLOADS=88
     volumes:
@@ -75,7 +75,7 @@ services:
   genai-service:
     image: ghcr.io/aet-devops25/aifm/genai-service:${VERSION:-latest}
     environment:
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:?}
 
   announcement-service:
     image: ghcr.io/aet-devops25/aifm/announcement-service:${VERSION:-latest}
@@ -108,6 +108,7 @@ services:
     environment:
       - GF_LOG_LEVEL=warn
       - GF_USERS_DEFAULT_THEME=light
+      - GF_SERVER_ROOT_URL=${URL:?}/grafana/
 
 volumes:
   mysql_data:
