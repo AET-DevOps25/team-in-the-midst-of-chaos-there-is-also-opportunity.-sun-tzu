@@ -7,10 +7,9 @@ The server consists of three microservices:
 - playlist service: designs playlist/usable by client to add song wish
 - announcement service: coordinates generation of radio host interludes (internal only)
 
-An additional API gateway (http://localhost:8080) serves as a single endpoint over which to address the separate microservices from outside.
-It reroutes the requests accordingly.
+An additional API gateway serves as a single endpoint over which to address the separate microservices from outside. It reroutes the requests accordingly.
 
-**Swagger UI** for all public microservices is available at: http://localhost:8080/swagger-ui.html
+**Swagger UI** for all public microservices is available (locally) at: http://localhost:8080/swagger-ui.html
 
 ## Database
 
