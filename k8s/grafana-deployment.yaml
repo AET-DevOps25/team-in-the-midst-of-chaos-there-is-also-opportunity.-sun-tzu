@@ -37,16 +37,4 @@ spec:
           ports:
             - containerPort: 3000
               protocol: TCP
-          volumeMounts:
-            - mountPath: /var/lib/grafana/dashboards/DevOps
-              name: grafana-dashboard
-            - mountPath: /etc/grafana/provisioning
-              name: grafana-provisioning
       restartPolicy: Always
-      volumes:
-        - name: grafana-dashboard
-          persistentVolumeClaim:
-            claimName: grafana-dashboard
-        - name: grafana-provisioning
-          persistentVolumeClaim:
-            claimName: grafana-provisioning
