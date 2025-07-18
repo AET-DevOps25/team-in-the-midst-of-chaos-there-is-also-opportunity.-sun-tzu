@@ -5,7 +5,7 @@ services:
       dockerfile: Dockerfile
     image: aifm/client:local
     ports:
-      - 8080:80
+      - 80:80
 
   downloader:
     build: ./server/database/downloader
