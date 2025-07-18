@@ -100,9 +100,6 @@ services:
 
   grafana:
     image: ghcr.io/aet-devops25/aifm/grafana:${VERSION:-latest}
-    volumes:
-      - grafana-dashboard:/var/lib/grafana/dashboards/DevOps
-      - grafana-provisioning:/etc/grafana/provisioning
     depends_on:
       - prometheus
     environment:
