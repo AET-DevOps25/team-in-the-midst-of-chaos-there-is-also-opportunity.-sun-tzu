@@ -31,7 +31,7 @@ spec:
               value: light
             - name: GF_SERVER_ROOT_URL
               value: https://aifm.student.k8s.aet.cit.tum.de/grafana/
-          image: grafana/grafana-oss
+          image: ghcr.io/aet-devops25/aifm/grafana:latest
           imagePullPolicy: Always
           name: grafana
           ports:
