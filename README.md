@@ -78,7 +78,7 @@ The application can be deployed with Docker Compose as follows:
     ```bash
     DOWNLOAD_PASS=your_password_here
     OPENAI_API_KEY=your_openai_key_here
-    # URL=http://localhost:8080  # Optional
+    # URL=http://localhost:8080  # Optional; this should be the URL under which the client container will be reachable
     # VERSION=latest             # Optional
     ```
 
@@ -89,7 +89,8 @@ The application can be deployed with Docker Compose as follows:
     ```
 
 5. Wait about a minute for the containers to fully initialize and connect.
-6. Open http://localhost:8080 (or whatever `URL` was set to) in your browser and enjoy some great music! 🎉
+
+6. The application is now running on port `8080`. Open http://localhost:8080 (or whatever `URL` was set to) in your browser and enjoy some great music! 🎉
 
 ## Development Setup
 
@@ -117,25 +118,19 @@ The application can be deployed with Docker Compose as follows:
 
 6. Wait about a minute for the containers to fully initialize and connect.
 
-7. Open http://localhost:PORT, where _PORT_ is one of the following:
+7. Open http://localhost:8080 (or whatever `URL` was set to) in your browser to access the client container, which is the main entry point to the application. Alternatively, change the port to access the other containers:
 
-   | Port | Service                                                      |      |
-   | ---- | ------------------------------------------------------------ | ---- |
-   | 8080 | Web server that serves the Angular frontend and proxies API and Grafana requests; Main entry point to the application |      |
-   | 8090 | API Gateway                                                  |      |
-   | 8091 | Stream service                                               |      |
-
-   8080: Web server that serves the Angular frontend and proxies API and Grafana requests
-   8090: API Gateway
-   8091: Stream service
-   8092: Playlist service
-   8093: Announcement service
-   8000: GenAI service
-   9090: Prometheus
-   3000: Grafana
-   3306: MySQL database
-
-8. Open http://localhost:8080 (or whatever `URL` was set to) in your browser and enjoy some great music! 🎉
+   | Port | Service                                                      |
+   | ---- | ------------------------------------------------------------ |
+   | 8080 | Web server that serves the Angular frontend and proxies API and Grafana requests. Main entry point to the application. |
+   | 8090 | API Gateway                                                  |
+   | 8091 | Stream service                                               |
+   | 8092 | Playlist service                                             |
+   | 8093 | Announcement service                                         |
+   | 8000 | GenAI service                                                |
+   | 9090 | Prometheus                                                   |
+   | 3000 | Grafana                                                      |
+   | 3306 | MySQL database                                               |
 
 
 
