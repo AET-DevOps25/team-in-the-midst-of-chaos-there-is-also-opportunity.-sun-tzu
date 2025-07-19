@@ -54,7 +54,7 @@ Find more information here: [monitoring documentation](./monitoring/README.md)
 
 ## Production
 
-The project can be deployed with Docker Compose as follows:
+The application can be deployed with Docker Compose as follows:
 
 1. Create a directory `aifm` and navigate into it:
 
