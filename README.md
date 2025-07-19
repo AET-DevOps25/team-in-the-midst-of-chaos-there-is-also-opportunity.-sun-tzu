@@ -103,7 +103,7 @@ The application can be deployed with Docker Compose as follows:
    cd aifm
    ```
 
-3. Create a `.env` file as in [Production Setup](#production) step 3.
+3. Create a `.env` file as in [Production Setup](#production-setup) step 3.
 
 4. Build the images:
    ```bash
