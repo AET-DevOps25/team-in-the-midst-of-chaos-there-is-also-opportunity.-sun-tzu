@@ -11,7 +11,7 @@ read -sp "DOWNLOAD_PASS: " DOWNLOAD_PASS < /dev/tty
 echo
 read -sp "OPENAI_API_KEY: " OPENAI_API_KEY < /dev/tty
 echo
-read -sp "URL [http://localhost:8080]: " URL < /dev/tty
+read -p "URL [http://localhost:8080]: " URL < /dev/tty
 echo
 
 > .env
