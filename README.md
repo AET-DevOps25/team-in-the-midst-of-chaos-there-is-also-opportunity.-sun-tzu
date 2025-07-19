@@ -12,10 +12,10 @@ curl -sS https://raw.githubusercontent.com/AET-DevOps25/team-in-the-midst-of-cha
 
 The script will:
 - Create a project directory
-- Prompt you for environment variables
+- Prompt you for environment variables (without printing them to the screen)
 - Start the application using Docker Compose
 
-For more details, see [Local setup](#local-setup).
+When the project is up and running, it will be available at `http://localhost:8080` (or whatever `URL` was set to. For more details, see [Local setup](#local-setup).
 
 
 
@@ -85,7 +85,7 @@ The project can be deployed with Docker Compose as follows:
     ```
 
 5. Wait about a minute for the containers to fully initialize and connect.
-6. Open `http://localhost:8080` in your browser and enjoy some great music! 🎉
+6. Open `http://localhost:8080` (or whatever `URL` was set to) in your browser and enjoy some great music! 🎉
 
 ## Development
 
@@ -112,7 +112,7 @@ The project can be deployed with Docker Compose as follows:
    ```
 
 6. Wait about a minute for the containers to fully initialize and connect.
-7. Open `http://localhost:8080` in your browser and enjoy some great music! 🎉
+7. Open `http://localhost:8080` (or whatever `URL` was set to) in your browser and enjoy some great music! 🎉
 
 
 
