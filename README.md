@@ -1,6 +1,6 @@
 # Introduction
 
-**ai.FM** is a webapp that integrates generative AI into the antiquated ways of radio shows. Songs are chosen at random or submitted as wishes by the user and announced by an AI generated audio skit acting as one or multiple hosts.
+**ai.FM** is a web app that integrates generative AI into the antiquated ways of radio shows. Songs are chosen at random or submitted as wishes by the user and announced by an AI generated audio skit acting as one or multiple hosts.
 
 ## Quick start
 
