@@ -105,7 +105,7 @@ services:
     environment:
       - GF_LOG_LEVEL=warn
       - GF_USERS_DEFAULT_THEME=light
-      - GF_SERVER_ROOT_URL=${URL}/grafana/
+      - GF_SERVER_ROOT_URL=${URL:-http://localhost:8080}/grafana/
 
 volumes:
   mysql_data:
