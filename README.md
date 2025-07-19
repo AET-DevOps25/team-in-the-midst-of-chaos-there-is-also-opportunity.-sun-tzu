@@ -1,8 +1,20 @@
-# Project Description
+# Introduction
 
-The **ai.FM** project intends to integrate generative AI into the antiquated ways of radio shows. Songs are chosen at random or submitted as wishes by the user and announced by an AI generated audio skit acting as one or multiple hosts. 
+**ai.FM** is a webapp that integrates generative AI into the antiquated ways of radio shows. Songs are chosen at random or submitted as wishes by the user and announced by an AI generated audio skit acting as one or multiple hosts.
 
-## Structure
+## Quick start
+
+To quickly get the project up and running, run this command on a POSIX system with docker installed:
+
+```bash
+curl -sS https://raw.githubusercontent.com/AET-DevOps25/team-in-the-midst-of-chaos-there-is-also-opportunity.-sun-tzu/ksDocumentation/setup.sh | bash
+```
+
+You will be prompted for environment variables interactively.
+
+
+
+# Structure
 
 Multiple Spring Boot microservices provide the base functionality for everything related to streaming songs and the handling of playlists utilizing a database and issuing the generation of audio skits on the fly. 
 
@@ -26,7 +38,15 @@ Additionally, the entire project can be monitored via a Grafana dashboard that c
 
 Find more information here: [monitoring documentation](./monitoring/README.md)
 
+
+
 # Local Setup
+
+**Prerequisites:**
+- Preferably Ubuntu 20.04+ or a similar Linux distribution
+- Docker installed
+
+## Production
 
 Assuming Docker is installed, the project can be deployed with Docker Compose as follows:
 
@@ -40,16 +60,16 @@ Assuming Docker is installed, the project can be deployed with Docker Compose as
 2. Download the `compose.yml` file from the GitHub repository into the folder:
 
     ```bash
-    curl -o compose.yml https://raw.githubusercontent.com/AET-DevOps25/team-in-the-midst-of-chaos-there-is-also-opportunity.-sun-tzu/main/compose.yml
+    curl -sSo compose.yml https://raw.githubusercontent.com/AET-DevOps25/team-in-the-midst-of-chaos-there-is-also-opportunity.-sun-tzu/main/compose.yml
     ```
 
 3. Create a `.env` file with the required environment variables:
 
     ```bash
-    DOWNLOAD_PASS=<the password for the initial music download>
-    OPENAI_API_KEY=<your OpenAI API key used to generate announcements>
-    URL=<Optional: the domain where the web app will be reachable. Default: http://localhost:8080>
-    VERSION=<Optional: the image tag of the project to deploy. Default: latest>
+    DOWNLOAD_PASS=your_password_here
+    OPENAI_API_KEY=your_openai_key_here
+    # URL=http://localhost:8080  # Optional
+    # VERSION=latest             # Optional
     ```
 
 4. Pull the latest images and start the containers:
@@ -60,6 +80,35 @@ Assuming Docker is installed, the project can be deployed with Docker Compose as
 
 5. Wait about a minute for the containers to fully initialize and connect.
 6. Open `http://localhost:8080` in your browser and enjoy some great music! 🎉
+
+## Development
+
+1. Clone the repository:
+   ```bash
+   git clone git@github.com:AET-DevOps25/team-in-the-midst-of-chaos-there-is-also-opportunity.-sun-tzu.git aifm
+   ```
+
+2. Navigate into the newly created directory:
+   ```bash
+   cd aifm
+   ```
+
+3. Create a `.env` file as in [Production Setup](#production) step 3.
+
+4. Build the images:
+   ```bash
+   docker compose build
+   ```
+
+5. Start the containers:
+   ```bash
+   docker compose up -d
+   ```
+
+6. Wait about a minute for the containers to fully initialize and connect.
+7. Open `http://localhost:8080` in your browser and enjoy some great music! 🎉
+
+
 
 # Software Engineering Process
 
