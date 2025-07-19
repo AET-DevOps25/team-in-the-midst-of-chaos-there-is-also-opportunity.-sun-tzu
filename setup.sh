@@ -7,11 +7,11 @@ cd aifm
 
 curl -sS -o compose.yml https://raw.githubusercontent.com/AET-DevOps25/team-in-the-midst-of-chaos-there-is-also-opportunity.-sun-tzu/main/compose.yml
 
-read -sp "DOWNLOAD_PASS: " DOWNLOAD_PASS
+read -sp "DOWNLOAD_PASS: " DOWNLOAD_PASS < /dev/tty
 echo
-read -sp "OPENAI_API_KEY: " OPENAI_API_KEY
+read -sp "OPENAI_API_KEY: " OPENAI_API_KEY < /dev/tty
 echo
-read -sp "URL [http://localhost:8080]: " URL
+read -sp "URL [http://localhost:8080]: " URL < /dev/tty
 echo
 
 > .env
