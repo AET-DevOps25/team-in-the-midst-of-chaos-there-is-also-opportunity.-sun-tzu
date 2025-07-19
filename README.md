@@ -4,11 +4,6 @@
 
 ## Quick start
 
-> **⚠️ Windows users:**
-> We recommend using **WSL 2 with Ubuntu 20.04+** to run the setup script.
-> To install WSL, follow [Microsoft’s official guide](https://learn.microsoft.com/windows/wsl/install).
-
-
 > **⚠️ Windows users:**  
 > We recommend using **WSL 2 with Ubuntu 20.04+** to run the setup script.  
 > To install WSL, follow [Microsoft’s official guide](https://learn.microsoft.com/windows/wsl/install).
