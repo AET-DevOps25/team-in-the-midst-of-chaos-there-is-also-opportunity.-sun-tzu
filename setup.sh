@@ -7,16 +7,21 @@ cd aifm
 
 curl -sS -o compose.yml https://raw.githubusercontent.com/AET-DevOps25/team-in-the-midst-of-chaos-there-is-also-opportunity.-sun-tzu/main/compose.yml
 
-read -sp "DOWNLOAD_PASS: " DOWNLOAD_PASS < /dev/tty
-echo
-read -sp "OPENAI_API_KEY: " OPENAI_API_KEY < /dev/tty
+# Prompt for sensitive and non-sensitive values
+echo -n "DOWNLOAD_PASS: "
+stty -echo < /dev/tty
+IFS= read -r DOWNLOAD_PASS < /dev/tty
+stty echo < /dev/tty
 echo
 
-echo -n "URL: "
-IFS= read -r input < /dev/tty
+echo -n "OPENAI_API_KEY: "
+stty -echo < /dev/tty
+IFS= read -r OPENAI_API_KEY < /dev/tty
+stty echo < /dev/tty
+echo
 
-#read -p "URL [http://localhost:8080]: " URL < /dev/tty
-#echo
+echo -n "URL [http://localhost:8080]: "
+IFS= read -r URL < /dev/tty
 
 > .env
 echo "DOWNLOAD_PASS=$DOWNLOAD_PASS" >> .env
