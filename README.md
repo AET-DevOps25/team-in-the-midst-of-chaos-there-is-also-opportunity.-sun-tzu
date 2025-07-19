@@ -46,9 +46,10 @@ Assuming Docker is installed, the project can be deployed with Docker Compose as
 3. Create a `.env` file with the required environment variables:
 
     ```bash
-    URL=<the domain where the web app will be reachable, e.g. http://localhost:8080>
     DOWNLOAD_PASS=<the password for the initial music download>
     OPENAI_API_KEY=<your OpenAI API key used to generate announcements>
+    URL=<Optional: the domain where the web app will be reachable. Default: http://localhost:8080>
+    VERSION=<Optional: the image tag of the project to deploy. Default: latest>
     ```
 
 4. Pull the latest images and start the containers:
