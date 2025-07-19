@@ -4,13 +4,18 @@
 
 ## Quick start
 
-To quickly get the project up and running, run this command on a POSIX system with docker installed:
+To quickly get the project up and running, run this command on a machine running Ubuntu 20.04+ (or similar) with Docker installed:
 
 ```bash
 curl -sS https://raw.githubusercontent.com/AET-DevOps25/team-in-the-midst-of-chaos-there-is-also-opportunity.-sun-tzu/ksDocumentation/setup.sh | bash
 ```
 
-You will be prompted for environment variables interactively.
+The script will:
+- Create a project directory
+- Prompt you for environment variables
+- Start the application using Docker Compose
+
+For more details, see [Local setup](#local-setup).
 
 
 
