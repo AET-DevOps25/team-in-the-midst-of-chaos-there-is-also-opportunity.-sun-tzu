@@ -11,7 +11,7 @@
 To quickly get the application up and running, run this command on a machine running Ubuntu 20.04+ or a similar Linux distribution, with Docker installed:
 
 ```bash
-curl -sS https://raw.githubusercontent.com/AET-DevOps25/team-in-the-midst-of-chaos-there-is-also-opportunity.-sun-tzu/ksDocumentation/setup.sh | bash
+curl -sS https://raw.githubusercontent.com/AET-DevOps25/team-in-the-midst-of-chaos-there-is-also-opportunity.-sun-tzu/main/setup.sh | bash
 ```
 
 The script will:
@@ -116,7 +116,26 @@ The application can be deployed with Docker Compose as follows:
    ```
 
 6. Wait about a minute for the containers to fully initialize and connect.
-7. Open http://localhost:8080 (or whatever `URL` was set to) in your browser and enjoy some great music! 🎉
+
+7. Open http://localhost:PORT, where _PORT_ is one of the following:
+
+   | Port | Service                                                      |      |
+   | ---- | ------------------------------------------------------------ | ---- |
+   | 8080 | Web server that serves the Angular frontend and proxies API and Grafana requests; Main entry point to the application |      |
+   | 8090 | API Gateway                                                  |      |
+   | 8091 | Stream service                                               |      |
+
+   8080: Web server that serves the Angular frontend and proxies API and Grafana requests
+   8090: API Gateway
+   8091: Stream service
+   8092: Playlist service
+   8093: Announcement service
+   8000: GenAI service
+   9090: Prometheus
+   3000: Grafana
+   3306: MySQL database
+
+8. Open http://localhost:8080 (or whatever `URL` was set to) in your browser and enjoy some great music! 🎉
 
 
 
