@@ -8,6 +8,11 @@
 > We recommend using **WSL 2 with Ubuntu 20.04+** to run the setup script.
 > To install WSL, follow [Microsoft’s official guide](https://learn.microsoft.com/windows/wsl/install).
 
+
+> **⚠️ Windows users:**  
+> We recommend using **WSL 2 with Ubuntu 20.04+** to run the setup script.  
+> To install WSL, follow [Microsoft’s official guide](https://learn.microsoft.com/windows/wsl/install).
+
 To quickly get the application up and running, run this command on a machine running Ubuntu 20.04+ or a similar Linux distribution, with Docker installed:
 
 ```bash
