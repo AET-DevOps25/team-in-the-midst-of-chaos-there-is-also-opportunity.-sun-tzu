@@ -4,7 +4,11 @@
 
 ## Quick start
 
-To quickly get the application up and running, run this command on a machine running Ubuntu 20.04+ (or similar) with Docker installed:
+> **⚠️ Windows users:**
+> We recommend using **WSL 2 with Ubuntu 20.04+** to run the setup script.
+> To install WSL, follow [Microsoft’s official guide](https://learn.microsoft.com/windows/wsl/install).
+
+To quickly get the application up and running, run this command on a machine running Ubuntu 20.04+ or a similar Linux distribution, with Docker installed:
 
 ```bash
 curl -sS https://raw.githubusercontent.com/AET-DevOps25/team-in-the-midst-of-chaos-there-is-also-opportunity.-sun-tzu/ksDocumentation/setup.sh | bash
@@ -15,7 +19,7 @@ The script will:
 - Prompt you for environment variables (without printing them to the screen)
 - Start the application using Docker Compose
 
-The application will become available at http://localhost:8080 (or whatever `URL` was set to). For more details, see [Local Setup](#local-setup).
+The application will become available at http://localhost:8080 (or whatever `URL` was set to). For more details, see [Deployment and Setup](#deployment-and-setup).
 
 
 
@@ -45,14 +49,14 @@ Find more information here: [monitoring documentation](./monitoring/README.md)
 
 
 
-# Local Setup
+# Deployment and Setup
 
 **Prerequisites:**
 
-- Preferably Ubuntu 20.04+ or a similar Linux distribution
-- Docker installed
+- Preferably **Ubuntu 20.04+** or a similar Linux distribution. For Windows users, we recommend using **WSL 2 with Ubuntu 20.04+** (see [Microsoft’s official guide](https://learn.microsoft.com/windows/wsl/install)).
+- **Docker** installed
 
-## Production
+## Production Setup
 
 The application can be deployed with Docker Compose as follows:
 
@@ -87,7 +91,7 @@ The application can be deployed with Docker Compose as follows:
 5. Wait about a minute for the containers to fully initialize and connect.
 6. Open http://localhost:8080 (or whatever `URL` was set to) in your browser and enjoy some great music! 🎉
 
-## Development
+## Development Setup
 
 1. Clone the repository:
    ```bash
