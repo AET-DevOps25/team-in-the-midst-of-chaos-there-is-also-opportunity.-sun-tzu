@@ -4,7 +4,7 @@
 
 ## Quick start
 
-To quickly get the project up and running, run this command on a machine running Ubuntu 20.04+ (or similar) with Docker installed:
+To quickly get the application up and running, run this command on a machine running Ubuntu 20.04+ (or similar) with Docker installed:
 
 ```bash
 curl -sS https://raw.githubusercontent.com/AET-DevOps25/team-in-the-midst-of-chaos-there-is-also-opportunity.-sun-tzu/ksDocumentation/setup.sh | bash
@@ -15,7 +15,7 @@ The script will:
 - Prompt you for environment variables (without printing them to the screen)
 - Start the application using Docker Compose
 
-When the project is up and running, it will be available at `http://localhost:8080` (or whatever `URL` was set to. For more details, see [Local setup](#local-setup).
+The application will become available at http://localhost:8080 (or whatever `URL` was set to. For more details, see [Local Setup](#local-setup).
 
 
 
@@ -85,7 +85,7 @@ The project can be deployed with Docker Compose as follows:
     ```
 
 5. Wait about a minute for the containers to fully initialize and connect.
-6. Open `http://localhost:8080` (or whatever `URL` was set to) in your browser and enjoy some great music! 🎉
+6. Open http://localhost:8080 (or whatever `URL` was set to) in your browser and enjoy some great music! 🎉
 
 ## Development
 
@@ -112,7 +112,7 @@ The project can be deployed with Docker Compose as follows:
    ```
 
 6. Wait about a minute for the containers to fully initialize and connect.
-7. Open `http://localhost:8080` (or whatever `URL` was set to) in your browser and enjoy some great music! 🎉
+7. Open http://localhost:8080 (or whatever `URL` was set to) in your browser and enjoy some great music! 🎉
 
 
 
