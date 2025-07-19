@@ -15,7 +15,7 @@ The script will:
 - Prompt you for environment variables (without printing them to the screen)
 - Start the application using Docker Compose
 
-The application will become available at http://localhost:8080 (or whatever `URL` was set to. For more details, see [Local Setup](#local-setup).
+The application will become available at http://localhost:8080 (or whatever `URL` was set to). For more details, see [Local Setup](#local-setup).
 
 
 
