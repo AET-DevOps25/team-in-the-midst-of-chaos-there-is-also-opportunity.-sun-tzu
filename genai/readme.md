@@ -87,10 +87,12 @@ genai/
 
 ## API Endpoints
 
-The API is documented via OpenAPI/Swagger and can be viewed at `http://127.0.0.1:8000/docs` when the server is running.
+The API is documented via OpenAPI/Swagger and can be viewed at `http://127.0.0.1:8000/docs` when the server is running. This requires the [Development Setup](../README.md#development-setup).
 
 * `POST /generate_audio_transition`
+    
     * **Request Body (JSON):** Information about the songs and the desired message type. The structure is now nested for clarity.
+        
         ```json
         {
           "message_type": 1,
