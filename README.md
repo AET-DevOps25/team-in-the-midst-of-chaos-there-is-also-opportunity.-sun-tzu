@@ -48,12 +48,13 @@ Find more information here: [monitoring documentation](./monitoring/README.md)
 # Local Setup
 
 **Prerequisites:**
+
 - Preferably Ubuntu 20.04+ or a similar Linux distribution
 - Docker installed
 
 ## Production
 
-Assuming Docker is installed, the project can be deployed with Docker Compose as follows:
+The project can be deployed with Docker Compose as follows:
 
 1. Create a directory `aifm` and navigate into it:
 
