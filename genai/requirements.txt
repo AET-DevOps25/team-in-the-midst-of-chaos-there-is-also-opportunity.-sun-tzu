@@ -3,13 +3,13 @@ fastapi
 uvicorn[standard]
 pydantic
 prometheus-fastapi-instrumentator
+asyncio
 
 # For LangChain and OpenAI models
 langchain
 langchain-openai
 openai
 langchain-community
-ollama
 
 # For loading environment variables
 python-dotenv

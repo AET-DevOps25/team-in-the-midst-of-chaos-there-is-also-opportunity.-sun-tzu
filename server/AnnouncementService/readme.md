@@ -66,6 +66,6 @@ To compile and run the service locally without Docker (requires a running databa
 
 For local development and debugging, the Swagger UI is enabled via the `compose.override.yaml` . When running the services using `docker-compose`, the `announcement-service` is accessible on your local machine. You can access the interactive API documentation here:
 
--   **URL:** [http://localhost:8083/swagger-ui.html](http://localhost:8083/swagger-ui.html)
+-   **URL:** [http://localhost:8093/swagger-ui.html](http://localhost:8083/swagger-ui.html)
 
 This interface allows you to view all available endpoints and test them directly from your browser.

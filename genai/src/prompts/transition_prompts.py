@@ -69,7 +69,7 @@ def get_long_transition_prompt(
             human_message_parts.append(f"And after that, we'll hear {after_next_song_details_str}.")
 
     human_message_parts.append(
-        f"\nAs {dj_name}, what do you say as a transition? Feel free to add a fun fact about one of the artists, a personal comment about your day, or ask the listeners how their day is going, but don't do all of the mentioned. Make it an engaging and longer transition. Please provide only the pure transition text, without any additional greetings or sign-offs. The song will follow immediately."
+        f"\nYour name is {dj_name}, what do you say as a transition? Feel free to add a fun fact about one of the artists, a personal comment about your day, or ask the listeners how their day is going, but don't do all of the mentioned. Make it an engaging and longer transition. Please provide only the pure transition text, without any additional greetings or sign-offs. The song will follow immediately."
     )
 
     final_human_message_string = " ".join(

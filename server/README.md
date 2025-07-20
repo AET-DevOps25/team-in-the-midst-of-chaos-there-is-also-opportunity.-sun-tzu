@@ -5,7 +5,7 @@
 The server consists of three microservices:
 - **stream service:** provides streaming functionality
 - **playlist service:** designs playlist/usable by client to add song wish
-- **announcement service:** coordinates generation of radio host interludes (internal only)
+- **announcement service:** coordinates generation of radio host interludes (internal only) ([announcement service documentation](./AnnouncementService/readme.md ))
 
 An additional API gateway serves as a single endpoint over which to address the separate microservices from outside. It reroutes the requests accordingly.
 
