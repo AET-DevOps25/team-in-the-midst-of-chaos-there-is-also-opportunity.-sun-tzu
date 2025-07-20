@@ -30,6 +30,7 @@ Multiple Spring Boot microservices provide the base functionality for everything
 Find more information here:
 
 - [server/README.md](./server/README.md)
+- [server/AnnouncementService/README.md](./server/AnnouncementService/readme.md)
 - [API docs (server)](https://aifm.student.k8s.aet.cit.tum.de/server-docs)
 - [API docs (announcements)](https://aifm.student.k8s.aet.cit.tum.de/announcement-docs)
 
