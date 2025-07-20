@@ -13,6 +13,18 @@ from core.config import load_app_config, ConfigError
 from core.tts_handler import text_to_audio, load_fallback_audio
 from chains.transition_chain import generate_script
 
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.requests import Request
+
+class PrefixMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        prefix = request.headers.get("x-forwarded-prefix")
+        if prefix:
+            request.scope["root_path"] = prefix
+        response = await call_next(request)
+        return response
+
+
 # --- Application Setup ---
 dotenv_path = os.path.join(os.path.dirname(__file__), '..', '.env')
 load_dotenv(dotenv_path=dotenv_path)
@@ -33,6 +45,7 @@ app = FastAPI(
     description="This service generates dynamic radio moderation scripts and converts them into spoken audio transitions using a Text-to-Speech (TTS) model. It is designed as a modular microservice that communicates via a REST-API with the main backend of the AI radio.",
     version="1.2.0"  # Version updated to reflect changes
 )
+app.add_middleware(PrefixMiddleware)
 
 # --- Prometheus metrics ---
 Instrumentator().instrument(app).expose(app)
