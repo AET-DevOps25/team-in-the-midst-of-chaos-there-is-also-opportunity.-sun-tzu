@@ -64,4 +64,4 @@ To compile and run the service locally without Docker (requires a running databa
 ---
 ### Accessing the API Documentation (Swagger)
 
-The **Swagger UI**, which documents all available endpoints, can be viewed at `/announcement-docs` (e.g. for local production setup: http://localhost:8080/announcement-docs). To also _test_ the routes interactively, the [Development Setup](../../README.md#development-setup) is required, and the documentation should be accessed at http://localhost:8093/swagger-ui.html.
+The **Swagger UI**, which documents all available endpoints, can be viewed at `/announcement-docs` (e.g. for the Kubernetes deployment: https://aifm.student.k8s.aet.cit.tum.de/announcement-docs). To also _test_ the routes interactively, the [Development Setup](../../README.md#development-setup) is required, and the documentation should be accessed at http://localhost:8093/swagger-ui.html.

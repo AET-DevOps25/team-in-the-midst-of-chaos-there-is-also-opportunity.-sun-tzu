@@ -27,25 +27,36 @@ The application will become available at http://localhost:8080 (or whatever `URL
 
 Multiple Spring Boot microservices provide the base functionality for everything related to streaming songs and the handling of playlists utilizing a database and issuing the generation of audio skits on the fly. 
 
-Find more information here: [server documentation](./server/README.md)
+Find more information here:
+
+- [server/README.md](./server/README.md)
+- [API docs (server)](https://aifm.student.k8s.aet.cit.tum.de/server-docs)
+- [API docs (announcements)](https://aifm.student.k8s.aet.cit.tum.de/announcement-docs)
 
 ---
 
 The GenAI service has its own separate REST API and is invoked every time an announcement needs to be generated.
 
-Find more information here: [genai documentation](./genai/readme.md)
+Find more information here:
+
+- [genai/README.md](./genai/readme.md)
+- [API docs](https://aifm.student.k8s.aet.cit.tum.de/genai-docs)
 
 ---
 
 The Angular frontend provides an easy to use UI for interacting with the backend. Users can insert song wishes to the radio's playlist and see the upcoming songs.
 
-Find more information here: [client documentation](./client/README.md)
+Find more information here:
+
+- [client/README.md](./client/README.md)
 
 ---
 
 Additionally, the entire project can be monitored via a Grafana dashboard that collects information on the Spring Boot microservices and the GenAI service using Prometheus.
 
-Find more information here: [monitoring documentation](./monitoring/README.md)
+Find more information here:
+
+- [monitoring/README.md](./monitoring/README.md)
 
 
 

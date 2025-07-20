@@ -9,7 +9,7 @@ The server consists of three microservices:
 
 An additional API gateway serves as a single endpoint over which to address the separate microservices from outside. It reroutes the requests accordingly.
 
-**Swagger UI** for all public microservices is available at `/server-docs` (e.g. for local production setup: http://localhost:8080/server-docs). To also _test_ the routes interactively, the [Development Setup](../README.md#development-setup) is required, and the documentation should be accessed at http://localhost:8090/swagger-ui.html.
+**Swagger UI** for all public microservices is available at `/server-docs` (e.g. for the Kubernetes deployment: https://aifm.student.k8s.aet.cit.tum.de/server-docs). To also _test_ the routes interactively, the [Development Setup](../README.md#development-setup) is required, and the documentation should be accessed at http://localhost:8090/swagger-ui.html.
 
 ## Database
 

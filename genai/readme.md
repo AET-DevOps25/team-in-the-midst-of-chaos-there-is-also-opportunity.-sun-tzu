@@ -87,7 +87,7 @@ genai/
 
 ## API Endpoints
 
-The API is documented via **OpenAPI/Swagger** and can be viewed at `/genai-docs` (e.g. for local production setup: http://localhost:8080/genai-docs). To also _test_ the routes interactively, the [Development Setup](../README.md#development-setup) is required, and the documentation should be accessed at http://localhost:8000/docs.
+The API is documented via **OpenAPI/Swagger** and can be viewed at `/genai-docs` (e.g. for the Kubernetes deployment: https://aifm.student.k8s.aet.cit.tum.de/genai-docs). To also _test_ the routes interactively, the [Development Setup](../README.md#development-setup) is required, and the documentation should be accessed at http://localhost:8000/docs.
 
 * `POST /generate_audio_transition`
   
