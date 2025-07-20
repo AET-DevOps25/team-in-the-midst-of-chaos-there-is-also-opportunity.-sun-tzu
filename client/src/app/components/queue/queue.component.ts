@@ -1,11 +1,8 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, Input } from '@angular/core';
 import { CommonModule, NgStyle } from '@angular/common';
 import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
-import { Observable } from 'rxjs';
-import { map, shareReplay } from 'rxjs/operators';
 import { QueueService } from '@app/services';
 import { TrackLogo, TrackLogoService } from '@app/services/track-logo.service';
 
@@ -32,19 +29,12 @@ export interface QueueAudioTrack {
   styleUrls: ['./queue.component.scss'],
 })
 export class QueueComponent implements OnInit {
+  @Input() showCloseButton = false;
 
-  isHandset$: Observable<boolean>;
   public queueService = inject(QueueService);
-  private breakpointObserver = inject(BreakpointObserver);
   private trackLogoService = inject(TrackLogoService);
 
-  constructor() {
-    this.isHandset$ = this.breakpointObserver.observe(Breakpoints.Handset)
-      .pipe(
-        map(result => result.matches),
-        shareReplay()
-      );
-  }
+  constructor() { }
 
   ngOnInit(): void {
     // This assumes queueService fetches and updates the list of next audios.

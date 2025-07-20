@@ -10,7 +10,7 @@
   </div>
 
   <div class="queue-container" [class.visible]="queueService.showQueue()">
-    <app-queue></app-queue>
+    <app-queue [showCloseButton]="true"></app-queue>
   </div>
 
   <app-background-player />
