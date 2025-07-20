@@ -25,30 +25,6 @@ class SongTransitionInfo(BaseModel):
     next_song: Optional[Song] = None
     after_next_song: Optional[Song] = None
 
-
-# --- Local LLM Function ---
-def generate_script_local(
-        prompt_template: ChatPromptTemplate,
-        app_config: Dict[str, Any]
-) -> Optional[str]:
-    """
-    Generates a script using a local LLM as a fallback.
-    """
-    try:
-        logger.info("Attempting to use local LLM...")
-        local_llm = ChatOllama(model=app_config.get("local_llm_model_name", "llama2"))
-
-        chain = prompt_template | local_llm
-        response = chain.invoke({})
-
-        logger.info("Local LLM call completed successfully.")
-        return response.content
-
-    except Exception as e:
-        logger.error(f"Failed to generate script with local LLM: {e}")
-        return None
-
-
 # --- Main Function ---
 def generate_script(
         song_info: SongTransitionInfo,
@@ -63,7 +39,7 @@ def generate_script(
             model_name=app_config.get("llm_model_name", "gpt-4o-mini"),
             openai_api_key=openai_api_key,
             temperature=0.7,
-            request_timeout=30
+            request_timeout=15
         )
 
         prompt_template: Optional[ChatPromptTemplate] = None
@@ -110,5 +86,4 @@ def generate_script(
 
     except Exception as e:
         logger.error(f"Failed to generate script with OpenAI: {e}")
-        # Fallback to local LLM
-        return generate_script_local(prompt_template, app_config)
+        return None

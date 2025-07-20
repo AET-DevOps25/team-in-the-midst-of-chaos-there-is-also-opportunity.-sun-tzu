@@ -32,7 +32,6 @@ def app_config_fixture():
     """Provides a sample app_config dictionary."""
     return {
         "llm_model_name": "gpt-4o-mini",
-        "local_llm_model_name": "llama2",
         "dj_name": "Mike"
     }
 
@@ -63,28 +62,3 @@ def test_generate_script_success_with_openai(song_info_fixture, app_config_fixtu
         mock_chat_ollama.assert_not_called()
 
 
-def test_generate_script_fallback_to_local_llm(song_info_fixture, app_config_fixture):
-    """
-    Tests if the system falls back to the local LLM when the primary service fails.
-    """
-    with patch('src.chains.transition_chain.ChatOpenAI') as mock_chat_openai, \
-            patch('src.chains.transition_chain.ChatOllama') as mock_chat_ollama:
-        # ARRANGE: Mock the ChatOpenAI instance to raise an exception when it is CALLED.
-        mock_openai_instance = mock_chat_openai.return_value
-        mock_openai_instance.side_effect = Exception("OpenAI API is down")
-
-        # ARRANGE: Mock the local LLM instance to return an AIMessage when it is CALLED.
-        mock_ollama_instance = mock_chat_ollama.return_value
-        mock_ollama_instance.return_value = AIMessage(content="This is a local LLM response.")
-
-        # ACT
-        result = generate_script(
-            song_info=song_info_fixture,
-            app_config=app_config_fixture,
-            openai_api_key="a-fake-key"
-        )
-
-        # ASSERT
-        assert result == "This is a local LLM response."
-        mock_chat_openai.assert_called_once()
-        mock_chat_ollama.assert_called_once()
