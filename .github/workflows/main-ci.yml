@@ -283,7 +283,6 @@ jobs:
 
   deploy-aws:
     name: Deploy to AWS EC2
-    needs: push
     runs-on: ubuntu-latest
     if: needs.setup.outputs.is_main_merge == 'true' || github.event_name == 'workflow_dispatch'
     environment:
